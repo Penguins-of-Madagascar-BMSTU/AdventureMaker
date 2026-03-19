@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">AdventureMaker</string>
+
+    <string name="navigation_favourites_label">Favourites</string>
+    <string name="navigation_utils_label">Utils</string>
+    <string name="navigation_networking_label">Networking</string>
+    <string name="navigation_search_label">Search</string>
 </resources>
