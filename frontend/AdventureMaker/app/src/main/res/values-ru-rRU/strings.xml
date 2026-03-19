@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AdventureMaker</string>
+
+    <string name="navigation_favourites_label">Избранное</string>
+    <string name="navigation_utils_label">Инструменты</string>
+    <string name="navigation_networking_label">Сообщество</string>
+    <string name="navigation_search_label">Поиск</string>
+</resources>
