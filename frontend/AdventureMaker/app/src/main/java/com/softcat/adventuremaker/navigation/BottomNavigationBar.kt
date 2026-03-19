@@ -33,10 +33,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
-import com.softcat.adventuremaker.ui.theme.NavBarShadow
+import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
+import com.softcat.adventuremaker.ui.theme.NavBarShadow
 
 @Composable
 fun BottomNavigationBarElement(

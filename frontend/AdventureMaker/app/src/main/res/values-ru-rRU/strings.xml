@@ -3,7 +3,6 @@
 
     // Надписи на панели навигации
     <string name="navigation_favourites_label">Избранное</string>
-    <string name="navigation_tools_label">Инструменты</string>
     <string name="navigation_networking_label">Сообщество</string>
     <string name="navigation_search_label">Поиск</string>
 
