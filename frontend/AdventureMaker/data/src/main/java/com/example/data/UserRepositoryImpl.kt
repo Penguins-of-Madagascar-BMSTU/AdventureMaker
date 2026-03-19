@@ -34,6 +34,7 @@ class UserRepositoryImpl: UserRepository {
             }
             val reference = usersStorage.push() // Создать узел (JSON), соответствующий пользователю.
             val user = User(
+                id = reference.key.toString(),
                 email = email,
                 name = "\"$name\"",
                 avatarUrl = null
