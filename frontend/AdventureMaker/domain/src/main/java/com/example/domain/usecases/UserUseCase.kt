@@ -24,4 +24,8 @@ class UserUseCase(
     suspend fun exit() {
         return repository.exit()
     }
+
+    suspend fun getLastEnteredUser(): User? {
+        return repository.getLastEnteredUser()
+    }
 }

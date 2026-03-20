@@ -1,13 +1,14 @@
 package com.softcat.adventuremaker.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.domain.entities.Place
+import com.softcat.adventuremaker.navigation.NavTypes.PlaceNavType
 import com.softcat.adventuremaker.screens.favourites.FavouritesContent
-import com.softcat.adventuremaker.screens.networking.NetworkingContent
-import com.softcat.adventuremaker.screens.search.SearchContent
-import com.softcat.adventuremaker.screens.utils.UtilsContent
+import kotlin.reflect.typeOf
 
 /*
 Это реализация навигации.
@@ -19,20 +20,23 @@ T - тип, по которому navController определяет текущ�
 fun NavigationContent() {
     val navController = rememberNavController()
     NavHost(
+        modifier = Modifier,
         navController = navController,
-        startDestination = MainNavigation.Search
+        startDestination = NavigationItem.Favourites.Content
     ) {
-        composable<MainNavigation.Favourites> {
-            FavouritesContent(navController)
+        composable<NavigationItem.Favourites.Content> {
+            FavouritesContent(
+                navController = navController,
+                onEnterClick = { navController.navigate(NavigationItem.Networking.Profile) },
+                onPlaceClick = { navController.navigate(NavigationItem.Favourites.PlaceDetails(it)) }
+            )
         }
-        composable<MainNavigation.Search> {
-            SearchContent()
-        }
-        composable<MainNavigation.Utils> {
-            UtilsContent()
-        }
-        composable<MainNavigation.Networking> {
-            NetworkingContent()
-        }
+        composable<NavigationItem.Search.Map> {}
+        composable<NavigationItem.Search.Details>(
+            typeMap = mapOf(typeOf<Place>() to PlaceNavType)
+        ) {}
+        composable<NavigationItem.Tools> {}
+        composable<NavigationItem.Networking.Posts> {}
+        composable<NavigationItem.Networking.Profile> {}
     }
 }

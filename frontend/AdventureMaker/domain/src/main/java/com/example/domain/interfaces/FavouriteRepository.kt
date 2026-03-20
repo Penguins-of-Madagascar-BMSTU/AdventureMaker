@@ -5,11 +5,11 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface FavouriteRepository {
 
-    suspend fun getFavourites(userId: String): StateFlow<List<Place>>
+    fun getFavourites(userId: String): StateFlow<List<Place>>
 
     suspend fun addToFavourite(userId: String, place: Place)
 
     suspend fun removeFromFavourites(userId: String, placeId: String)
 
-    suspend fun observeIsFavourite(userId: String, placeId: String): StateFlow<Boolean>
+    fun observeIsFavourite(userId: String, placeId: String): StateFlow<Boolean>
 }

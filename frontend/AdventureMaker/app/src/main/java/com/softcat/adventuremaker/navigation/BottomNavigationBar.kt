@@ -34,30 +34,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.ui.theme.BasicOrange
-import com.softcat.adventuremaker.ui.theme.LightGray
-import com.softcat.adventuremaker.ui.theme.NavigationBarTint
-
-private fun iconResId(selection: MainNavigation) = when (selection) {
-    MainNavigation.Favourites -> R.drawable.heart
-    MainNavigation.Networking -> R.drawable.networking
-    MainNavigation.Search -> R.drawable.search
-    MainNavigation.Utils -> R.drawable.utils
-}
-
-private fun labelResId(selection: MainNavigation) = when (selection) {
-    MainNavigation.Favourites -> R.string.navigation_favourites_label
-    MainNavigation.Networking -> R.string.navigation_networking_label
-    MainNavigation.Search -> R.string.navigation_search_label
-    MainNavigation.Utils -> R.string.navigation_utils_label
-}
+import com.softcat.adventuremaker.ui.theme.BasicIconsTint
+import com.softcat.adventuremaker.ui.theme.NavBarShadow
+import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
 
 @Composable
-@Preview
 fun BottomNavigationBarElement(
     modifier: Modifier = Modifier,
-    selection: MainNavigation = MainNavigation.Search,
-    onSelected: (MainNavigation) -> Unit = {},
-    isActive: Boolean = true
+    isActive: Boolean = true,
+    iconResId: Int,
+    labelResId: Int,
+    onClick: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -66,21 +53,21 @@ fun BottomNavigationBarElement(
         IconButton(
             modifier = Modifier
                 .size(56.dp, 32.dp),
-            onClick = { onSelected(selection) },
+            onClick = onClick,
             colors = IconButtonDefaults.iconButtonColors().copy(
                 containerColor = if (isActive) BasicOrange else White
             )
         ) {
             Icon(
                 modifier = Modifier.size(24.dp),
-                painter = painterResource(iconResId(selection)),
-                tint = NavigationBarTint,
+                painter = painterResource(iconResId),
+                tint = BasicIconsTint,
                 contentDescription = null
             )
         }
         Spacer(Modifier.height(2.dp))
         Text(
-            text = stringResource(labelResId(selection)),
+            text = stringResource(labelResId),
             style = MaterialTheme.typography.bodySmall,
             color = Black
         )
@@ -88,21 +75,18 @@ fun BottomNavigationBarElement(
 }
 
 @Composable
-@Preview(showBackground = true)
+@Preview
 fun BottomNavigationBar(
-    selection: MainNavigation = MainNavigation.Search,
-    onSelectionChanged: (MainNavigation) -> Unit = {}
+    configuration: BottomBarConfiguration = BottomBarConfiguration.Favourites,
+    onSearchItemClicked: () -> Unit = {},
+    onToolsItemClicked: () -> Unit = {},
+    onNetworkingItemClicked: () -> Unit = {},
+    onFavouritesItemClicked: () -> Unit = {},
 ) {
     val shadow = Brush.linearGradient(
-        colors = listOf(LightGray, White),
+        colors = listOf(NavBarShadow, White),
         start = Offset(0f, Float.POSITIVE_INFINITY),
         end = Offset(0f, 0f)
-    )
-    val selections = listOf(
-        MainNavigation.Utils to R.drawable.utils,
-        MainNavigation.Search to R.drawable.search,
-        MainNavigation.Networking to R.drawable.networking,
-        MainNavigation.Favourites to R.drawable.heart
     )
     BottomAppBar(
         modifier = Modifier
@@ -123,16 +107,42 @@ fun BottomNavigationBar(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                selections.forEach { element ->
-                    BottomNavigationBarElement(
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .weight(1f),
-                        selection = element.first,
-                        isActive = element.first == selection,
-                        onSelected = onSelectionChanged
-                    )
-                }
+                BottomNavigationBarElement(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .weight(1f),
+                    isActive = configuration == BottomBarConfiguration.Tools,
+                    iconResId = R.drawable.tools,
+                    labelResId = R.string.navigation_tools_label,
+                    onClick = onToolsItemClicked,
+                )
+                BottomNavigationBarElement(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .weight(1f),
+                    isActive = configuration == BottomBarConfiguration.Search,
+                    iconResId = R.drawable.search,
+                    labelResId = R.string.navigation_search_label,
+                    onClick = onSearchItemClicked,
+                )
+                BottomNavigationBarElement(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .weight(1f),
+                    isActive = configuration == BottomBarConfiguration.Networking,
+                    iconResId = R.drawable.networking,
+                    labelResId = R.string.navigation_networking_label,
+                    onClick = onNetworkingItemClicked,
+                )
+                BottomNavigationBarElement(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .weight(1f),
+                    isActive = configuration == BottomBarConfiguration.Favourites,
+                    iconResId = R.drawable.heart,
+                    labelResId = R.string.navigation_favourites_label,
+                    onClick = onFavouritesItemClicked,
+                )
             }
         }
     }

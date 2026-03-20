@@ -12,5 +12,7 @@ val Pink40 = Color(0xFF7D5260)
 
 val LightGray = Color(0xFFAEAEAE)
 val BasicOrange = Color(0xFFF59642)
-val NavigationBarTint = Color(0xFF4A4459)
+val BasicIconsTint = Color(0xFF45474F)
+val CustomRed = Color(0xFFFE4D00)
 val BrightOrange = Color(0xFFFF6D00)
+val NavBarShadow = Color(0xFF545454)
