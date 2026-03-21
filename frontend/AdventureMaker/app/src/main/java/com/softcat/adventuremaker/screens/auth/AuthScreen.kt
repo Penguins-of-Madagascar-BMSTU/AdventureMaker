@@ -11,12 +11,13 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AuthScreen(
+    modifier: Modifier = Modifier,
     viewModel: AuthViewModel = koinViewModel()
 ) {
     val state by viewModel.state.observeAsState(AuthState.Loading)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(24.dp)
     ) {
@@ -27,10 +28,11 @@ fun AuthScreen(
             }
 
             AuthState.NoUser -> {
-                // можно сразу переключить в Enter
-                LaunchedEffect(Unit) {
-                    viewModel.switchToEnter()
-                }
+                NoUserContent(
+                    onEnterClick = viewModel::switchToEnter,
+                    onRegisterClick = viewModel::switchToRegister,
+                    modifier = modifier
+                )
             }
 
             is AuthState.Enter -> {
@@ -39,7 +41,8 @@ fun AuthScreen(
                     onEmailChange = viewModel::changeEmail,
                     onPasswordChange = viewModel::changePassword,
                     onLoginClick = viewModel::onLogInClicked,
-                    onSwitchToRegister = viewModel::switchToRegister
+                    onSwitchToRegister = viewModel::switchToRegister,
+                    modifier = modifier
                 )
             }
 
@@ -51,7 +54,8 @@ fun AuthScreen(
                     onPasswordChange = viewModel::changePassword,
                     onRepeatPasswordChange = viewModel::changeRepeatedPassword,
                     onRegisterClick = viewModel::onLogInClicked,
-                    onSwitchToEnter = viewModel::switchToEnter
+                    onSwitchToEnter = viewModel::switchToEnter,
+                    modifier = modifier
                 )
             }
         }

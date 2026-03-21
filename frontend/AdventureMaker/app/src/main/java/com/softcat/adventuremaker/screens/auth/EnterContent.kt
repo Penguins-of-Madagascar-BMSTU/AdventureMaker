@@ -1,17 +1,20 @@
 package com.softcat.adventuremaker.screens.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.clickable
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Lock
-
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.ui.Alignment
+
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.softcat.adventuremaker.R
 
 @Composable
 fun EnterContent(
@@ -19,33 +22,34 @@ fun EnterContent(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
-    onSwitchToRegister: () -> Unit
+    onSwitchToRegister: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize()
     ) {
-        Icon(
-            imageVector = Icons.Outlined.Lock,
+        Image(
+            painter = painterResource(id = R.drawable.lock),
             contentDescription = null,
             modifier = Modifier
-                .size(80.dp)
-                .align(Alignment.CenterHorizontally)
+                .size(240.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Войти в профиль",
-            fontSize = 22.sp
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         AuthTextField(
             value = state.email,
             onValueChange = onEmailChange,
-            label = "Введите email"
+            label = stringResource(R.string.register_email_label),
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -53,19 +57,23 @@ fun EnterContent(
         AuthTextField(
             value = state.password,
             onValueChange = onPasswordChange,
-            label = "Введите пароль",
-            isPassword = true
+            label = stringResource(R.string.register_password_label),
+            isPassword = true,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        AuthButton(text = "Войти", onClick = onLoginClick)
+        PrimaryButton(text = stringResource(R.string.login_switch), onClick = onLoginClick)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            text = "Нет аккаунта? Зарегистрироваться",
-            modifier = Modifier.clickable { onSwitchToRegister() }
-        )
+        SecondaryButton(text = stringResource(R.string.register_submit), onClick = onSwitchToRegister)
     }
 }

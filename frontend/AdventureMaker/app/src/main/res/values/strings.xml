@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">AdventureMaker</string>
+
+    // Регистрация / авторизация
+    <string name="no_user_title">Вход и регистрация</string>
+    <string name="no_user_description">Это позволяет получать рекомендации\nна других устройствах…</string>
+    <string name="enter_button">Вход</string>
+    <string name="register_button">Создание аккаунта</string>
+
+    <string name="register_name_label">Введите имя</string>
+    <string name="register_email_label">Введите email</string>
+    <string name="register_password_label">Введите пароль</string>
+    <string name="register_repeat_password_label">Повторите пароль</string>
+    <string name="register_submit">Зарегистрироваться</string>
+    <string name="login_switch">Войти</string>
 </resources>
