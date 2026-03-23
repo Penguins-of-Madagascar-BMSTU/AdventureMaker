@@ -66,11 +66,12 @@ fun PrimaryButton(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
+            .then(modifier)
     ) {
-        Text(text = text, color = Color.White)
+        Text(text = text, color = Color.White, style = MaterialTheme.typography.labelLarge)
     }
 }
 
@@ -88,10 +89,11 @@ fun SecondaryButton(
             brush = SolidColor(MaterialTheme.colorScheme.primary)
         ),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
+            .then(modifier)
     ) {
-        Text(text)
+        Text(text, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
     }
 }
