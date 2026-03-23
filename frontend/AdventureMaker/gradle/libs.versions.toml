@@ -37,6 +37,8 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "liveData" }
+androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,5 +1,6 @@
 package com.softcat.adventuremaker.screens.auth
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -58,7 +59,9 @@ class AuthViewModel(
     /*-----------Функции для переключения между экранами входа и регистрации.-----------*/
 
     fun switchToRegister() {
-        when (val currentState = state.value) {
+        val currentState = state.value
+        Log.d("AuthVM", "switchToRegister called with $currentState")
+        when (currentState) {
             AuthState.NoUser -> {
                 _state.value = AuthState.Register("", "", "", "")
             }
@@ -70,7 +73,9 @@ class AuthViewModel(
     }
 
     fun switchToEnter() {
-        when (val currentState = state.value) {
+        val currentState = state.value
+        Log.d("AuthVM", "switchToEnter called with $currentState")
+        when (currentState) {
             AuthState.NoUser -> {
                 _state.value = AuthState.Enter("", "")
             }
