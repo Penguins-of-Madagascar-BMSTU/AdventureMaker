@@ -69,8 +69,6 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.compose.material.icons.extended)
 
-    debugImplementation(libs.androidx.compose.ui.tooling)
-
     implementation(project(":domain"))
     implementation(project(":data"))
 }
