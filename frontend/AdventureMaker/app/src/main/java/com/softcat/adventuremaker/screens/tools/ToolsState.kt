@@ -19,6 +19,6 @@ sealed interface ToolsState {
     ) : ToolsState
 
     data class EmergencyNumbers(
-        val numbers: List<String>
+        val numbers: List<Pair<String, String>>
     ) : ToolsState
 }

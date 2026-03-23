@@ -6,7 +6,7 @@ class GetEmergencyNumbersUseCase(
     private val repository: EmergencyNumbersRepository
 ) {
 
-    suspend fun getEmergencyNumbers(): List<String> {
+    fun getEmergencyNumbers(): List<Pair<String, String>> {
         return repository.getEmergencyNumbers()
     }
 }

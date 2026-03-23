@@ -44,15 +44,10 @@ class ToolsViewModel(
             return
         }
 
-        _state.value = ToolsState.Loading
-        viewModelScope.launch(Dispatchers.IO) {
-            val numbers = getEmergencyNumbersUseCase.getEmergencyNumbers()
-            val newState = ToolsState.EmergencyNumbers(numbers)
-            emergencyNumbersState = newState
-            withContext(Dispatchers.Main) {
-                _state.value = newState
-            }
-        }
+        val numbers = getEmergencyNumbersUseCase.getEmergencyNumbers()
+        val newState = ToolsState.EmergencyNumbers(numbers)
+        emergencyNumbersState = newState
+        _state.value = newState
     }
 
     fun changeAmount(newValue: String) {
