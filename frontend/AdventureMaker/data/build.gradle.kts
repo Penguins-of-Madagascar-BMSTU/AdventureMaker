@@ -38,6 +38,9 @@ dependencies {
     api(libs.firebase.auth)
     api(libs.firebase.database)
 
+    implementation(libs.datastore)
+    implementation(libs.gson)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

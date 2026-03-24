@@ -1,5 +1,9 @@
 package com.example.data
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.data.exceptions.UserNotFoundException
 import com.example.domain.entities.User
 import com.example.domain.interfaces.UserRepository
@@ -8,9 +12,13 @@ import com.google.firebase.auth.auth
 import com.google.firebase.database.database
 import com.google.firebase.database.getValue
 import com.example.data.exceptions.DataCorruptedException
+import com.google.gson.Gson
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.tasks.await
 
-class UserRepositoryImpl: UserRepository {
+class UserRepositoryImpl(
+    private val dataStore: DataStore<Preferences>
+): UserRepository {
 
     private val usersStorage by lazy {
         Firebase.database.getReference(USERS_STORAGE_NAME)
@@ -30,10 +38,13 @@ class UserRepositoryImpl: UserRepository {
             registerJob.await()
             registerJob.exception?.let { return Result.failure(it) }
             if (registerJob.result.additionalUserInfo?.isNewUser == false) {
-                return readUser(email)
+                val result = readUser(email)
+                result.onSuccess { rememberUser(it) }
+                return result
             }
             val reference = usersStorage.push() // Создать узел (JSON), соответствующий пользователю.
             val user = User(
+                id = reference.key.toString(),
                 email = email,
                 name = "\"$name\"",
                 avatarUrl = null
@@ -44,6 +55,7 @@ class UserRepositoryImpl: UserRepository {
                 auth.signOut()
                 return Result.failure(it)
             }
+            rememberUser(user)
             Result.success(user)
         } catch (e: Exception) {
             Result.failure(e)
@@ -58,7 +70,9 @@ class UserRepositoryImpl: UserRepository {
             val verifyJob = auth.signInWithEmailAndPassword(email, password)
             verifyJob.await()
             verifyJob.exception?.let { return Result.failure(it) }
-            return readUser(email)
+            val result = readUser(email)
+            result.onSuccess { rememberUser(it) }
+            return result
         } catch (e: Exception) {
             return Result.failure(e)
         }
@@ -66,6 +80,16 @@ class UserRepositoryImpl: UserRepository {
 
     override suspend fun exit() {
         auth.signOut()
+        forgetUser()
+    }
+
+    override suspend fun getLastEnteredUser(): User? {
+        val datastoreKey = stringPreferencesKey(USER_KEY)
+        val userJson = dataStore.data.firstOrNull()?.get(datastoreKey)
+        val user = userJson?.let {
+            Gson().fromJson(userJson, User::class.java)
+        }
+        return user
     }
 
     private suspend fun readUser(email: String): Result<User> {
@@ -86,7 +110,24 @@ class UserRepositoryImpl: UserRepository {
         return Result.success(user)
     }
 
+    private suspend fun rememberUser(user: User) {
+        dataStore.edit { preferences ->
+            val userKey = stringPreferencesKey(USER_KEY)
+            val userJson = Gson().toJson(user)
+            preferences[userKey] = userJson
+        }
+    }
+
+    private suspend fun forgetUser() {
+        dataStore.edit { preferences ->
+            val userKey = stringPreferencesKey(USER_KEY)
+            preferences.remove(userKey)
+        }
+    }
+
     companion object {
         private const val USERS_STORAGE_NAME = "Users"
+
+        private const val USER_KEY = "user"
     }
 }

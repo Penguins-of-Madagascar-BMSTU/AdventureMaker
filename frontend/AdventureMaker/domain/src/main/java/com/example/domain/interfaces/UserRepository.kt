@@ -9,4 +9,6 @@ interface UserRepository {
     suspend fun enter(email: String, password: String): Result<User>
 
     suspend fun exit()
+
+    suspend fun getLastEnteredUser(): User?
 }

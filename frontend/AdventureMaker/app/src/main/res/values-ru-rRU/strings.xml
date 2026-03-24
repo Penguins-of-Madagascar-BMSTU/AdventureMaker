@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">AdventureMaker</string>
+
+    // Надписи на панели навигации
+    <string name="navigation_favourites_label">Избранное</string>
+    <string name="navigation_tools_label">Инструменты</string>
+    <string name="navigation_networking_label">Сообщество</string>
+    <string name="navigation_search_label">Поиск</string>
+
+    // Надписи в разделе избранного
+    <string name="favourites_empty_title">Здесь отобразятся места, которые вы добавили в избранное</string>
+    <string name="favourites_empty_text">Отмечайте сердечком понравившиеся места, мы поможем построить планы и удобные маршруты с ними</string>
+    <string name="enter">Войти</string>
+    <string name="app_bar_title_favourites">Избранное</string>
+
+    // Названия категорий
+    <string name="museum_category">Музеи</string>
+    <string name="hotel_category">Отели</string>
+    <string name="restaurant_category">Где поесть</string>
+    <string name="entertainment_category">Развлечения</string>
+    <string name="attraction_category">Достопремечательности</string>
+    <string name="bank_category">Банк</string>
+    <string name="any_category">Все</string>
+
+    // Регистрация / авторизация
+    <string name="no_user_title">Вход и регистрация</string>
+    <string name="no_user_description">Это позволяет видеть рекомендации на других устройствах…</string>
+    <string name="enter_button">Вход</string>
+    <string name="register_button">Создание аккаунта</string>
+
+    <string name="register_name_label">Введите имя</string>
+    <string name="register_email_label">Введите email</string>
+    <string name="register_password_label">Введите пароль</string>
+    <string name="register_repeat_password_label">Повторите пароль</string>
+    <string name="register_submit">Зарегистрироваться</string>
+    <string name="login_switch">Войти</string>
+</resources>

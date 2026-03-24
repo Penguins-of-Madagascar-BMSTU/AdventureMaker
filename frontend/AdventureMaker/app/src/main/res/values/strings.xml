@@ -1,16 +1,37 @@
 <resources>
     <string name="app_name">AdventureMaker</string>
 
-    // Регистрация / авторизация
-    <string name="no_user_title">Вход и регистрация</string>
-    <string name="no_user_description">Это позволяет получать рекомендации\nна других устройствах…</string>
-    <string name="enter_button">Вход</string>
-    <string name="register_button">Создание аккаунта</string>
+    // Надписи на панели навигации
+    <string name="navigation_favourites_label">Favourites</string>
+    <string name="navigation_tools_label">Tools</string>
+    <string name="navigation_networking_label">Networking</string>
+    <string name="navigation_search_label">Search</string>
 
-    <string name="register_name_label">Введите имя</string>
-    <string name="register_email_label">Введите email</string>
-    <string name="register_password_label">Введите пароль</string>
-    <string name="register_repeat_password_label">Повторите пароль</string>
-    <string name="register_submit">Зарегистрироваться</string>
-    <string name="login_switch">Войти</string>
+    // Надписи в разделе избранного
+    <string name="favourites_empty_title">Here you will see all the places you liked</string>
+    <string name="favourites_empty_text">Mark favourite everything you liked, we will help to make plans and build comfortable routes wth them</string>
+    <string name="enter">Enter</string>
+    <string name="app_bar_title_favourites">Favourites</string>
+
+    // Названия категорий
+    <string name="museum_category">Museum</string>
+    <string name="hotel_category">Hotel</string>
+    <string name="restaurant_category">Restaurant</string>
+    <string name="entertainment_category">Entertainment</string>
+    <string name="attraction_category">Attraction</string>
+    <string name="bank_category">Bank</string>
+    <string name="any_category">All</string>
+
+    // Регистрация / авторизация
+    <string name="no_user_title">Enter or register</string>
+    <string name="no_user_description">It will enable you to see favourite places on other devices</string>
+    <string name="enter_button">Enter</string>
+    <string name="register_button">Create an account</string>
+
+    <string name="register_name_label">Enter your name</string>
+    <string name="register_email_label">Enter your email</string>
+    <string name="register_password_label">Enter your password</string>
+    <string name="register_repeat_password_label">Repeat your password</string>
+    <string name="register_submit">Register</string>
+    <string name="login_switch">Enter</string>
 </resources>
