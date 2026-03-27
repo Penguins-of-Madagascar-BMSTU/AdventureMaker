@@ -1,5 +1,6 @@
 [versions]
 agp = "9.0.0"
+converterGson = "3.0.0"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -18,6 +19,7 @@ navigation = "2.8.9"
 datastore = "1.2.0"
 gson = "2.13.2"
 composeLD = "1.10.5"
+retrofit = "3.0.0"
 serialization = "1.6.3"
 coil = "2.1.0"
 
@@ -51,6 +53,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

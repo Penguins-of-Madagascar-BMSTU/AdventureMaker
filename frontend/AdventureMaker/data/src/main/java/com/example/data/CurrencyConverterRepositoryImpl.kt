@@ -2,29 +2,31 @@ package com.example.data
 
 import com.example.domain.interfaces.CurrencyConverterRepository
 
-class CurrencyConverterRepositoryImpl : CurrencyConverterRepository {
+class CurrencyConverterRepositoryImpl(
+    private val api: CurrencyApi
+) : CurrencyConverterRepository {
 
     override suspend fun convert(
         amount: Double,
         fromCurrency: String,
         toCurrency: String
     ): Result<Double> {
-        val normalizedFrom = fromCurrency.uppercase()
-        val normalizedTo = toCurrency.uppercase()
-        val fromRate = exchangeRatesToRub[normalizedFrom]
-            ?: return Result.failure(IllegalArgumentException("Unsupported currency: $fromCurrency"))
-        val toRate = exchangeRatesToRub[normalizedTo]
-            ?: return Result.failure(IllegalArgumentException("Unsupported currency: $toCurrency"))
+        return try {
+            val response = api.getRates(fromCurrency.uppercase())
 
-        val amountInRub = amount * fromRate
-        return Result.success(amountInRub / toRate)
-    }
+            if (response.result != "success") {
+                return Result.failure(Exception("API error"))
+            }
 
-    companion object {
-        private val exchangeRatesToRub = mapOf(
-            "RUB" to 1.0,
-            "USD" to 90.0,
-            "EUR" to 98.0
-        )
+            val rate = response.rates[toCurrency.uppercase()]
+                ?: return Result.failure(
+                    IllegalArgumentException("Unsupported currency")
+                )
+
+            Result.success(amount * rate)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
