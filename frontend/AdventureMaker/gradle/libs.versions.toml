@@ -25,6 +25,7 @@ composeLD = "1.10.5"
 retrofit = "3.0.0"
 serialization = "1.6.3"
 coil = "2.1.0"
+translate = "17.0.3"
 
 translate = "17.0.3"
 mapSdk = "13.0.0"
