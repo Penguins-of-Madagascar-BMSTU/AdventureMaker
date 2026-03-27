@@ -20,6 +20,7 @@ gson = "2.13.2"
 composeLD = "1.10.5"
 serialization = "1.6.3"
 coil = "2.1.0"
+translate = "17.0.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -49,6 +50,7 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 compose-runtime = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "composeLD" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+google-translate = { group = "com.google.mlkit", name = "translate", version.ref = "translate" }
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 

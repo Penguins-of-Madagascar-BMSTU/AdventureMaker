@@ -34,6 +34,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.google.translate)
 
     api(libs.firebase.auth)
     api(libs.firebase.database)
