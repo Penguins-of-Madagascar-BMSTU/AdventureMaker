@@ -51,15 +51,8 @@ val repositoryModule = module {
 
 val dataModule = module {
 
-    single {
-        Retrofit.Builder()
-            .baseUrl("https://open.er-api.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
     single<CurrencyApi> {
-        get<Retrofit>().create(CurrencyApi::class.java)
+        com.example.data.CurrencyApiFactory.currencyApi
     }
 
     single<DataStore<Preferences>> {
