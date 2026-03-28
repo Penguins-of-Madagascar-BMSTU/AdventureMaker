@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">AdventureMaker</string>
 
-    // Надписи на панели навигации
     <string name="navigation_favourites_label">Favourites</string>
     <string name="navigation_tools_label">Tools</string>
     <string name="navigation_networking_label">Networking</string>
@@ -34,4 +33,6 @@
     <string name="register_repeat_password_label">Repeat your password</string>
     <string name="register_submit">Register</string>
     <string name="login_switch">Enter</string>
+
+    <string name="app_bar_title_details">Place details</string>
 </resources>

@@ -6,7 +6,7 @@ junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.3"
-kotlin = "2.0.21"
+kotlin = "2.3.20"
 composeBom = "2026.03.00"
 appcompat = "1.7.1"
 material = "1.13.0"
@@ -20,6 +20,7 @@ gson = "2.13.2"
 composeLD = "1.10.5"
 serialization = "1.6.3"
 coil = "2.1.0"
+mapSdk = "13.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +52,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+map = { group = "ru.dgis.sdk", name = "sdk-map", version.ref = "mapSdk" }
+map-compose = { group = "ru.dgis.sdk", name = "compose-map", version.ref = "mapSdk" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -58,3 +61,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlinx-serialization = {id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+

@@ -33,4 +33,6 @@
     <string name="register_repeat_password_label">Повторите пароль</string>
     <string name="register_submit">Зарегистрироваться</string>
     <string name="login_switch">Войти</string>
+
+    <string name="app_bar_title_details">Описание места</string>
 </resources>
