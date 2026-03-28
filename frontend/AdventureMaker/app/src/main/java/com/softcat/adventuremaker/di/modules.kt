@@ -3,6 +3,7 @@ package com.softcat.adventuremaker.di
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.example.data.CurrencyApi
 import com.example.data.CurrencyConverterRepositoryImpl
 import com.example.data.EmergencyNumbersRepositoryImpl
 import com.example.data.FavouriteRepositoryImpl
@@ -27,6 +28,8 @@ import com.softcat.adventuremaker.screens.tools.ToolsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 val viewModelModule = module {
     viewModelOf(::AuthViewModel)
@@ -42,7 +45,7 @@ val repositoryModule = module {
     single<UserRepository> { UserRepositoryImpl(get()) }
     single<TranslationRepository> { TranslationRepositoryImpl() }
     single<EmergencyNumbersRepository> { EmergencyNumbersRepositoryImpl() }
-    single<CurrencyConverterRepository> { CurrencyConverterRepositoryImpl() }
+    single<CurrencyConverterRepository> { CurrencyConverterRepositoryImpl(get()) }
     single<FavouriteRepository> { FavouriteRepositoryImpl() }
 
     single { UserUseCase(get()) }
@@ -52,7 +55,13 @@ val repositoryModule = module {
     single { ConvertCurrencyUseCase(get()) }
 }
 
+
 val dataModule = module {
+
+    single<CurrencyApi> {
+        com.example.data.CurrencyApiFactory.currencyApi
+    }
+
     single<DataStore<Preferences>> {
         (get<Context>() as AdventureMakerApplication).dataStore
     }

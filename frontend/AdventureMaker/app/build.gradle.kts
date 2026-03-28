@@ -78,6 +78,9 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.compose.material.icons.extended)
 
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
     implementation(project(":domain"))
     implementation(project(":data"))
 }
