@@ -296,10 +296,7 @@ fun FavouritesContent(
         bottomBar = {
             BottomNavigationBar(
                 configuration = NavigationItem.BottomBarConfiguration.Favourites,
-                onSearchItemClicked = { navController.navigate(NavigationItem.Search.Map) },
-                onToolsItemClicked = { navController.navigate(NavigationItem.Tools) },
-                onNetworkingItemClicked = { navController.navigate(NavigationItem.Networking.Posts) },
-                onFavouritesItemClicked = { navController.navigate(NavigationItem.Favourites.Content) }
+                navController = navController
             )
         }
     ) { paddingValues ->

@@ -1,12 +1,13 @@
 package com.softcat.adventuremaker.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.domain.entities.Place
 import com.softcat.adventuremaker.navigation.NavTypes.PlaceNavType
+import com.softcat.adventuremaker.screens.details.DetailsContent
 import com.softcat.adventuremaker.screens.favourites.FavouritesContent
 import kotlin.reflect.typeOf
 
@@ -20,7 +21,6 @@ T - тип, по которому navController определяет текущ�
 fun NavigationContent() {
     val navController = rememberNavController()
     NavHost(
-        modifier = Modifier,
         navController = navController,
         startDestination = NavigationItem.Favourites.Content
     ) {
@@ -30,6 +30,12 @@ fun NavigationContent() {
                 onEnterClick = { navController.navigate(NavigationItem.Networking.Profile) },
                 onPlaceClick = { navController.navigate(NavigationItem.Favourites.PlaceDetails(it)) }
             )
+        }
+        composable<NavigationItem.Favourites.PlaceDetails>(
+            typeMap = mapOf(typeOf<Place>() to PlaceNavType)
+        ) { entry ->
+            val args = entry.toRoute<NavigationItem.Favourites.PlaceDetails>()
+            DetailsContent(args.place, navController)
         }
         composable<NavigationItem.Search.Map> {}
         composable<NavigationItem.Search.Details>(

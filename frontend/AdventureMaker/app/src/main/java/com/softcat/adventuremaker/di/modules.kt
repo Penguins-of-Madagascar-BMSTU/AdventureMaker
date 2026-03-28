@@ -9,6 +9,7 @@ import com.example.data.EmergencyNumbersRepositoryImpl
 import com.example.data.FavouriteRepositoryImpl
 import com.example.data.TranslationRepositoryImpl
 import com.example.data.UserRepositoryImpl
+import com.example.domain.entities.Place
 import com.example.domain.interfaces.CurrencyConverterRepository
 import com.example.domain.interfaces.EmergencyNumbersRepository
 import com.example.domain.interfaces.FavouriteRepository
@@ -21,8 +22,10 @@ import com.example.domain.usecases.TranslateTextUseCase
 import com.example.domain.usecases.UserUseCase
 import com.softcat.adventuremaker.AdventureMakerApplication
 import com.softcat.adventuremaker.screens.auth.AuthViewModel
+import com.softcat.adventuremaker.screens.details.PlaceDetailsViewModel
 import com.softcat.adventuremaker.screens.favourites.FavouriteViewModel
 import com.softcat.adventuremaker.screens.tools.ToolsViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -32,6 +35,10 @@ val viewModelModule = module {
     viewModelOf(::AuthViewModel)
     viewModelOf(::ToolsViewModel)
     viewModelOf(::FavouriteViewModel)
+
+    viewModel { (place: Place) ->
+        PlaceDetailsViewModel(place, get(), get())
+    }
 }
 
 val repositoryModule = module {
