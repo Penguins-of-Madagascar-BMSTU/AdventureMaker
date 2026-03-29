@@ -42,4 +42,9 @@
     <string name="tools_chip_phrases">Useful phrases</string>
     <string name="tools_chip_cultural">Cultural tips</string>
     <string name="tools_chip_emergency">Emergency numbers</string>
+
+    <string name="tools_translation_hint">Enter text</string>
+    <string name="tools_translate_button">Translate</string>
+    <string name="lang_english">English</string>
+    <string name="lang_russian">Russian</string>
 </resources>

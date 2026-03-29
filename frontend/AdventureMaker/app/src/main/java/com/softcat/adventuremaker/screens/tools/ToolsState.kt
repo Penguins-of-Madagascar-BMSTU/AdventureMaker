@@ -16,8 +16,8 @@ sealed interface ToolsState {
 
     data class Translation(
         val sourceText: String = "",
-        val sourceLanguage: String = "ru",
-        val targetLanguage: String = "en",
+        val sourceLanguage: String = "en",
+        val targetLanguage: String = "ru",
         val translatedText: String = ""
     ) : ToolsState
 

@@ -43,4 +43,9 @@
     <string name="tools_chip_phrases">Фразы</string>
     <string name="tools_chip_cultural">Культурные советы</string>
     <string name="tools_chip_emergency">Экстренные номера</string>
+
+    <string name="tools_translation_hint">Введите текст</string>
+    <string name="tools_translate_button">Перевести</string>
+    <string name="lang_english">Английский</string>
+    <string name="lang_russian">Русский</string>
 </resources>

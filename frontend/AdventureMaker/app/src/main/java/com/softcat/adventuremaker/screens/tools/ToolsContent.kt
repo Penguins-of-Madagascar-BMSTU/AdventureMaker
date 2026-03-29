@@ -17,14 +17,20 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
@@ -47,9 +54,11 @@ import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.navigation.BottomNavigationBar
 import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
+import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.ui.theme.EmergencyTableLabelBackground
 import com.softcat.adventuremaker.ui.theme.LightGray
+import com.softcat.adventuremaker.ui.theme.TranslationActionButton
 import org.koin.androidx.compose.koinViewModel
 
 private enum class ToolsCategoryStub {
@@ -218,6 +227,141 @@ private fun EmergencyNumbersTable(
 }
 
 @Composable
+private fun languageDisplayName(languageCode: String): String =
+    when (languageCode.lowercase()) {
+        "en" -> stringResource(R.string.lang_english)
+        "ru" -> stringResource(R.string.lang_russian)
+        else -> languageCode
+    }
+
+@Composable
+private fun TranslationPanel(
+    state: ToolsState.Translation,
+    onSourceChange: (String) -> Unit,
+    onSwap: () -> Unit,
+    onTranslate: () -> Unit,
+) {
+    val hint = stringResource(R.string.tools_translation_hint)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = languageDisplayName(state.sourceLanguage),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Black,
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(onClick = onSwap) {
+                Icon(
+                    imageVector = Icons.Filled.SwapHoriz,
+                    contentDescription = null,
+                    tint = BasicIconsTint,
+                )
+            }
+            Text(
+                text = languageDisplayName(state.targetLanguage),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Black,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.End,
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, LightGray, RoundedCornerShape(8.dp)),
+        ) {
+            OutlinedTextField(
+                value = state.sourceText,
+                onValueChange = onSourceChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 120.dp),
+                placeholder = {
+                    Text(
+                        text = hint,
+                        color = LightGray,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Black),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = White,
+                    unfocusedContainerColor = White,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    cursorColor = BasicOrange,
+                ),
+                shape = RoundedCornerShape(
+                    topStart = 8.dp,
+                    topEnd = 8.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp,
+                ),
+                maxLines = 8,
+            )
+            HorizontalDivider(color = LightGray, thickness = 1.dp)
+            OutlinedTextField(
+                value = state.translatedText,
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 120.dp),
+                placeholder = {
+                    Text(
+                        text = hint,
+                        color = LightGray,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Black),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = White,
+                    unfocusedContainerColor = White,
+                    disabledContainerColor = White,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent,
+                    focusedTextColor = Black,
+                    unfocusedTextColor = Black,
+                    disabledTextColor = Black,
+                    cursorColor = Color.Transparent,
+                ),
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomStart = 8.dp,
+                    bottomEnd = 8.dp,
+                ),
+                maxLines = 8,
+            )
+        }
+        Spacer(Modifier.height(24.dp))
+        Button(
+            onClick = onTranslate,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(26.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = TranslationActionButton,
+                contentColor = White,
+            ),
+        ) {
+            Text(
+                text = stringResource(R.string.tools_translate_button),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+@Composable
 private fun ToolsSectionPlaceholder(text: String) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -338,7 +482,17 @@ fun ToolsContent(
                     }
 
                     ToolsCategoryStub.Translation -> {
-                        ToolsSectionPlaceholder("soon")
+                        val tr = state as? ToolsState.Translation
+                        if (tr != null) {
+                            Column(Modifier.padding(top = 28.dp)) {
+                                TranslationPanel(
+                                    state = tr,
+                                    onSourceChange = viewModel::changeTextToTranslate,
+                                    onSwap = viewModel::swapTranslationLanguages,
+                                    onTranslate = viewModel::translateText,
+                                )
+                            }
+                        }
                     }
 
                     ToolsCategoryStub.Phrases,
@@ -362,6 +516,30 @@ fun ToolsContent(
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TranslationPanelPreview() {
+    AdventureMakerTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(White)
+                .padding(horizontal = 16.dp)
+                .padding(top = 28.dp, bottom = 16.dp),
+        ) {
+            TranslationPanel(
+                state = ToolsState.Translation(
+                    sourceText = "Hello",
+                    translatedText = "Привет",
+                ),
+                onSourceChange = {},
+                onSwap = {},
+                onTranslate = {},
+            )
         }
     }
 }

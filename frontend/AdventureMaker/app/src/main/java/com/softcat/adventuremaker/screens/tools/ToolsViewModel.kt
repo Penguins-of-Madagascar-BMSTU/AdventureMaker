@@ -134,6 +134,17 @@ class ToolsViewModel(
         _state.value = translationState
     }
 
+    fun swapTranslationLanguages() {
+        val currentState = (state.value as? ToolsState.Translation) ?: return
+        translationState = currentState.copy(
+            sourceLanguage = currentState.targetLanguage,
+            targetLanguage = currentState.sourceLanguage,
+            sourceText = currentState.translatedText,
+            translatedText = currentState.sourceText,
+        )
+        _state.value = translationState
+    }
+
     fun translateText() {
         val currentState = (state.value as? ToolsState.Translation) ?: return
         if (currentState.sourceText.isBlank()) return
@@ -145,8 +156,9 @@ class ToolsViewModel(
                 targetLanguage = currentState.targetLanguage
             )
             withContext(Dispatchers.Main) {
-                result.onSuccess { translatedText ->
-                    translationState = currentState.copy(translatedText = translatedText)
+                result.onSuccess { text ->
+                    val latest = state.value as? ToolsState.Translation ?: return@onSuccess
+                    translationState = latest.copy(translatedText = text)
                     _state.value = translationState
                 }
             }
