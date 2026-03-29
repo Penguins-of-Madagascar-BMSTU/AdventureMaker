@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.data.FirebaseRules.USERS_STORAGE_NAME
 import com.example.data.exceptions.UserNotFoundException
 import com.example.domain.entities.User
 import com.example.domain.interfaces.UserRepository
@@ -126,8 +127,6 @@ class UserRepositoryImpl(
     }
 
     companion object {
-        private const val USERS_STORAGE_NAME = "Users"
-
         private const val USER_KEY = "user"
     }
 }

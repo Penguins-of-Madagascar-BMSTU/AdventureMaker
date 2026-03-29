@@ -1,14 +1,22 @@
 package com.example.data
 
+import com.example.data.FirebaseRules.POSTS_STORAGE_NAME
 import com.example.data.api.MapsApiService
 import com.example.data.api.toEntity
 import com.example.domain.entities.City
 import com.example.domain.entities.Place
+import com.example.domain.entities.Post
 import com.example.domain.interfaces.PlacesRepository
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
+import com.google.firebase.database.getValue
+import kotlinx.coroutines.tasks.await
 import java.util.Locale
+import kotlin.math.sqrt
 
 class PlacesRepositoryImpl(
-    private val mapsApiService: MapsApiService
+    private val mapsApiService: MapsApiService,
+    private val placeImageProvider: PlaceImageProvider
 ): PlacesRepository {
 
     override suspend fun getPlaces(
@@ -35,7 +43,8 @@ class PlacesRepositoryImpl(
                     return Result.failure(e)
             }
         }
-        return Result.success(places)
+        val result = placeImageProvider.provideImages(places)
+        return Result.success(result)
     }
 
     override suspend fun getCities(query: String): Result<List<City>> {

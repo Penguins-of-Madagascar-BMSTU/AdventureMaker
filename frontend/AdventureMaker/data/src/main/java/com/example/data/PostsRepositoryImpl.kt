@@ -5,6 +5,7 @@ import android.net.Uri
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.ObjectMetadata
+import com.example.data.FirebaseRules.POSTS_STORAGE_NAME
 import com.example.domain.entities.Post
 import com.example.domain.interfaces.PostsRepository
 import com.google.firebase.Firebase
@@ -116,7 +117,7 @@ class PostsRepositoryImpl(
     }
 
     private val postsStorage by lazy {
-        Firebase.database.getReference(POSTS_STORAGE)
+        Firebase.database.getReference(POSTS_STORAGE_NAME)
     }
 
     private var lastKey: String? = null
@@ -179,9 +180,5 @@ class PostsRepositoryImpl(
 
     private fun <T> Flow<T>.mergeWith(other: Flow<T>): Flow<T> {
         return merge(this, other)
-    }
-
-    companion object {
-        private const val POSTS_STORAGE = "Posts"
     }
 }
