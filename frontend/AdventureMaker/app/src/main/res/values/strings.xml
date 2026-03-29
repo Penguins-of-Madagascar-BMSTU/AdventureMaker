@@ -35,4 +35,11 @@
     <string name="login_switch">Enter</string>
 
     <string name="app_bar_title_details">Place details</string>
+
+    <string name="tools_screen_title">Useful tools</string>
+    <string name="tools_chip_currency">Converter</string>
+    <string name="tools_chip_translation">Translation</string>
+    <string name="tools_chip_phrases">Useful phrases</string>
+    <string name="tools_chip_cultural">Cultural tips</string>
+    <string name="tools_chip_emergency">Emergency numbers</string>
 </resources>
