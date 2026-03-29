@@ -1,9 +1,10 @@
 package com.example.data
 
+import com.example.data.api.CurrencyApiService
 import com.example.domain.interfaces.CurrencyConverterRepository
 
 class CurrencyConverterRepositoryImpl(
-    private val api: CurrencyApi
+    private val api: CurrencyApiService
 ) : CurrencyConverterRepository {
 
     override suspend fun convert(

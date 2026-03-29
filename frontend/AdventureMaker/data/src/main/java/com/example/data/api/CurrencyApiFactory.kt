@@ -1,4 +1,4 @@
-package com.example.data
+package com.example.data.api
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -23,5 +23,5 @@ object CurrencyApiFactory {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val currencyApi: CurrencyApi = retrofit.create(CurrencyApi::class.java)
+    val currencyApi: CurrencyApiService = retrofit.create(CurrencyApiService::class.java)
 }
