@@ -15,8 +15,28 @@ android {
         consumerProguardFiles("consumer-rules.pro")
 
         val apiKey2GIS = property("apiKey2GIS")?.toString() ?:
-        error("No @GIS api key defined in gradle.properties.")
+        error("No 2GIS api key defined in gradle.properties.")
         buildConfigField("String", "API_KEY_2GIS", "\"$apiKey2GIS\"")
+
+        val s3AccessKey = property("s3AccessKey")?.toString() ?:
+        error("No s3AccessKey api key defined in gradle.properties.")
+        buildConfigField("String", "S3_ACCESS_KEY", "\"$s3AccessKey\"")
+
+        val s3SecretKey = property("s3SecretKey")?.toString() ?:
+        error("No s3AccessKey api key defined in gradle.properties.")
+        buildConfigField("String", "S3_SECRET_KEY", "\"$s3SecretKey\"")
+
+        val s3Region = property("s3Region")?.toString() ?:
+        error("No s3AccessKey api key defined in gradle.properties.")
+        buildConfigField("String", "S3_REGION", "\"$s3Region\"")
+
+        val s3Endpoint = property("s3Endpoint")?.toString() ?:
+        error("No s3AccessKey api key defined in gradle.properties.")
+        buildConfigField("String", "S3_ENDPOINT", "\"$s3Endpoint\"")
+
+        val bucketName = property("bucketName")?.toString() ?:
+        error("No s3AccessKey api key defined in gradle.properties.")
+        buildConfigField("String", "BUCKET_NAME", "\"$bucketName\"")
     }
 
     buildTypes {
@@ -51,6 +71,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging)
+
+    implementation(libs.aws.android.sdk.s3)
+    implementation(libs.aws.android.sdk.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
