@@ -6,18 +6,21 @@ import androidx.datastore.preferences.core.Preferences
 import com.example.data.CurrencyApi
 import com.example.data.CurrencyConverterRepositoryImpl
 import com.example.data.EmergencyNumbersRepositoryImpl
+import com.example.data.UsefulPhrasesRepositoryImpl
 import com.example.data.FavouriteRepositoryImpl
 import com.example.data.TranslationRepositoryImpl
 import com.example.data.UserRepositoryImpl
 import com.example.domain.entities.Place
 import com.example.domain.interfaces.CurrencyConverterRepository
 import com.example.domain.interfaces.EmergencyNumbersRepository
+import com.example.domain.interfaces.UsefulPhrasesRepository
 import com.example.domain.interfaces.FavouriteRepository
 import com.example.domain.interfaces.TranslationRepository
 import com.example.domain.interfaces.UserRepository
 import com.example.domain.usecases.ConvertCurrencyUseCase
 import com.example.domain.usecases.FavouriteUseCase
 import com.example.domain.usecases.GetEmergencyNumbersUseCase
+import com.example.domain.usecases.GetUsefulPhrasesUseCase
 import com.example.domain.usecases.TranslateTextUseCase
 import com.example.domain.usecases.UserUseCase
 import com.softcat.adventuremaker.AdventureMakerApplication
@@ -45,6 +48,7 @@ val repositoryModule = module {
     single<UserRepository> { UserRepositoryImpl(get()) }
     single<TranslationRepository> { TranslationRepositoryImpl() }
     single<EmergencyNumbersRepository> { EmergencyNumbersRepositoryImpl() }
+    single<UsefulPhrasesRepository> { UsefulPhrasesRepositoryImpl() }
     single<CurrencyConverterRepository> { CurrencyConverterRepositoryImpl(get()) }
     single<FavouriteRepository> { FavouriteRepositoryImpl() }
 
@@ -52,6 +56,7 @@ val repositoryModule = module {
     single { FavouriteUseCase(get()) }
     single { TranslateTextUseCase(get()) }
     single { GetEmergencyNumbersUseCase(get()) }
+    single { GetUsefulPhrasesUseCase(get()) }
     single { ConvertCurrencyUseCase(get()) }
 }
 

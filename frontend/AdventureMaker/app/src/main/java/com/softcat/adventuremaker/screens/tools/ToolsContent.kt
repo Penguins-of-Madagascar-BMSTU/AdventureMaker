@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Button
@@ -362,6 +364,106 @@ private fun TranslationPanel(
 }
 
 @Composable
+private fun UsefulPhrasesTable(
+    rows: List<Pair<String, String>>,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, LightGray, RoundedCornerShape(8.dp)),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+                .heightIn(min = 48.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.tools_phrases_column_phrase),
+                modifier = Modifier
+                    .weight(1f)
+                    .background(EmergencyTableLabelBackground)
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = Black,
+            )
+            VerticalDivider(
+                modifier = Modifier.fillMaxHeight(),
+                thickness = 1.dp,
+                color = LightGray,
+            )
+            Text(
+                text = stringResource(R.string.tools_phrases_column_translation),
+                modifier = Modifier
+                    .weight(1f)
+                    .background(EmergencyTableLabelBackground)
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = Black,
+            )
+        }
+        HorizontalDivider(color = LightGray, thickness = 1.dp)
+        rows.forEachIndexed { index, (english, russian) ->
+            if (index > 0) {
+                HorizontalDivider(color = LightGray, thickness = 1.dp)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .heightIn(min = 48.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = english,
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(White)
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Normal,
+                    color = Black,
+                )
+                VerticalDivider(
+                    modifier = Modifier.fillMaxHeight(),
+                    thickness = 1.dp,
+                    color = LightGray,
+                )
+                Text(
+                    text = russian,
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(White)
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Normal,
+                    color = Black,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun UsefulPhrasesBlock(rows: List<Pair<String, String>>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.tools_useful_phrases_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = Black,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(12.dp))
+        UsefulPhrasesTable(rows = rows)
+    }
+}
+
+@Composable
 private fun ToolsSectionPlaceholder(text: String) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -440,7 +542,10 @@ fun ToolsContent(
                     ToolChipStub(
                         label = stringResource(R.string.tools_chip_phrases),
                         selected = selected == ToolsCategoryStub.Phrases,
-                        onClick = { selected = ToolsCategoryStub.Phrases },
+                        onClick = {
+                            selected = ToolsCategoryStub.Phrases
+                            viewModel.openUsefulPhrases()
+                        },
                     )
                 }
                 Row(
@@ -495,9 +600,25 @@ fun ToolsContent(
                         }
                     }
 
-                    ToolsCategoryStub.Phrases,
-                    ToolsCategoryStub.Cultural,
-                    -> {
+                    ToolsCategoryStub.Phrases -> {
+                        when (val s = state) {
+                            is ToolsState.UsefulPhrases -> {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(top = 28.dp)
+                                        .verticalScroll(rememberScrollState()),
+                                ) {
+                                    UsefulPhrasesBlock(rows = s.phrases)
+                                }
+                            }
+
+                            else -> {
+                                ToolsSectionPlaceholder("soon")
+                            }
+                        }
+                    }
+
+                    ToolsCategoryStub.Cultural -> {
                         ToolsSectionPlaceholder("soon")
                     }
 
@@ -539,6 +660,27 @@ private fun TranslationPanelPreview() {
                 onSourceChange = {},
                 onSwap = {},
                 onTranslate = {},
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun UsefulPhrasesBlockPreview() {
+    AdventureMakerTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(White)
+                .padding(horizontal = 16.dp)
+                .padding(top = 28.dp, bottom = 16.dp),
+        ) {
+            UsefulPhrasesBlock(
+                rows = listOf(
+                    "Hi (Hello)" to "Привет (Здравствуйте)",
+                    "Please" to "Пожалуйста",
+                ),
             )
         }
     }

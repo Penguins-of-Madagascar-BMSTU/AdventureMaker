@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.usecases.ConvertCurrencyUseCase
 import com.example.domain.usecases.GetEmergencyNumbersUseCase
+import com.example.domain.usecases.GetUsefulPhrasesUseCase
 import com.example.domain.usecases.TranslateTextUseCase
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -19,7 +20,8 @@ import kotlinx.coroutines.withContext
 class ToolsViewModel(
     private val convertCurrencyUseCase: ConvertCurrencyUseCase,
     private val translateTextUseCase: TranslateTextUseCase,
-    private val getEmergencyNumbersUseCase: GetEmergencyNumbersUseCase
+    private val getEmergencyNumbersUseCase: GetEmergencyNumbersUseCase,
+    private val getUsefulPhrasesUseCase: GetUsefulPhrasesUseCase,
 ) : ViewModel() {
 
     private val _state = MutableLiveData<ToolsState>(ToolsState.CurrencyConverter())
@@ -46,6 +48,11 @@ class ToolsViewModel(
     fun openEmergencyNumbers() {
         val numbers = getEmergencyNumbersUseCase.getEmergencyNumbers()
         _state.value = ToolsState.EmergencyNumbers(numbers)
+    }
+
+    fun openUsefulPhrases() {
+        val phrases = getUsefulPhrasesUseCase.getPhrases()
+        _state.value = ToolsState.UsefulPhrases(phrases)
     }
 
     fun updateCurrencyInput(code: String, value: String) {

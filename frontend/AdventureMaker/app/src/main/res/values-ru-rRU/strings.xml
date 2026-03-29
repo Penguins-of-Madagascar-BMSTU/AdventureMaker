@@ -48,4 +48,8 @@
     <string name="tools_translate_button">Перевести</string>
     <string name="lang_english">Английский</string>
     <string name="lang_russian">Русский</string>
+
+    <string name="tools_useful_phrases_title">Полезные фразы</string>
+    <string name="tools_phrases_column_phrase">Фраза</string>
+    <string name="tools_phrases_column_translation">Перевод</string>
 </resources>

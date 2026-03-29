@@ -47,4 +47,8 @@
     <string name="tools_translate_button">Translate</string>
     <string name="lang_english">English</string>
     <string name="lang_russian">Russian</string>
+
+    <string name="tools_useful_phrases_title">Useful phrases</string>
+    <string name="tools_phrases_column_phrase">Phrase</string>
+    <string name="tools_phrases_column_translation">Translation</string>
 </resources>

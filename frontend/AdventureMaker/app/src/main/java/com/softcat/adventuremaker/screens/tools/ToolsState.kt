@@ -24,4 +24,8 @@ sealed interface ToolsState {
     data class EmergencyNumbers(
         val numbers: List<Pair<String, String>>
     ) : ToolsState
+
+    data class UsefulPhrases(
+        val phrases: List<Pair<String, String>>,
+    ) : ToolsState
 }
