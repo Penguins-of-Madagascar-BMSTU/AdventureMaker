@@ -7,8 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.usecases.ConvertCurrencyUseCase
 import com.example.domain.usecases.GetEmergencyNumbersUseCase
 import com.example.domain.usecases.TranslateTextUseCase
-import java.util.Locale
+import java.math.BigDecimal
+import java.math.RoundingMode
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -18,7 +22,7 @@ class ToolsViewModel(
     private val getEmergencyNumbersUseCase: GetEmergencyNumbersUseCase
 ) : ViewModel() {
 
-    private val _state = MutableLiveData<ToolsState>(ToolsState.Loading)
+    private val _state = MutableLiveData<ToolsState>(ToolsState.CurrencyConverter())
     val state: LiveData<ToolsState>
         get() = _state
 
@@ -26,8 +30,10 @@ class ToolsViewModel(
     private var translationState = ToolsState.Translation()
     private var emergencyNumbersState: ToolsState.EmergencyNumbers? = null
 
+    private var convertJob: Job? = null
+
     init {
-        openCurrencyConverter()
+        _state.value = currencyConverterState
     }
 
     fun openCurrencyConverter() {
@@ -50,43 +56,72 @@ class ToolsViewModel(
         _state.value = newState
     }
 
-    fun changeAmount(newValue: String) {
-        val currentState = (state.value as? ToolsState.CurrencyConverter) ?: return
-        currencyConverterState = currentState.copy(amount = newValue)
+    fun updateCurrencyInput(code: String, value: String) {
+        convertJob?.cancel()
+
+        val current = currencyConverterState
+        val newAmounts = current.amounts.toMutableMap()
+        newAmounts[code] = value
+        currencyConverterState = current.copy(amounts = newAmounts.toMap())
         _state.value = currencyConverterState
-    }
 
-    fun changeFromCurrency(newValue: String) {
-        val currentState = (state.value as? ToolsState.CurrencyConverter) ?: return
-        currencyConverterState = currentState.copy(fromCurrency = newValue)
+        val normalized = value.replace(',', '.').trim()
+        if (normalized.isEmpty()) {
+            val cleared = ToolsCurrencies.emptyAmounts()
+            currencyConverterState = current.copy(amounts = cleared)
+            _state.value = currencyConverterState
+            return
+        }
+
+        val amount = normalized.toDoubleOrNull()
+        if (amount == null || amount < 0) {
+            currencyConverterState = current.copy(amounts = newAmounts.toMap())
+            _state.value = currencyConverterState
+            return
+        }
+
+        currencyConverterState = current.copy(amounts = newAmounts.toMap())
         _state.value = currencyConverterState
-    }
 
-    fun changeToCurrency(newValue: String) {
-        val currentState = (state.value as? ToolsState.CurrencyConverter) ?: return
-        currencyConverterState = currentState.copy(toCurrency = newValue)
-        _state.value = currencyConverterState
-    }
+        convertJob = viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val others = ToolsCurrencies.codes.filter { it != code }
+                val merged = newAmounts.toMutableMap()
+                merged[code] = value
 
-    fun convertCurrency() {
-        val currentState = (state.value as? ToolsState.CurrencyConverter) ?: return
-        val amount = currentState.amount.toDoubleOrNull() ?: return
+                for (target in others) {
+                    ensureActive()
+                    val result = convertCurrencyUseCase.convert(amount, code, target)
+                    result.onSuccess { converted ->
+                        merged[target] = formatAmount(converted)
+                    }.onFailure {
+                        merged[target] = current.amounts[target].orEmpty()
+                    }
+                }
+                merged[code] = value
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = convertCurrencyUseCase.convert(
-                amount = amount,
-                fromCurrency = currentState.fromCurrency,
-                toCurrency = currentState.toCurrency
-            )
-            withContext(Dispatchers.Main) {
-                result.onSuccess { convertedAmount ->
-                    currencyConverterState = currentState.copy(
-                        convertedAmount = String.format(Locale.US, "%.2f", convertedAmount)
-                    )
+                ensureActive()
+                withContext(Dispatchers.Main) {
+                    ensureActive()
+                    currencyConverterState =
+                        ToolsState.CurrencyConverter(amounts = merged.toMap())
+                    _state.value = currencyConverterState
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                withContext(Dispatchers.Main) {
                     _state.value = currencyConverterState
                 }
             }
         }
+    }
+
+    private fun formatAmount(value: Double): String {
+        return BigDecimal.valueOf(value)
+            .setScale(10, RoundingMode.HALF_UP)
+            .stripTrailingZeros()
+            .toPlainString()
     }
 
     fun changeTextToTranslate(newValue: String) {

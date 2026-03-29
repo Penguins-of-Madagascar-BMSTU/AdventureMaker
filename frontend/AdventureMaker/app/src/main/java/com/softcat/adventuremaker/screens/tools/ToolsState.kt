@@ -1,14 +1,17 @@
 package com.softcat.adventuremaker.screens.tools
 
+object ToolsCurrencies {
+    val codes = listOf("RUB", "USD", "EUR", "CNY", "BYN")
+
+    fun emptyAmounts(): Map<String, String> = codes.associateWith { "" }
+}
+
 sealed interface ToolsState {
 
     data object Loading : ToolsState
 
     data class CurrencyConverter(
-        val amount: String = "",
-        val fromCurrency: String = "RUB",
-        val toCurrency: String = "USD",
-        val convertedAmount: String = ""
+        val amounts: Map<String, String> = ToolsCurrencies.emptyAmounts(),
     ) : ToolsState
 
     data class Translation(
