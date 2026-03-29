@@ -40,7 +40,7 @@
     <string name="tools_screen_title">Полезные инструменты</string>
     <string name="tools_chip_currency">Конвертер валют</string>
     <string name="tools_chip_translation">Перевод</string>
-    <string name="tools_chip_phrases">Полезные фразы</string>
+    <string name="tools_chip_phrases">Фразы</string>
     <string name="tools_chip_cultural">Культурные советы</string>
     <string name="tools_chip_emergency">Экстренные номера</string>
 </resources>

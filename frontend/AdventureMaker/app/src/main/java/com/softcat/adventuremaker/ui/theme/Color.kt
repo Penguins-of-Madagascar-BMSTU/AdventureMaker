@@ -16,3 +16,5 @@ val BasicIconsTint = Color(0xFF45474F)
 val CustomRed = Color(0xFFFE4D00)
 val BrightOrange = Color(0xFFFF6D00)
 val NavBarShadow = Color(0xFF545454)
+
+val EmergencyTableLabelBackground = Color(0xFFDFF5E4)

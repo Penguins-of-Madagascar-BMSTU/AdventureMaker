@@ -28,7 +28,6 @@ class ToolsViewModel(
 
     private var currencyConverterState = ToolsState.CurrencyConverter()
     private var translationState = ToolsState.Translation()
-    private var emergencyNumbersState: ToolsState.EmergencyNumbers? = null
 
     private var convertJob: Job? = null
 
@@ -45,15 +44,8 @@ class ToolsViewModel(
     }
 
     fun openEmergencyNumbers() {
-        emergencyNumbersState?.let {
-            _state.value = it
-            return
-        }
-
         val numbers = getEmergencyNumbersUseCase.getEmergencyNumbers()
-        val newState = ToolsState.EmergencyNumbers(numbers)
-        emergencyNumbersState = newState
-        _state.value = newState
+        _state.value = ToolsState.EmergencyNumbers(numbers)
     }
 
     fun updateCurrencyInput(code: String, value: String) {

@@ -8,15 +8,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -46,6 +48,7 @@ import com.softcat.adventuremaker.navigation.BottomNavigationBar
 import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
 import com.softcat.adventuremaker.ui.theme.BasicOrange
+import com.softcat.adventuremaker.ui.theme.EmergencyTableLabelBackground
 import com.softcat.adventuremaker.ui.theme.LightGray
 import org.koin.androidx.compose.koinViewModel
 
@@ -161,6 +164,56 @@ private fun CurrencyConverterRow(
             modifier = Modifier.width(40.dp),
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+@Composable
+private fun EmergencyNumbersTable(
+    rows: List<Pair<String, String>>,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, LightGray, RoundedCornerShape(8.dp)),
+    ) {
+        rows.forEachIndexed { index, (number, description) ->
+            if (index > 0) {
+                HorizontalDivider(color = LightGray, thickness = 1.dp)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .heightIn(min = 52.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = description,
+                    modifier = Modifier
+                        .weight(1.15f)
+                        .background(EmergencyTableLabelBackground)
+                        .padding(horizontal = 14.dp, vertical = 14.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Black,
+                )
+                VerticalDivider(
+                    modifier = Modifier.fillMaxHeight(),
+                    thickness = 1.dp,
+                    color = LightGray,
+                )
+                Text(
+                    text = number,
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(White)
+                        .padding(horizontal = 14.dp, vertical = 14.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Normal,
+                    color = Black,
+                )
+            }
+        }
     }
 }
 
@@ -297,20 +350,8 @@ fun ToolsContent(
                     ToolsCategoryStub.Emergency -> {
                         when (val s = state) {
                             is ToolsState.EmergencyNumbers -> {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .verticalScroll(rememberScrollState())
-                                        .padding(vertical = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    s.numbers.forEach { (title, value) ->
-                                        Text(
-                                            text = "$title — $value",
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            color = Black,
-                                        )
-                                    }
+                                Column(Modifier.padding(top = 28.dp)) {
+                                    EmergencyNumbersTable(rows = s.numbers)
                                 }
                             }
 
@@ -321,6 +362,30 @@ fun ToolsContent(
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EmergencyNumbersTablePreview() {
+    AdventureMakerTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(White)
+                .padding(horizontal = 16.dp)
+                .padding(top = 28.dp, bottom = 16.dp),
+        ) {
+            EmergencyNumbersTable(
+                rows = listOf(
+                    "101" to "пожарная охрана",
+                    "102" to "полиция",
+                    "103" to "скорая помощь",
+                    "104" to "аварийная газовая служба",
+                    "112" to "единый номер экстренных служб",
+                ),
+            )
         }
     }
 }
