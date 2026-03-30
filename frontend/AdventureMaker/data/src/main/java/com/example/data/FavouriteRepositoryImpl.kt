@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.tasks.await
 
@@ -31,7 +32,7 @@ class FavouriteRepositoryImpl(
             val places = loadFavouritePlaces()
             emit(places)
         }
-    }
+    }.retry(1) { true }
 
     override fun getFavourites(userId: String): StateFlow<List<Place>> {
         selectedUserId = userId
@@ -46,20 +47,16 @@ class FavouriteRepositoryImpl(
 
     private suspend fun loadFavouritePlaces(): List<Place> {
         val userId = selectedUserId ?: return emptyList()
-        try {
-            val userFavouritesRef = favouritesStorage.child(userId)
-            val snapshot = userFavouritesRef.get().await()
-            if (!snapshot.exists())
-                return emptyList()
-            val favouriteIds = snapshot.children.mapNotNull {
-                it.key.toString()
-            }.joinToString(",")
-            val response = apiService.loadPlaceById(favouriteIds)
-            val places = response.result.items.map { it.toEntity() }
-            return places
-        } catch (_: Exception) {
+        val userFavouritesRef = favouritesStorage.child(userId)
+        val snapshot = userFavouritesRef.get().await()
+        if (!snapshot.exists())
             return emptyList()
-        }
+        val favouriteIds = snapshot.children.mapNotNull {
+            it.key.toString()
+        }.joinToString(",")
+        val response = apiService.loadPlaceById(favouriteIds)
+        val places = response.result.items.map { it.toEntity() }
+        return places
     }
 
     override suspend fun addToFavourite(

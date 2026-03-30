@@ -7,6 +7,9 @@ import com.example.data.api.CurrencyApiService
 import com.example.data.CurrencyConverterRepositoryImpl
 import com.example.data.EmergencyNumbersRepositoryImpl
 import com.example.data.FavouriteRepositoryImpl
+import com.example.data.PlaceImageProvider
+import com.example.data.PlacesRepositoryImpl
+import com.example.data.PostsRepositoryImpl
 import com.example.data.TranslationRepositoryImpl
 import com.example.data.UserRepositoryImpl
 import com.example.data.api.CurrencyApiFactory
@@ -16,6 +19,8 @@ import com.example.domain.entities.Place
 import com.example.domain.interfaces.CurrencyConverterRepository
 import com.example.domain.interfaces.EmergencyNumbersRepository
 import com.example.domain.interfaces.FavouriteRepository
+import com.example.domain.interfaces.PlacesRepository
+import com.example.domain.interfaces.PostsRepository
 import com.example.domain.interfaces.TranslationRepository
 import com.example.domain.interfaces.UserRepository
 import com.example.domain.usecases.ConvertCurrencyUseCase
@@ -47,7 +52,9 @@ val repositoryModule = module {
     single<TranslationRepository> { TranslationRepositoryImpl() }
     single<EmergencyNumbersRepository> { EmergencyNumbersRepositoryImpl() }
     single<CurrencyConverterRepository> { CurrencyConverterRepositoryImpl(get()) }
-    single<FavouriteRepository> { FavouriteRepositoryImpl() }
+    single<FavouriteRepository> { FavouriteRepositoryImpl(get()) }
+    single<PlacesRepository> { PlacesRepositoryImpl(get(), get()) }
+    single<PostsRepository> { PostsRepositoryImpl() }
 
     single { UserUseCase(get()) }
     single { FavouriteUseCase(get()) }
@@ -67,4 +74,6 @@ val dataModule = module {
     single<DataStore<Preferences>> {
         (get<Context>() as AdventureMakerApplication).dataStore
     }
+
+    single { PlaceImageProvider() }
 }

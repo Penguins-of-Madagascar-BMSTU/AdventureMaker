@@ -1,5 +1,6 @@
 [versions]
 agp = "9.0.0"
+androidMapsUtils = "4.1.1"
 awsAndroidSdkS3 = "2.73.0"
 converterGson = "3.0.0"
 coreKtx = "1.17.0"
@@ -25,8 +26,10 @@ serialization = "1.6.3"
 coil = "2.1.0"
 mapSdk = "13.0.0"
 okhttp = "5.3.2"
+googleGmsGoogleServices = "4.4.4"
 
 [libraries]
+android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtils" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 aws-android-sdk-core = { module = "com.amazonaws:aws-android-sdk-core", version.ref = "awsAndroidSdkS3" }
 aws-android-sdk-s3 = { module = "com.amazonaws:aws-android-sdk-s3", version.ref = "awsAndroidSdkS3" }
@@ -70,4 +73,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlinx-serialization = {id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

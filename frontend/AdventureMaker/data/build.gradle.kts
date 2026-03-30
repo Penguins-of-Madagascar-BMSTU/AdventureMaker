@@ -74,6 +74,7 @@ dependencies {
 
     implementation(libs.aws.android.sdk.s3)
     implementation(libs.aws.android.sdk.core)
+    implementation(libs.android.maps.utils)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

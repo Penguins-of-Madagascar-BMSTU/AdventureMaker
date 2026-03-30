@@ -11,7 +11,7 @@ interface MapsApiService {
     suspend fun loadPlaces(
         @Query("q") query: String,
         @Query("type") categoryAlias: String,
-        @Query("city_id") cityId: Int,
+        @Query("region_id") cityId: Int,
         @Query("page") page: Int = 1,
         @Query("page_size") pageSize: Int = 10,
         @Query("fields") extraFields: String = FIELDS_PARAM,

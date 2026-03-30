@@ -5,6 +5,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.data.FirebaseRules.USERS_STORAGE_NAME
+import com.example.data.api.dto.UserDto
+import com.example.data.api.toDto
+import com.example.data.api.toEntity
 import com.example.data.exceptions.UserNotFoundException
 import com.example.domain.entities.User
 import com.example.domain.interfaces.UserRepository
@@ -47,10 +50,10 @@ class UserRepositoryImpl(
             val user = User(
                 id = reference.key.toString(),
                 email = email,
-                name = "\"$name\"",
+                name = name,
                 avatarUrl = null
             )
-            val job = reference.setValue(user)
+            val job = reference.setValue(user.toDto())
             job.await()
             job.exception?.let {
                 auth.signOut()
@@ -104,11 +107,11 @@ class UserRepositoryImpl(
 
         // result.children - массив из 1 JSON пользователя, в котором нужный email.
         val userSnapshot = result.children.first()
-        val user = userSnapshot.getValue<User>()
+        val user = userSnapshot.getValue<UserDto>()
             ?: return Result.failure(
                 DataCorruptedException("User data is invalid.")
             )
-        return Result.success(user)
+        return Result.success(user.toEntity())
     }
 
     private suspend fun rememberUser(user: User) {

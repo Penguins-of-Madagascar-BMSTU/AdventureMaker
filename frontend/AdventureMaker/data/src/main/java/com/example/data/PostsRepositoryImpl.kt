@@ -6,6 +6,9 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.example.data.FirebaseRules.POSTS_STORAGE_NAME
+import com.example.data.api.dto.PostDto
+import com.example.data.api.toDto
+import com.example.data.api.toEntity
 import com.example.domain.entities.Post
 import com.example.domain.interfaces.PostsRepository
 import com.google.firebase.Firebase
@@ -22,11 +25,10 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.io.InputStream
 import java.util.UUID
 
-class PostsRepositoryImpl(
-    private val context: Context,
-): PostsRepository {
+class PostsRepositoryImpl: PostsRepository {
 
     override suspend fun getPosts(
         userLat: Float,
@@ -48,6 +50,7 @@ class PostsRepositoryImpl(
     }
 
     override suspend fun publishPost(
+        context: Context,
         imageUri: Uri,
         userId: String,
         description: String,
@@ -55,23 +58,33 @@ class PostsRepositoryImpl(
         longitude: Float,
         scoreValue: Int?
     ): Result<Post> {
-        return try {
-            val postId = UUID.randomUUID().toString()
-            val url = uploadImageToS3(imageUri, postId)
-            val post = Post(
-                id = postId,
-                userId = userId,
-                imageUrl = url,
-                scoreValue = scoreValue,
-                description = description,
-                latitude = latitude,
-                longitude = longitude
-            )
-            savePostData(post)
-            Result.success(post)
-        } catch (e: Exception) {
-            Result.failure(e)
+        val contentSize = getFileSize(context, imageUri)
+        val inputStream = context.contentResolver.openInputStream(imageUri)
+            ?: return Result.failure(Exception("Cannot open input stream."))
+
+        val result = inputStream.use {
+            try {
+                val postId = UUID.randomUUID().toString()
+                val url = uploadImageToS3(inputStream, contentSize, postId)
+                val post = Post(
+                    id = postId,
+                    userId = userId,
+                    imageUrl = url,
+                    scoreValue = scoreValue,
+                    description = description,
+                    latitude = latitude,
+                    longitude = longitude
+                )
+                savePostData(post.toDto()).onFailure {
+                    deletePost(postId)
+                    return@use Result.failure(it)
+                }
+                return@use Result.success(post)
+            } catch (e: Exception) {
+                return@use Result.failure(e)
+            }
         }
+        return result
     }
 
     override suspend fun deletePost(postId: String): Result<Unit> {
@@ -123,33 +136,34 @@ class PostsRepositoryImpl(
     private var lastKey: String? = null
 
     private suspend fun loadPosts() {
-        val query = postsStorage.apply {
-            orderByKey()
-            lastKey?.let { startAt(it) }
-            limitToFirst(5)
-        }
-        val dataSnapshot = query.get().await()
-        val newPosts = dataSnapshot.children.mapNotNull { postData ->
-            lastKey = postData.key
-            postData.getValue<Post>()
-        }
-        loadedPosts.addAll(newPosts)
+        try {
+            val query = postsStorage.apply {
+                orderByKey()
+                lastKey?.let { startAt(it) }
+                limitToFirst(5)
+            }
+            val dataSnapshot = query.get().await()
+            val newPosts = dataSnapshot.children.mapNotNull { postData ->
+                lastKey = postData.key
+                postData.getValue<PostDto>()
+            }.map { it.toEntity() }
+            loadedPosts.addAll(newPosts)
+        } catch (_: Exception) {}
     }
 
-    private suspend fun savePostData(post: Post) {
+    private suspend fun savePostData(post: PostDto): Result<Unit> {
         val reference = postsStorage.push()
         val job = reference.setValue(post)
         job.await()
-        job.exception?.let { throw it }
+        job.exception?.let { return Result.failure(it) }
+        return Result.success(Unit)
     }
 
-    private suspend fun uploadImageToS3(imageUri: Uri, postId: String): String = withContext(Dispatchers.IO) {
-        val inputStream = context.contentResolver.openInputStream(imageUri)
-        requireNotNull(inputStream) { "Cannot open input stream from URI" }
-
+    private suspend fun uploadImageToS3(inputStream: InputStream, contentSize: Long, postId: String): String = withContext(Dispatchers.IO) {
         val fileName = getImageFileName(postId)
         val metadata = ObjectMetadata().apply {
             contentType = "image/jpeg"
+            contentLength = contentSize
         }
         s3Client.putObject(
             BuildConfig.BUCKET_NAME,
@@ -157,28 +171,27 @@ class PostsRepositoryImpl(
             inputStream,
             metadata
         )
-        inputStream.close()
-
         return@withContext "${BuildConfig.S3_ENDPOINT}/${BuildConfig.BUCKET_NAME}/$fileName"
     }
 
-    suspend fun deleteImageFromS3(postId: String): Boolean = withContext(Dispatchers.IO) {
-        return@withContext try {
-            val fileName = getImageFileName(postId)
-            s3Client.deleteObject(
-                BuildConfig.BUCKET_NAME,
-                fileName
-            )
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+    suspend fun deleteImageFromS3(postId: String) = withContext(Dispatchers.IO) {
+        val fileName = getImageFileName(postId)
+        s3Client.deleteObject(
+            BuildConfig.BUCKET_NAME,
+            fileName
+        )
     }
 
     private fun getImageFileName(postId: String) = "images/$postId.jpg"
 
     private fun <T> Flow<T>.mergeWith(other: Flow<T>): Flow<T> {
         return merge(this, other)
+    }
+
+    private fun getFileSize(context: Context, uri: Uri): Long {
+        context.contentResolver.openFileDescriptor(uri, "r").use { descriptor ->
+            descriptor?.statSize?.let { return it }
+        }
+        return 0L
     }
 }

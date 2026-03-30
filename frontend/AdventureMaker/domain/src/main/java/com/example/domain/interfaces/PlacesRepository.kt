@@ -5,7 +5,12 @@ import com.example.domain.entities.Place
 
 interface PlacesRepository {
 
-    suspend fun getPlaces(cityId: Int, query: String, category: Place.Category?): Result<List<Place>>
+    suspend fun getPlaces(
+        cityId: Int,
+        query: String,
+        category: Place.Category?,
+        page: Int
+    ): Result<List<Place>>
 
     suspend fun getCities(query: String): Result<List<City>>
 }

@@ -1,19 +1,23 @@
 package com.example.data.api
 
 import com.example.data.api.dto.PlaceDto
+import com.example.data.api.dto.PostDto
 import com.example.data.api.dto.RegionDto
+import com.example.data.api.dto.UserDto
 import com.example.domain.entities.City
 import com.example.domain.entities.Place
+import com.example.domain.entities.Post
+import com.example.domain.entities.User
 
 fun PlaceDto.toEntity() = Place(
-    id = address.id,
-    name = address.name,
+    id = id,
+    name = name,
     description = description.orEmpty(),
     category = rubrics.first().id.toCategory(),
     imageUrls = emptyList(),
     latitude = point.latitude,
     longitude = point.longitude,
-    address = address.address + ", " + address.comment
+    address = address
 )
 
 fun String.toCategory() = when (this) {
@@ -29,4 +33,38 @@ fun String.toCategory() = when (this) {
 fun RegionDto.toEntity() = City(
     id = id,
     name = name
+)
+
+fun UserDto.toEntity() = User(
+    id = id,
+    name = name,
+    email = email,
+    avatarUrl = avatarUrl.ifEmpty { null },
+)
+
+fun User.toDto() = UserDto(
+    id = id,
+    email = email,
+    name = name,
+    avatarUrl = avatarUrl ?: ""
+)
+
+fun PostDto.toEntity() = Post(
+    id = id,
+    userId = userId,
+    imageUrl = imageUrl,
+    scoreValue = scoreValue,
+    description = description,
+    latitude = latitude,
+    longitude = longitude
+)
+
+fun Post.toDto() = PostDto(
+    id = id,
+    userId = userId,
+    imageUrl = imageUrl,
+    scoreValue = scoreValue,
+    description = description,
+    latitude = latitude,
+    longitude = longitude
 )

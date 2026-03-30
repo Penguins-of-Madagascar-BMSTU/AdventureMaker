@@ -14,28 +14,26 @@ class PlacesRepositoryImpl(
     override suspend fun getPlaces(
         cityId: Int,
         query: String,
-        category: Place.Category?
+        category: Place.Category?,
+        page: Int
     ): Result<List<Place>> {
-        val places = mutableListOf<Place>()
-        for (i in 1..5) {
-            try {
-                val placeList = mapsApiService.loadPlaces(
-                    query = query,
-                    categoryAlias = category.toAlias(),
-                    cityId = cityId,
-                    page = i
-                )
-                val newPlaces = placeList.result.items
-                    .map { it.toEntity() }
-                    .filter { it.category == category }
-                places.addAll(newPlaces)
-            } catch (e: Exception) {
-                if (i == 5 && places.isEmpty())
-                    return Result.failure(e)
-            }
+        return try {
+            val places = mutableListOf<Place>()
+            val placeList = mapsApiService.loadPlaces(
+                query = query,
+                categoryAlias = category.toAlias(),
+                cityId = cityId,
+                page = page
+            )
+            val newPlaces = placeList.result.items
+                .map { it.toEntity() }
+                .filter { it.category == category }
+            places.addAll(newPlaces)
+            val result = placeImageProvider.provideImages(places)
+            Result.success(result)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-        val result = placeImageProvider.provideImages(places)
-        return Result.success(result)
     }
 
     override suspend fun getCities(query: String): Result<List<City>> {
