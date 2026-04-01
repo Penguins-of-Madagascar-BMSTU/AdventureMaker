@@ -14,10 +14,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
-        // val apiKey2GIS = property("apiKey2GIS")?.toString() ?:
-        //     error("No @GIS api key defined in gradle.properties.")
-        // buildConfigField("String", "API_KEY_2GIS", "\"$apiKey2GIS\"")
-        buildConfigField("String", "API_KEY_2GIS", "\"\"")
+        val apiKey2GIS = property("apiKey2GIS")?.toString() ?:
+        error("No @GIS api key defined in gradle.properties.")
+        buildConfigField("String", "API_KEY_2GIS", "\"$apiKey2GIS\"")
     }
 
     buildTypes {

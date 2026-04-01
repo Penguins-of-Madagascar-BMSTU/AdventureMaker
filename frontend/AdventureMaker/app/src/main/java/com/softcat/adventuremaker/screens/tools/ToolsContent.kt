@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,9 +40,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,14 +63,6 @@ import com.softcat.adventuremaker.ui.theme.EmergencyTableLabelBackground
 import com.softcat.adventuremaker.ui.theme.LightGray
 import com.softcat.adventuremaker.ui.theme.TranslationActionButton
 import org.koin.androidx.compose.koinViewModel
-
-private enum class ToolsCategoryStub {
-    Currency,
-    Translation,
-    Phrases,
-    Cultural,
-    Emergency,
-}
 
 @Composable
 private fun ToolChipStub(
@@ -238,7 +231,8 @@ private fun languageDisplayName(languageCode: String): String =
 
 @Composable
 private fun TranslationPanel(
-    state: ToolsState.Translation,
+    state: TranslationState,
+    translationInProgress: Boolean,
     onSourceChange: (String) -> Unit,
     onSwap: () -> Unit,
     onTranslate: () -> Unit,
@@ -255,7 +249,10 @@ private fun TranslationPanel(
                 color = Black,
                 modifier = Modifier.weight(1f),
             )
-            IconButton(onClick = onSwap) {
+            IconButton(
+                onClick = onSwap,
+                enabled = !translationInProgress,
+            ) {
                 Icon(
                     imageVector = Icons.Filled.SwapHoriz,
                     contentDescription = null,
@@ -279,6 +276,7 @@ private fun TranslationPanel(
             OutlinedTextField(
                 value = state.sourceText,
                 onValueChange = onSourceChange,
+                enabled = !translationInProgress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 120.dp),
@@ -345,6 +343,7 @@ private fun TranslationPanel(
         Spacer(Modifier.height(24.dp))
         Button(
             onClick = onTranslate,
+            enabled = !translationInProgress,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
@@ -354,11 +353,19 @@ private fun TranslationPanel(
                 contentColor = White,
             ),
         ) {
-            Text(
-                text = stringResource(R.string.tools_translate_button),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium,
-            )
+            if (translationInProgress) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = White,
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.tools_translate_button),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
         }
     }
 }
@@ -483,8 +490,8 @@ fun ToolsContent(
     navController: NavController,
     viewModel: ToolsViewModel = koinViewModel(),
 ) {
-    var selected by remember { mutableStateOf(ToolsCategoryStub.Currency) }
-    val state by viewModel.state.observeAsState(ToolsState.CurrencyConverter())
+    val state by viewModel.state.observeAsState(ToolsState())
+    val scrollState = rememberScrollState()
 
     Scaffold(
         containerColor = White,
@@ -499,6 +506,7 @@ fun ToolsContent(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .background(White)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -513,126 +521,87 @@ fun ToolsContent(
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(20.dp))
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    ToolChipStub(
-                        label = stringResource(R.string.tools_chip_currency),
-                        selected = selected == ToolsCategoryStub.Currency,
-                        onClick = {
-                            selected = ToolsCategoryStub.Currency
-                            viewModel.openCurrencyConverter()
-                        },
-                    )
-                    ToolChipStub(
-                        label = stringResource(R.string.tools_chip_translation),
-                        selected = selected == ToolsCategoryStub.Translation,
-                        onClick = {
-                            selected = ToolsCategoryStub.Translation
-                            viewModel.openTranslation()
-                        },
-                    )
-                    ToolChipStub(
-                        label = stringResource(R.string.tools_chip_phrases),
-                        selected = selected == ToolsCategoryStub.Phrases,
-                        onClick = {
-                            selected = ToolsCategoryStub.Phrases
-                            viewModel.openUsefulPhrases()
-                        },
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    ToolChipStub(
-                        label = stringResource(R.string.tools_chip_cultural),
-                        selected = selected == ToolsCategoryStub.Cultural,
-                        onClick = { selected = ToolsCategoryStub.Cultural },
-                    )
-                    ToolChipStub(
-                        label = stringResource(R.string.tools_chip_emergency),
-                        selected = selected == ToolsCategoryStub.Emergency,
-                        onClick = {
-                            selected = ToolsCategoryStub.Emergency
-                            viewModel.openEmergencyNumbers()
-                        },
-                    )
-                }
+                ToolChipStub(
+                    label = stringResource(R.string.tools_chip_currency),
+                    selected = state.activeSection == ToolsSection.Currency,
+                    onClick = { viewModel.openCurrencyConverter() },
+                )
+                ToolChipStub(
+                    label = stringResource(R.string.tools_chip_translation),
+                    selected = state.activeSection == ToolsSection.Translation,
+                    onClick = { viewModel.openTranslation() },
+                )
+                ToolChipStub(
+                    label = stringResource(R.string.tools_chip_phrases),
+                    selected = state.activeSection == ToolsSection.Phrases,
+                    onClick = { viewModel.openUsefulPhrases() },
+                )
+                ToolChipStub(
+                    label = stringResource(R.string.tools_chip_emergency),
+                    selected = state.activeSection == ToolsSection.Emergency,
+                    onClick = { viewModel.openEmergencyNumbers() },
+                )
             }
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                when (selected) {
-                    ToolsCategoryStub.Currency -> {
-                        val conv = state as? ToolsState.CurrencyConverter
-                        if (conv != null) {
-                            Column(Modifier.padding(top = 28.dp)) {
-                                CurrencyConverterTable(
-                                    amounts = conv.amounts,
-                                    onValueChange = viewModel::updateCurrencyInput,
-                                )
-                            }
-                        }
-                    }
-
-                    ToolsCategoryStub.Translation -> {
-                        val tr = state as? ToolsState.Translation
-                        if (tr != null) {
-                            Column(Modifier.padding(top = 28.dp)) {
-                                TranslationPanel(
-                                    state = tr,
-                                    onSourceChange = viewModel::changeTextToTranslate,
-                                    onSwap = viewModel::swapTranslationLanguages,
-                                    onTranslate = viewModel::translateText,
-                                )
-                            }
-                        }
-                    }
-
-                    ToolsCategoryStub.Phrases -> {
-                        when (val s = state) {
-                            is ToolsState.UsefulPhrases -> {
-                                Column(
+                when (state.activeSection) {
+                    ToolsSection.Currency -> {
+                        Column(Modifier.padding(top = 28.dp)) {
+                            CurrencyConverterTable(
+                                amounts = state.currencyAmounts,
+                                onValueChange = viewModel::updateCurrencyInput,
+                            )
+                            if (state.currencyConversionInProgress) {
+                                CircularProgressIndicator(
                                     modifier = Modifier
-                                        .padding(top = 28.dp)
-                                        .verticalScroll(rememberScrollState()),
-                                ) {
-                                    UsefulPhrasesBlock(rows = s.phrases)
-                                }
-                            }
-
-                            else -> {
-                                ToolsSectionPlaceholder("soon")
+                                        .padding(top = 16.dp)
+                                        .size(32.dp),
+                                    color = BasicOrange,
+                                    strokeWidth = 3.dp,
+                                )
                             }
                         }
                     }
 
-                    ToolsCategoryStub.Cultural -> {
-                        ToolsSectionPlaceholder("soon")
+                    ToolsSection.Translation -> {
+                        Column(Modifier.padding(top = 28.dp)) {
+                            TranslationPanel(
+                                state = state.translation,
+                                translationInProgress = state.translationInProgress,
+                                onSourceChange = viewModel::changeTextToTranslate,
+                                onSwap = viewModel::swapTranslationLanguages,
+                                onTranslate = viewModel::translateText,
+                            )
+                        }
                     }
 
-                    ToolsCategoryStub.Emergency -> {
-                        when (val s = state) {
-                            is ToolsState.EmergencyNumbers -> {
-                                Column(Modifier.padding(top = 28.dp)) {
-                                    EmergencyNumbersTable(rows = s.numbers)
-                                }
+                    ToolsSection.Phrases -> {
+                        val phrases = state.usefulPhrases
+                        if (phrases != null) {
+                            Column(Modifier.padding(top = 28.dp)) {
+                                UsefulPhrasesBlock(rows = phrases)
                             }
+                        } else {
+                            ToolsSectionPlaceholder("soon")
+                        }
+                    }
 
-                            else -> {
-                                ToolsSectionPlaceholder("soon")
+                    ToolsSection.Emergency -> {
+                        val numbers = state.emergencyNumbers
+                        if (numbers != null) {
+                            Column(Modifier.padding(top = 28.dp)) {
+                                EmergencyNumbersTable(rows = numbers)
                             }
+                        } else {
+                            ToolsSectionPlaceholder("soon")
                         }
                     }
                 }
@@ -653,10 +622,11 @@ private fun TranslationPanelPreview() {
                 .padding(top = 28.dp, bottom = 16.dp),
         ) {
             TranslationPanel(
-                state = ToolsState.Translation(
+                state = TranslationState(
                     sourceText = "Hello",
                     translatedText = "Привет",
                 ),
+                translationInProgress = false,
                 onSourceChange = {},
                 onSwap = {},
                 onTranslate = {},

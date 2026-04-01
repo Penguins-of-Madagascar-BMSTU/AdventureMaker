@@ -64,8 +64,8 @@ private fun getMapImageUrl(latitude: Float, longitude: Float, size: IntSize): St
     val link = "https://static.maps.2gis.com/2.0"
     val sizeArg = "${size.width / 2}x${size.height / 2}"
     val args = "?s=$sizeArg&c=$latitude,$longitude&z=14&pt=$latitude,$longitude"
-    // val key = "&key=${BuildConfig.API_KEY_2GIS}"
-    return link + args // + key
+    val key = "&key=${BuildConfig.API_KEY_2GIS}"
+    return link + args + key
 }
 
 @Composable

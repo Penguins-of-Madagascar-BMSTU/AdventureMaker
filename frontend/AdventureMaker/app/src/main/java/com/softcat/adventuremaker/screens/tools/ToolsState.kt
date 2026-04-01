@@ -6,26 +6,27 @@ object ToolsCurrencies {
     fun emptyAmounts(): Map<String, String> = codes.associateWith { "" }
 }
 
-sealed interface ToolsState {
-
-    data object Loading : ToolsState
-
-    data class CurrencyConverter(
-        val amounts: Map<String, String> = ToolsCurrencies.emptyAmounts(),
-    ) : ToolsState
-
-    data class Translation(
-        val sourceText: String = "",
-        val sourceLanguage: String = "en",
-        val targetLanguage: String = "ru",
-        val translatedText: String = ""
-    ) : ToolsState
-
-    data class EmergencyNumbers(
-        val numbers: List<Pair<String, String>>
-    ) : ToolsState
-
-    data class UsefulPhrases(
-        val phrases: List<Pair<String, String>>,
-    ) : ToolsState
+enum class ToolsSection {
+    Currency,
+    Translation,
+    Phrases,
+    Emergency,
 }
+
+data class TranslationState(
+    val sourceText: String = "",
+    val sourceLanguage: String = "en",
+    val targetLanguage: String = "ru",
+    val translatedText: String = "",
+)
+
+
+data class ToolsState(
+    val activeSection: ToolsSection = ToolsSection.Currency,
+    val currencyAmounts: Map<String, String> = ToolsCurrencies.emptyAmounts(),
+    val translation: TranslationState = TranslationState(),
+    val emergencyNumbers: List<Pair<String, String>>? = null,
+    val usefulPhrases: List<Pair<String, String>>? = null,
+    val currencyConversionInProgress: Boolean = false,
+    val translationInProgress: Boolean = false,
+)
