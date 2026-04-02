@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "652129897262",
+    "firebase_url": "https://adventuremaker-9ffb1-default-rtdb.firebaseio.com",
+    "project_id": "adventuremaker-9ffb1",
+    "storage_bucket": "adventuremaker-9ffb1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:652129897262:android:c7538503ac737e8dad08bf",
+        "android_client_info": {
+          "package_name": "com.softcat.adventuremaker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSFhZpQfo7DATAuOTMVeVLXKV8XF6a4ME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
