@@ -40,15 +40,10 @@
     <string name="tools_screen_title">Полезные инструменты</string>
     <string name="tools_chip_currency">Конвертер валют</string>
     <string name="tools_chip_translation">Перевод</string>
-    <string name="tools_chip_phrases">Фразы</string>
     <string name="tools_chip_emergency">Экстренные номера</string>
 
     <string name="tools_translation_hint">Введите текст</string>
     <string name="tools_translate_button">Перевести</string>
     <string name="lang_english">Английский</string>
     <string name="lang_russian">Русский</string>
-
-    <string name="tools_useful_phrases_title">Полезные фразы</string>
-    <string name="tools_phrases_column_phrase">Фраза</string>
-    <string name="tools_phrases_column_translation">Перевод</string>
 </resources>

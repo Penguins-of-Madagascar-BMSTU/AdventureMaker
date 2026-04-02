@@ -371,106 +371,6 @@ private fun TranslationPanel(
 }
 
 @Composable
-private fun UsefulPhrasesTable(
-    rows: List<Pair<String, String>>,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, LightGray, RoundedCornerShape(8.dp)),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .heightIn(min = 48.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.tools_phrases_column_phrase),
-                modifier = Modifier
-                    .weight(1f)
-                    .background(EmergencyTableLabelBackground)
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                color = Black,
-            )
-            VerticalDivider(
-                modifier = Modifier.fillMaxHeight(),
-                thickness = 1.dp,
-                color = LightGray,
-            )
-            Text(
-                text = stringResource(R.string.tools_phrases_column_translation),
-                modifier = Modifier
-                    .weight(1f)
-                    .background(EmergencyTableLabelBackground)
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                color = Black,
-            )
-        }
-        HorizontalDivider(color = LightGray, thickness = 1.dp)
-        rows.forEachIndexed { index, (english, russian) ->
-            if (index > 0) {
-                HorizontalDivider(color = LightGray, thickness = 1.dp)
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-                    .heightIn(min = 48.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = english,
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(White)
-                        .padding(horizontal = 12.dp, vertical = 12.dp),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Normal,
-                    color = Black,
-                )
-                VerticalDivider(
-                    modifier = Modifier.fillMaxHeight(),
-                    thickness = 1.dp,
-                    color = LightGray,
-                )
-                Text(
-                    text = russian,
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(White)
-                        .padding(horizontal = 12.dp, vertical = 12.dp),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Normal,
-                    color = Black,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun UsefulPhrasesBlock(rows: List<Pair<String, String>>) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(R.string.tools_useful_phrases_title),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Medium,
-            color = Black,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(12.dp))
-        UsefulPhrasesTable(rows = rows)
-    }
-}
-
-@Composable
 private fun ToolsSectionPlaceholder(text: String) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -614,27 +514,6 @@ private fun TranslationPanelPreview() {
                 onSourceChange = {},
                 onSwap = {},
                 onTranslate = {},
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun UsefulPhrasesBlockPreview() {
-    AdventureMakerTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(White)
-                .padding(horizontal = 16.dp)
-                .padding(top = 28.dp, bottom = 16.dp),
-        ) {
-            UsefulPhrasesBlock(
-                rows = listOf(
-                    "Hi (Hello)" to "Привет (Здравствуйте)",
-                    "Please" to "Пожалуйста",
-                ),
             )
         }
     }

@@ -39,15 +39,10 @@
     <string name="tools_screen_title">Useful tools</string>
     <string name="tools_chip_currency">Converter</string>
     <string name="tools_chip_translation">Translation</string>
-    <string name="tools_chip_phrases">Useful phrases</string>
     <string name="tools_chip_emergency">Emergency numbers</string>
 
     <string name="tools_translation_hint">Enter text</string>
     <string name="tools_translate_button">Translate</string>
     <string name="lang_english">English</string>
     <string name="lang_russian">Russian</string>
-
-    <string name="tools_useful_phrases_title">Useful phrases</string>
-    <string name="tools_phrases_column_phrase">Phrase</string>
-    <string name="tools_phrases_column_translation">Translation</string>
 </resources>
