@@ -6,12 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.usecases.ConvertCurrencyUseCase
 import com.example.domain.usecases.GetEmergencyNumbersUseCase
-import com.example.domain.usecases.GetUsefulPhrasesUseCase
 import com.example.domain.usecases.TranslateTextUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -19,7 +16,6 @@ class ToolsViewModel(
     private val convertCurrencyUseCase: ConvertCurrencyUseCase,
     private val translateTextUseCase: TranslateTextUseCase,
     private val getEmergencyNumbersUseCase: GetEmergencyNumbersUseCase,
-    private val getUsefulPhrasesUseCase: GetUsefulPhrasesUseCase,
 ) : ViewModel() {
 
     private val _state = MutableLiveData(
@@ -30,8 +26,12 @@ class ToolsViewModel(
     val state: LiveData<ToolsState>
         get() = _state
 
-    private var convertJob: Job? = null
-    private var translateJob: Job? = null
+    private var currencyConversionInFlight: Boolean = false
+    private var currencyConversionRequestId: Long = 0
+    private var pendingCurrencyFromCode: String? = null
+    private var pendingCurrencyAmount: Double? = null
+    private var pendingCurrencySnapshot: Map<String, String>? = null
+    private var translationInFlight: Boolean = false
 
     fun openCurrencyConverter() {
         updateState { copy(activeSection = ToolsSection.Currency) }
@@ -45,20 +45,7 @@ class ToolsViewModel(
         updateState { copy(activeSection = ToolsSection.Emergency) }
     }
 
-    fun openUsefulPhrases() {
-        val phrases = getUsefulPhrasesUseCase.getPhrases()
-        updateState {
-            copy(
-                activeSection = ToolsSection.Phrases,
-                usefulPhrases = phrases,
-            )
-        }
-    }
-
     fun updateCurrencyInput(code: String, value: String) {
-        convertJob?.cancel()
-        convertJob = null
-
         val current = _state.value ?: ToolsState()
         val newAmounts = current.currencyAmounts.toMutableMap()
         newAmounts[code] = value
@@ -66,72 +53,100 @@ class ToolsViewModel(
 
         val normalized = value.replace(',', '.').trim()
         if (normalized.isEmpty()) {
-            updateState {
-                copy(
-                    currencyAmounts = ToolsCurrencies.emptyAmounts(),
-                    currencyConversionInProgress = false,
-                )
-            }
+            pendingCurrencyFromCode = null
+            pendingCurrencyAmount = null
+            pendingCurrencySnapshot = null
+            currencyConversionRequestId++
+            updateState { copy(currencyAmounts = ToolsCurrencies.emptyAmounts(), currencyConversionInProgress = false) }
             return
         }
 
         val amount = normalized.toDoubleOrNull()
         if (amount == null || amount < 0) {
-            updateState {
-                copy(
-                    currencyAmounts = newAmounts.toMap(),
-                    currencyConversionInProgress = false,
-                )
-            }
+            pendingCurrencyFromCode = null
+            pendingCurrencyAmount = null
+            pendingCurrencySnapshot = null
+            currencyConversionRequestId++
+            updateState { copy(currencyAmounts = newAmounts.toMap(), currencyConversionInProgress = false) }
             return
         }
 
-        updateState { copy(currencyAmounts = newAmounts.toMap()) }
+        currencyConversionRequestId++
+        val requestId = currencyConversionRequestId
+        pendingCurrencyFromCode = code
+        pendingCurrencyAmount = amount
+        val snapshot = newAmounts.toMap()
+        pendingCurrencySnapshot = snapshot
 
-        val job = viewModelScope.launch(Dispatchers.IO) {
+        if (!currencyConversionInFlight) {
+            startCurrencyConversion(
+                fromCode = code,
+                amount = amount,
+                requestId = requestId,
+                baseAmountsSnapshot = snapshot,
+            )
+        }
+    }
+
+    private fun startCurrencyConversion(
+        fromCode: String,
+        amount: Double,
+        requestId: Long,
+        baseAmountsSnapshot: Map<String, String>,
+    ) {
+        currencyConversionInFlight = true
+        viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 updateState { copy(currencyConversionInProgress = true) }
             }
+
+            val others = ToolsCurrencies.codes.filter { it != fromCode }
+            val baseAmounts = baseAmountsSnapshot
+            val merged = baseAmounts.toMutableMap()
+
             try {
-                val others = ToolsCurrencies.codes.filter { it != code }
-                val merged = newAmounts.toMutableMap()
-                merged[code] = value
-
                 val batchResult =
-                    convertCurrencyUseCase.convertToTargets(amount, code, others)
-                batchResult.onSuccess { convertedByCode ->
-                    others.forEach { target ->
-                        merged[target] = convertedByCode[target]
-                            ?: current.currencyAmounts[target].orEmpty()
-                    }
-                }.onFailure {
-                    others.forEach { target ->
-                        merged[target] = current.currencyAmounts[target].orEmpty()
-                    }
-                }
-                merged[code] = value
+                    convertCurrencyUseCase.convertToTargets(amount, fromCode, others)
 
-                ensureActive()
-                withContext(Dispatchers.Main) {
-                    ensureActive()
-                    updateState {
-                        copy(currencyAmounts = merged.toMap())
+                batchResult
+                    .onSuccess { convertedByCode ->
+                        others.forEach { target ->
+                            merged[target] = convertedByCode[target] ?: baseAmounts[target].orEmpty()
+                        }
                     }
-                }
+                    .onFailure {
+                        others.forEach { target ->
+                            merged[target] = baseAmounts[target].orEmpty()
+                        }
+                    }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                withContext(Dispatchers.Main) {
-                    updateState { copy() }
-                }
             }
-        }
-        convertJob = job
-        job.invokeOnCompletion {
-            viewModelScope.launch(Dispatchers.Main) {
-                if (convertJob === job) {
-                    convertJob = null
-                    updateState { copy(currencyConversionInProgress = false) }
+
+            withContext(Dispatchers.Main) {
+                currencyConversionInFlight = false
+
+                if (currencyConversionRequestId == requestId) {
+                    updateState { copy(currencyAmounts = merged.toMap(), currencyConversionInProgress = false) }
+                    return@withContext
+                }
+
+                updateState { copy(currencyConversionInProgress = false) }
+
+                val pendingCode = pendingCurrencyFromCode
+                val pendingAmount = pendingCurrencyAmount
+                val pendingSnapshot = pendingCurrencySnapshot
+                if (pendingCode != null && pendingAmount != null && pendingSnapshot != null) {
+                    val latestRequestId = currencyConversionRequestId
+                    if (latestRequestId != requestId) {
+                        startCurrencyConversion(
+                            fromCode = pendingCode,
+                            amount = pendingAmount,
+                            requestId = latestRequestId,
+                            baseAmountsSnapshot = pendingSnapshot,
+                        )
+                    }
                 }
             }
         }
@@ -178,34 +193,35 @@ class ToolsViewModel(
         val current = _state.value ?: return
         val t = current.translation
         if (t.sourceText.isBlank()) return
+        if (current.translationInProgress || translationInFlight) return
 
-        translateJob?.cancel()
-        translateJob = null
+        translationInFlight = true
 
-        val job = viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 updateState { copy(translationInProgress = true) }
             }
-            val result = translateTextUseCase.translate(
-                text = t.sourceText,
-                sourceLanguage = t.sourceLanguage,
-                targetLanguage = t.targetLanguage
-            )
-            withContext(Dispatchers.Main) {
-                result.onSuccess { text ->
-                    val latest = _state.value ?: return@onSuccess
-                    _state.value = latest.copy(
-                        translation = latest.translation.copy(translatedText = text)
-                    )
+
+            try {
+                val result = translateTextUseCase.translate(
+                    text = t.sourceText,
+                    sourceLanguage = t.sourceLanguage,
+                    targetLanguage = t.targetLanguage,
+                )
+                withContext(Dispatchers.Main) {
+                    result.onSuccess { text ->
+                        val latest = _state.value ?: return@onSuccess
+                        _state.value = latest.copy(
+                            translation = latest.translation.copy(translatedText = text)
+                        )
+                    }
                 }
-            }
-        }
-        translateJob = job
-        job.invokeOnCompletion {
-            viewModelScope.launch(Dispatchers.Main) {
-                if (translateJob === job) {
-                    translateJob = null
+            } catch (e: CancellationException) {
+                throw e
+            } finally {
+                withContext(Dispatchers.Main) {
                     updateState { copy(translationInProgress = false) }
+                    translationInFlight = false
                 }
             }
         }

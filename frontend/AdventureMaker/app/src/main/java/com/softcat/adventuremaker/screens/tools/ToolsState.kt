@@ -9,7 +9,6 @@ object ToolsCurrencies {
 enum class ToolsSection {
     Currency,
     Translation,
-    Phrases,
     Emergency,
 }
 
@@ -26,7 +25,6 @@ data class ToolsState(
     val currencyAmounts: Map<String, String> = ToolsCurrencies.emptyAmounts(),
     val translation: TranslationState = TranslationState(),
     val emergencyNumbers: List<Pair<String, String>>? = null,
-    val usefulPhrases: List<Pair<String, String>>? = null,
     val currencyConversionInProgress: Boolean = false,
     val translationInProgress: Boolean = false,
 )

@@ -539,11 +539,6 @@ fun ToolsContent(
                     onClick = { viewModel.openTranslation() },
                 )
                 ToolChipStub(
-                    label = stringResource(R.string.tools_chip_phrases),
-                    selected = state.activeSection == ToolsSection.Phrases,
-                    onClick = { viewModel.openUsefulPhrases() },
-                )
-                ToolChipStub(
                     label = stringResource(R.string.tools_chip_emergency),
                     selected = state.activeSection == ToolsSection.Emergency,
                     onClick = { viewModel.openEmergencyNumbers() },
@@ -580,17 +575,6 @@ fun ToolsContent(
                                 onSwap = viewModel::swapTranslationLanguages,
                                 onTranslate = viewModel::translateText,
                             )
-                        }
-                    }
-
-                    ToolsSection.Phrases -> {
-                        val phrases = state.usefulPhrases
-                        if (phrases != null) {
-                            Column(Modifier.padding(top = 28.dp)) {
-                                UsefulPhrasesBlock(rows = phrases)
-                            }
-                        } else {
-                            ToolsSectionPlaceholder("soon")
                         }
                     }
 
