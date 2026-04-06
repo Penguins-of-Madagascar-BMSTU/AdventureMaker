@@ -20,6 +20,7 @@
     <string name="attraction_category">Attraction</string>
     <string name="bank_category">Bank</string>
     <string name="any_category">All</string>
+    <string name="unknown_category">Unknown</string>
 
     // Регистрация / авторизация
     <string name="no_user_title">Enter or register</string>

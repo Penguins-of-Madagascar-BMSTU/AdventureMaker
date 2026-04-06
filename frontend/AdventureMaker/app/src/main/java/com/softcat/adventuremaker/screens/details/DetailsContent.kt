@@ -56,6 +56,7 @@ private fun getCategoryNameId(category: Place.Category) = when (category) {
     Place.Category.Hotel -> R.string.hotel_category
     Place.Category.Attraction -> R.string.attraction_category
     Place.Category.Restaurant -> R.string.restaurant_category
+    Place.Category.Unknown -> R.string.any_category
 }
 
 private fun getMapImageUrl(latitude: Float, longitude: Float, size: IntSize): String {
@@ -198,7 +199,7 @@ fun DetailsContent(
         ) {
             AsyncImage(
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                model = state.place.imageUrl,
+                model = state.place.imageUrls.firstOrNull() ?: "",
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds
             )
