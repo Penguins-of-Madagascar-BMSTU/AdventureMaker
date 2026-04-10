@@ -9,6 +9,7 @@ import com.example.domain.entities.Place
 import com.softcat.adventuremaker.navigation.NavTypes.PlaceNavType
 import com.softcat.adventuremaker.screens.details.DetailsContent
 import com.softcat.adventuremaker.screens.favourites.FavouritesContent
+import com.softcat.adventuremaker.screens.profile.ProfileContent
 import kotlin.reflect.typeOf
 
 /*
@@ -43,6 +44,8 @@ fun NavigationContent() {
         ) {}
         composable<NavigationItem.Tools> {}
         composable<NavigationItem.Networking.Posts> {}
-        composable<NavigationItem.Networking.Profile> {}
+        composable<NavigationItem.Networking.Profile> {
+            ProfileContent(navController)
+        }
     }
 }

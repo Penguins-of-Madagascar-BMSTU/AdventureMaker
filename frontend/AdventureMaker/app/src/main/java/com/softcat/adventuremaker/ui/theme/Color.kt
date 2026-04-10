@@ -16,3 +16,8 @@ val BasicIconsTint = Color(0xFF45474F)
 val CustomRed = Color(0xFFFE4D00)
 val BrightOrange = Color(0xFFFF6D00)
 val NavBarShadow = Color(0xFF545454)
+
+val GradientGreen = Color(0xFF7ED1B2)
+val AvatarPlaceholder = Color(0xFFBDBDBD)
+val StarYellow = Color(0xFFFFC107)
+val TextGray = Color(0xFF757575)
