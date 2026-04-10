@@ -21,6 +21,13 @@
     <string name="bank_category">Bank</string>
     <string name="any_category">All</string>
     <string name="unknown_category">Unknown</string>
+    <string name="search_sheet_category_all">All</string>
+    <string name="search_sheet_category_museums">Museums and exhibitions</string>
+    <string name="search_sheet_category_entertainment">Entertainment</string>
+    <string name="search_sheet_category_banks">Banks</string>
+    <string name="search_sheet_category_landmarks">Landmarks</string>
+    <string name="search_sheet_category_food">Where to eat</string>
+    <string name="search_sheet_category_hotels">Hotels</string>
 
     // Регистрация / авторизация
     <string name="no_user_title">Enter or register</string>
