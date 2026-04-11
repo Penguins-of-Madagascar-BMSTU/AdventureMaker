@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.map)
     implementation(libs.map.compose)
     implementation(libs.firebase.database)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

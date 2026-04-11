@@ -148,7 +148,7 @@ class PostsRepositoryImpl: PostsRepository {
                 postData.getValue<PostDto>()
             }.map { it.toEntity() }
             loadedPosts.addAll(newPosts)
-        } catch (_: Exception) {}
+        } catch (_: Exception) {} // тихо глотает ошибки - может стать проблемой
     }
 
     private suspend fun savePostData(post: PostDto): Result<Unit> {
