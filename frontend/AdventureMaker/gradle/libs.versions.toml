@@ -31,6 +31,7 @@ googleGmsGoogleServices = "4.4.4"
 foundationLayout = "1.10.6"
 uiGraphics = "1.10.6"
 foundation = "1.10.6"
+lifecycleViewmodelKtx = "2.10.0"
 
 [libraries]
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtils" }
@@ -74,6 +75,7 @@ okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
