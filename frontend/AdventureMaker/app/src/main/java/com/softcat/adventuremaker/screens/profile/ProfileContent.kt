@@ -38,14 +38,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.softcat.adventuremaker.R
+import com.softcat.adventuremaker.screens.details.getAddressFromCoordinates
 import com.softcat.adventuremaker.ui.theme.AvatarPlaceholder
 import com.softcat.adventuremaker.ui.theme.GradientGreen
 import com.softcat.adventuremaker.ui.theme.StarYellow
 import com.softcat.adventuremaker.ui.theme.TextGray
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 
 @Composable
@@ -187,6 +193,19 @@ fun PostItem(
     modifier: Modifier = Modifier
 ) {
 
+    val context = LocalContext.current
+    var address by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(post.latitude, post.longitude) {
+        getAddressFromCoordinates(
+            context = context,
+            latitude = post.latitude.toDouble(),
+            longitude = post.longitude.toDouble()
+        ) { result ->
+            address = result
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -223,7 +242,7 @@ fun PostItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(user.name)
                 Text(
-                    "Москва, Зарядье", // мок!!!
+                    text = address ?: stringResource(R.string.loading),
                     color = TextGray,
                     style = MaterialTheme.typography.bodySmall
                 )
