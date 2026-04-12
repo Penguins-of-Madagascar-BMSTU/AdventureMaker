@@ -30,7 +30,7 @@ import java.util.UUID
 
 class PostsRepositoryImpl: PostsRepository {
 
-    override suspend fun getPosts(
+    override fun getPosts(
         userLat: Float,
         userLon: Float
     ): StateFlow<List<Post>> {
@@ -148,7 +148,7 @@ class PostsRepositoryImpl: PostsRepository {
                 postData.getValue<PostDto>()
             }.map { it.toEntity() }
             loadedPosts.addAll(newPosts)
-        } catch (_: Exception) {} // тихо глотает ошибки - может стать проблемой
+        } catch (_: Exception) {} // если подгрузка следующей порции постов не сработала, то ждём следующего запроса на порцию постов
     }
 
     private suspend fun savePostData(post: PostDto): Result<Unit> {

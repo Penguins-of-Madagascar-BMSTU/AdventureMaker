@@ -9,7 +9,7 @@ class PostsUseCase(
     private val repository: PostsRepository
 ) {
 
-    suspend fun getPosts(userLat: Float, userLon: Float): StateFlow<List<Post>> {
+    fun getPosts(userLat: Float, userLon: Float): StateFlow<List<Post>> {
         return repository.getPosts(userLat, userLon)
     }
 
