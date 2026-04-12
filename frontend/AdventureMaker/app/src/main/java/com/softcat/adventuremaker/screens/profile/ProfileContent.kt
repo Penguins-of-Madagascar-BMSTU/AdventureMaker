@@ -113,8 +113,11 @@ fun ProfileContent(navController: NavController) {
                 )
             }
 
-            items(posts) {
-                PostItem(it, user)
+            items(
+                items = posts,
+                key = { it.id }
+            ) { post ->
+                PostItem(post, user)
             }
         }
     }
