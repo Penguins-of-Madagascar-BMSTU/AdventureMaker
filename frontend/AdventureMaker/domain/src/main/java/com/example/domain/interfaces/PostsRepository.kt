@@ -9,7 +9,7 @@ interface PostsRepository {
 
     // Получить список постов, связанных с местом, наиболее близким к координатам пользователя.
     // Осуществляется подписка на StateFlow, так как посты могут подгружаться.
-    suspend fun getPosts(userLat: Float, userLon: Float): StateFlow<List<Post>>
+    fun getPosts(userLat: Float, userLon: Float): StateFlow<List<Post>>
 
     // Загрузить ещё несколько новых постов для тех же координат пользователя.
     // Нужно для подгрузки следующей порции постов при прокручивании списка с постами.
