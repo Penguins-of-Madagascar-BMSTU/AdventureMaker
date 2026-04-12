@@ -35,5 +35,9 @@
     <string name="register_submit">Register</string>
     <string name="login_switch">Enter</string>
 
+    // Профиль
+    <string name="posts_title">Posts</string>
+    <string name="loading">Loading…</string>
+
     <string name="app_bar_title_details">Place details</string>
 </resources>

@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.map)
     implementation(libs.map.compose)
     implementation(libs.firebase.database)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     testImplementation(libs.junit)
@@ -83,6 +86,8 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
+
+    implementation(libs.coil.compose.v260)
 
     implementation(project(":domain"))
     implementation(project(":data"))
