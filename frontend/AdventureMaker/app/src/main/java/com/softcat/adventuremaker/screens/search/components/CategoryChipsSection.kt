@@ -18,8 +18,9 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.softcat.adventuremaker.screens.search.model.SearchCategoryChipModel
-import com.softcat.adventuremaker.screens.search.model.SearchSheetMockData
+import com.example.domain.entities.Place
+import com.softcat.adventuremaker.R
+import com.softcat.adventuremaker.screens.search.SearchCategoryModel
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.BasicOrange
@@ -27,9 +28,8 @@ import com.softcat.adventuremaker.ui.theme.BasicOrange
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CategoryChipsSection(
-    categories: List<SearchCategoryChipModel>,
-    selectedCategoryId: String,
-    onCategorySelected: (String) -> Unit,
+    categories: List<SearchCategoryModel>,
+    onCategorySelected: (Place.Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
     FlowRow(
@@ -40,8 +40,8 @@ fun CategoryChipsSection(
         categories.forEach { category ->
             CategoryFilterChip(
                 category = category,
-                isSelected = selectedCategoryId == category.id,
-                onClick = { onCategorySelected(category.id) }
+                onClick = { onCategorySelected(category.key) },
+                modifier = Modifier
             )
         }
     }
@@ -49,24 +49,22 @@ fun CategoryChipsSection(
 
 @Composable
 fun CategoryFilterChip(
-    category: SearchCategoryChipModel,
-    isSelected: Boolean,
+    category: SearchCategoryModel,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(percent = 50)
-
     Surface(
         modifier = modifier.clickable(onClick = onClick),
         shape = shape,
-        color = if (isSelected) BasicOrange else White,
+        color = if (category.isSelected) BasicOrange else White,
         border = BorderStroke(1.dp, BasicOrange)
     ) {
         Text(
             modifier = Modifier.padding(PaddingValues(horizontal = 16.dp, vertical = 10.dp)),
             text = stringResource(category.titleResId),
             style = MaterialTheme.typography.labelLarge,
-            color = if (isSelected) White else BasicIconsTint
+            color = if (category.isSelected) White else BasicIconsTint
         )
     }
 }
@@ -76,9 +74,12 @@ fun CategoryFilterChip(
 private fun CategoryFilterChipPreview() {
     AdventureMakerTheme {
         CategoryFilterChip(
-            category = SearchSheetMockData.categories[1],
-            isSelected = true,
-            onClick = {}
+            onClick = {},
+            category = SearchCategoryModel(
+                key = Place.Category.Unknown,
+                titleResId = R.string.search_sheet_category_all,
+                isSelected = true,
+            )
         )
     }
 }

@@ -5,20 +5,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -31,19 +32,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.domain.entities.Place
+import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.navigation.BottomNavigationBar
-import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
 import com.softcat.adventuremaker.screens.search.components.CategoryChipsSection
 import com.softcat.adventuremaker.screens.search.components.PlacesList
-import com.softcat.adventuremaker.screens.search.model.SearchCategoryChipModel
-import com.softcat.adventuremaker.screens.search.model.SearchPlaceItemModel
-import com.softcat.adventuremaker.screens.search.model.SearchSheetMockData
 import com.softcat.adventuremaker.ui.components.SheetDragHandle
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
 import com.softcat.adventuremaker.ui.theme.BasicOrange
+import kotlinx.coroutines.launch
 
-private val SheetContainerColor = Color(0xFFF5F1EB)
 private val MapBaseColor = Color(0xFFD8E2D4)
 private val MapRoadColor = Color(0xFFFDFBF5)
 private val MapParkColor = Color(0xFFBCD5B5)
@@ -54,19 +53,78 @@ private val MapBlockColor = Color(0xFFE7DFC8)
 fun MapSearchScreen(
     navController: NavController
 ) {
+    val state = remember {
+        SearchBottomSheetState(
+            places = listOf(
+                PlaceItemModel(
+                    id = "1",
+                    title = "Пруд с уточками",
+                    imageUrl = "",
+                    iconResId = R.drawable.heart_filled
+                ),
+                PlaceItemModel(
+                    id = "2",
+                    title = "Кофейня cup2cup",
+                    imageUrl = "",
+                    iconResId = R.drawable.heart
+                ),
+                PlaceItemModel(
+                    id = "3",
+                    title = "Гостиница в центре города",
+                    imageUrl = "",
+                    iconResId = R.drawable.heart_filled
+                )
+            ),
+            categories = listOf(
+                SearchCategoryModel(
+                    key = Place.Category.Unknown,
+                    titleResId = R.string.search_sheet_category_all,
+                    isSelected = true
+                ),
+                SearchCategoryModel(
+                    key = Place.Category.Entertainment,
+                    titleResId = R.string.entertainment_category,
+                    isSelected = false
+                ),
+                SearchCategoryModel(
+                    key = Place.Category.Restaurant,
+                    titleResId = R.string.restaurant_category,
+                    isSelected = false
+                ),
+                SearchCategoryModel(
+                    key = Place.Category.Attraction,
+                    titleResId = R.string.attraction_category,
+                    isSelected = false
+                ),
+                SearchCategoryModel(
+                    key = Place.Category.Hotel,
+                    titleResId = R.string.hotel_category,
+                    isSelected = false
+                ),
+                SearchCategoryModel(
+                    key = Place.Category.Bank,
+                    titleResId = R.string.bank_category,
+                    isSelected = false
+                )
+            ),
+            isSheetVisible = true
+        )
+    }
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
                 configuration = BottomBarConfiguration.Search,
-                onSearchItemClicked = {},
-                onToolsItemClicked = { navController.navigate(NavigationItem.Tools) },
-                onNetworkingItemClicked = { navController.navigate(NavigationItem.Networking.Posts) },
-                onFavouritesItemClicked = { navController.navigate(NavigationItem.Favourites.Content) }
+                navController = navController
             )
         }
     ) { paddingValues ->
         MapSearchScreenContent(
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
+            onChangeFavouriteStatusClick = {},
+            onDismiss = {},
+            onCategorySelected = {},
+            onPlaceClicked = {},
+            state = state,
         )
     }
 }
@@ -74,27 +132,12 @@ fun MapSearchScreen(
 @Composable
 fun MapSearchScreenContent(
     modifier: Modifier = Modifier,
-    categories: List<SearchCategoryChipModel> = SearchSheetMockData.categories,
-    places: List<SearchPlaceItemModel> = SearchSheetMockData.places
+    state: SearchBottomSheetState,
+    onChangeFavouriteStatusClick: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onCategorySelected: (Place.Category) -> Unit,
+    onPlaceClicked: (String) -> Unit,
 ) {
-    var selectedCategoryId by remember {
-        mutableStateOf(SearchSheetMockData.CATEGORY_ALL)
-    }
-    var favoriteIds by remember(places) {
-        mutableStateOf(
-            places
-                .filter(SearchPlaceItemModel::isFavorite)
-                .map(SearchPlaceItemModel::id)
-                .toSet()
-        )
-    }
-
-    val filteredPlaces = places
-        .map { place -> place.copy(isFavorite = place.id in favoriteIds) }
-        .filter { place ->
-            selectedCategoryId == SearchSheetMockData.CATEGORY_ALL || place.categoryId == selectedCategoryId
-        }
-
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -105,61 +148,64 @@ fun MapSearchScreenContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .fillMaxHeight(0.78f),
-            categories = categories,
-            selectedCategoryId = selectedCategoryId,
-            onCategorySelected = { selectedCategoryId = it },
-            places = filteredPlaces,
-            onFavoriteClick = { placeId ->
-                favoriteIds = if (placeId in favoriteIds) {
-                    favoriteIds - placeId
-                } else {
-                    favoriteIds + placeId
-                }
-            }
+                .wrapContentHeight(),
+            state = state,
+            onChangeFavouriteStatusClick = onChangeFavouriteStatusClick,
+            onDismiss = onDismiss,
+            onCategorySelected = onCategorySelected,
+            onPlaceClicked = onPlaceClicked,
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MapPlacesBottomSheet(
-    categories: List<SearchCategoryChipModel>,
-    selectedCategoryId: String,
-    onCategorySelected: (String) -> Unit,
-    places: List<SearchPlaceItemModel>,
-    onFavoriteClick: (String) -> Unit,
+    state: SearchBottomSheetState,
+    onChangeFavouriteStatusClick: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onCategorySelected: (Place.Category) -> Unit,
+    onPlaceClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier,
-        color = SheetContainerColor,
-        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-        tonalElevation = 6.dp,
-        shadowElevation = 18.dp
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val scope = rememberCoroutineScope()
+    if (state.isSheetVisible) {
+        ModalBottomSheet(
+            modifier = modifier,
+            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+            tonalElevation = 10.dp,
+            onDismissRequest = {
+                scope.launch {
+                    sheetState.hide()
+                    onDismiss()
+                }
+            },
+            dragHandle = {
+                SheetDragHandle(
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.background,
+            scrimColor = Color.Transparent,
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
             ) {
-                SheetDragHandle()
+                CategoryChipsSection(
+                    categories = state.categories,
+                    onCategorySelected = onCategorySelected
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                PlacesList(
+                    places = state.places,
+                    onChangeFavouriteStatusClick = onChangeFavouriteStatusClick,
+                    onPlaceClick = onPlaceClicked,
+                    modifier = Modifier.heightIn(max = 256.dp)
+                )
             }
-            Spacer(modifier = Modifier.height(18.dp))
-            CategoryChipsSection(
-                categories = categories,
-                selectedCategoryId = selectedCategoryId,
-                onCategorySelected = onCategorySelected
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            PlacesList(
-                places = places,
-                onFavoriteClick = onFavoriteClick,
-                modifier = Modifier.weight(1f)
-            )
         }
     }
 }
@@ -258,14 +304,6 @@ private fun DrawScope.drawRoad(
         strokeWidth = 6f,
         cap = StrokeCap.Round
     )
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun MapSearchScreenPreview() {
-    AdventureMakerTheme {
-        MapSearchScreenContent()
-    }
 }
 
 @Preview(showBackground = true)
