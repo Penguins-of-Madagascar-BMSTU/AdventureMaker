@@ -22,6 +22,13 @@
     <string name="bank_category">Банк</string>
     <string name="any_category">Все</string>
     <string name="unknown_category">Неизвестно</string>
+    <string name="search_sheet_category_all">Все</string>
+    <string name="search_sheet_category_museums">Музеи и выставки</string>
+    <string name="search_sheet_category_entertainment">Развлечения</string>
+    <string name="search_sheet_category_banks">Банки</string>
+    <string name="search_sheet_category_landmarks">Достопримечательности</string>
+    <string name="search_sheet_category_food">Где поесть</string>
+    <string name="search_sheet_category_hotels">Отели</string>
 
     // Регистрация / авторизация
     <string name="no_user_title">Вход и регистрация</string>

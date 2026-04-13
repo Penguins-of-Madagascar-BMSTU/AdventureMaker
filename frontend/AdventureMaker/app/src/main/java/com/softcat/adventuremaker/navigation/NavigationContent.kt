@@ -11,6 +11,7 @@ import com.softcat.adventuremaker.screens.details.DetailsContent
 import com.softcat.adventuremaker.screens.favourites.FavouritesContent
 import com.softcat.adventuremaker.screens.profile.ProfileContent
 import com.softcat.adventuremaker.screens.tools.ToolsContent
+import com.softcat.adventuremaker.screens.search.MapSearchScreen
 import kotlin.reflect.typeOf
 
 /*
@@ -39,7 +40,9 @@ fun NavigationContent() {
             val args = entry.toRoute<NavigationItem.Favourites.PlaceDetails>()
             DetailsContent(args.place, navController)
         }
-        composable<NavigationItem.Search.Map> {}
+        composable<NavigationItem.Search.Map> {
+            MapSearchScreen(navController = navController)
+        }
         composable<NavigationItem.Search.Details>(
             typeMap = mapOf(typeOf<Place>() to PlaceNavType)
         ) {}
