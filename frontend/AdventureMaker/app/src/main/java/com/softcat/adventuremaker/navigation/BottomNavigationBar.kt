@@ -30,10 +30,8 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.BasicOrange
@@ -77,10 +75,9 @@ fun BottomNavigationBarElement(
 }
 
 @Composable
-@Preview
 fun BottomNavigationBar(
-    configuration: BottomBarConfiguration = BottomBarConfiguration.Favourites,
-    navController: NavController = rememberNavController(),
+    configuration: BottomBarConfiguration,
+    navController: NavController
 ) {
     val shadow = Brush.linearGradient(
         colors = listOf(NavBarShadow, White),
@@ -131,7 +128,7 @@ fun BottomNavigationBar(
                     isActive = configuration == BottomBarConfiguration.Networking,
                     iconResId = R.drawable.networking,
                     labelResId = R.string.navigation_networking_label,
-                    onClick = { navController.navigate(NavigationItem.Networking) },
+                    onClick = { navController.navigate(NavigationItem.Networking.Profile) },
                 )
                 BottomNavigationBarElement(
                     modifier = Modifier
