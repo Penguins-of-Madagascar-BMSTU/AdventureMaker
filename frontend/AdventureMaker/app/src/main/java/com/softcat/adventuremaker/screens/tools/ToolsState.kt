@@ -1,24 +1,30 @@
 package com.softcat.adventuremaker.screens.tools
 
-sealed interface ToolsState {
+object ToolsCurrencies {
+    val codes = listOf("RUB", "USD", "EUR", "CNY", "BYN")
 
-    data object Loading : ToolsState
-
-    data class CurrencyConverter(
-        val amount: String = "",
-        val fromCurrency: String = "RUB",
-        val toCurrency: String = "USD",
-        val convertedAmount: String = ""
-    ) : ToolsState
-
-    data class Translation(
-        val sourceText: String = "",
-        val sourceLanguage: String = "ru",
-        val targetLanguage: String = "en",
-        val translatedText: String = ""
-    ) : ToolsState
-
-    data class EmergencyNumbers(
-        val numbers: List<Pair<String, String>>
-    ) : ToolsState
+    fun emptyAmounts(): Map<String, String> = codes.associateWith { "" }
 }
+
+enum class ToolsSection {
+    Currency,
+    Translation,
+    Emergency,
+}
+
+data class TranslationState(
+    val sourceText: String = "",
+    val sourceLanguage: String = "en",
+    val targetLanguage: String = "ru",
+    val translatedText: String = "",
+)
+
+
+data class ToolsState(
+    val activeSection: ToolsSection = ToolsSection.Currency,
+    val currencyAmounts: Map<String, String> = ToolsCurrencies.emptyAmounts(),
+    val translation: TranslationState = TranslationState(),
+    val emergencyNumbers: List<Pair<String, String>>? = null,
+    val currencyConversionInProgress: Boolean = false,
+    val translationInProgress: Boolean = false,
+)
