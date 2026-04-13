@@ -32,6 +32,7 @@ import com.softcat.adventuremaker.AdventureMakerApplication
 import com.softcat.adventuremaker.screens.auth.AuthViewModel
 import com.softcat.adventuremaker.screens.details.PlaceDetailsViewModel
 import com.softcat.adventuremaker.screens.favourites.FavouriteViewModel
+import com.softcat.adventuremaker.screens.profile.ProfileViewModel
 import com.softcat.adventuremaker.screens.tools.ToolsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -41,6 +42,7 @@ val viewModelModule = module {
     viewModelOf(::AuthViewModel)
     viewModelOf(::ToolsViewModel)
     viewModelOf(::FavouriteViewModel)
+    viewModelOf(::ProfileViewModel)
 
     viewModel { (place: Place) ->
         PlaceDetailsViewModel(place, get(), get())
