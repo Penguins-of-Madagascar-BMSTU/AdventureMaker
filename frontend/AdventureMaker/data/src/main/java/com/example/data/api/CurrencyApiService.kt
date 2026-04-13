@@ -1,9 +1,10 @@
-package com.example.data
+package com.example.data.api
 
+import com.example.data.api.dto.RatesResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-interface CurrencyApi {
+interface CurrencyApiService {
 
     @GET("v6/latest/{base}")
     suspend fun getRates(

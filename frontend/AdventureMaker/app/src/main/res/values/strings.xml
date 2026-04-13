@@ -20,6 +20,7 @@
     <string name="attraction_category">Attraction</string>
     <string name="bank_category">Bank</string>
     <string name="any_category">All</string>
+    <string name="unknown_category">Unknown</string>
 
     // Регистрация / авторизация
     <string name="no_user_title">Enter or register</string>
@@ -33,6 +34,10 @@
     <string name="register_repeat_password_label">Repeat your password</string>
     <string name="register_submit">Register</string>
     <string name="login_switch">Enter</string>
+
+    // Профиль
+    <string name="posts_title">Posts</string>
+    <string name="loading">Loading…</string>
 
     <string name="app_bar_title_details">Place details</string>
 

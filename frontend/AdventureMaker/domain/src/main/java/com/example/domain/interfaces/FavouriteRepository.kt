@@ -7,7 +7,7 @@ interface FavouriteRepository {
 
     fun getFavourites(userId: String): StateFlow<List<Place>>
 
-    suspend fun addToFavourite(userId: String, place: Place)
+    suspend fun addToFavourite(userId: String, placeId: String)
 
     suspend fun removeFromFavourites(userId: String, placeId: String)
 

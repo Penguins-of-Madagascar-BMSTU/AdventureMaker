@@ -15,7 +15,7 @@ class FavouriteUseCase(
 
     suspend fun addToFavourite(userId: String, place: Place) {
         Log.d("${this::class.simpleName}", "addToFavourite($userId, $place)")
-        return repository.addToFavourite(userId, place)
+        return repository.addToFavourite(userId, place.id)
     }
 
     suspend fun removeFromFavourites(userId: String, placeId: String) {

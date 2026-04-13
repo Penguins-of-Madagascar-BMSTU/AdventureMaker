@@ -1,6 +1,7 @@
 package com.example.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.data.api.CurrencyApiService
 import kotlinx.coroutines.runBlocking
 
 import org.junit.Test
@@ -19,7 +20,7 @@ class CurrencyIntegrationTest {
             .baseUrl("https://open.er-api.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(CurrencyApi::class.java)
+            .create(CurrencyApiService::class.java)
     )
 
     @Test
