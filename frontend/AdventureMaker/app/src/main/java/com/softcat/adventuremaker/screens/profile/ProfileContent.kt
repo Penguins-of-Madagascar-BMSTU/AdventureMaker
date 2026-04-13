@@ -70,6 +70,17 @@ fun ProfileContent(
                 configuration = NavigationItem.BottomBarConfiguration.Networking,
                 navController = navController
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {}, // сюда добавить добавление поста
+                containerColor = GradientGreen
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                )
+            }
         }
     ) { padding ->
         when (val currentState = state) {
@@ -103,6 +114,27 @@ fun ProfileContent(
                 ) {
                     item {
                         ProfileHeader(currentState.user)
+                    }
+                    item {
+                        Text(
+                            text = stringResource(R.string.posts_title),
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+                    if (currentState.posts.isEmpty()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.posts_empty),
+                                modifier = Modifier.padding(horizontal = 12.dp)
+                            )
+                        }
+                    } else {
+                        items(
+                            items = currentState.posts,
+                            key = { it.id }
+                        ) { post ->
+                            PostItem(post = post, user = currentState.user)
+                        }
                     }
                 }
             }

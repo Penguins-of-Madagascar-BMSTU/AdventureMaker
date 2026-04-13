@@ -26,6 +26,7 @@ import com.example.domain.interfaces.UserRepository
 import com.example.domain.usecases.ConvertCurrencyUseCase
 import com.example.domain.usecases.FavouriteUseCase
 import com.example.domain.usecases.GetEmergencyNumbersUseCase
+import com.example.domain.usecases.PostsUseCase
 import com.example.domain.usecases.TranslateTextUseCase
 import com.example.domain.usecases.UserUseCase
 import com.softcat.adventuremaker.AdventureMakerApplication
@@ -60,6 +61,7 @@ val repositoryModule = module {
 
     single { UserUseCase(get()) }
     single { FavouriteUseCase(get()) }
+    single { PostsUseCase(get()) }
     single { TranslateTextUseCase(get()) }
     single { GetEmergencyNumbersUseCase(get()) }
     single { ConvertCurrencyUseCase(get()) }
