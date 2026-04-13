@@ -33,14 +33,12 @@ class ProfileViewModel(
                 return@launch
             }
 
-            postsUseCase.getPosts(userLat = 0f, userLon = 0f).collect { posts ->
-                val userPosts = posts.filter { it.userId == user.id }
-                withContext(Dispatchers.Main) {
-                    _state.value = ProfileState.Content(
-                        user = user,
-                        posts = userPosts
-                    )
-                }
+            val posts = postsUseCase.getUserPosts(user.id).getOrElse { emptyList() }
+            withContext(Dispatchers.Main) {
+                _state.value = ProfileState.Content(
+                    user = user,
+                    posts = posts
+                )
             }
         }
     }
