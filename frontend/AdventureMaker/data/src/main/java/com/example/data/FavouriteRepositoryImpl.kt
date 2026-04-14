@@ -68,10 +68,14 @@ class FavouriteRepositoryImpl(
     }
 
     private suspend fun loadFavouritePlaces(favouriteIds: List<String>): List<Place> {
-        val ids = favouriteIds.joinToString(",")
-        val response = apiService.loadPlaceById(ids)
-        val places = response.result.items.map { it.toEntity() }
-        return places
+        try {
+            val ids = favouriteIds.joinToString(",")
+            val response = apiService.loadPlaceById(ids)
+            val places = response.result.items.map { it.toEntity() }
+            return places
+        } catch (_: Exception) {
+            return emptyList()
+        }
     }
 
     override suspend fun addToFavourite(

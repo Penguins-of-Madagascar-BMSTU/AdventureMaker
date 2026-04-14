@@ -62,7 +62,7 @@ class SearchViewModel(
         _state.value = state.value?.copy(query = newValue)
     }
 
-    fun changeCity(cityName: String) {
+    fun selectCity(cityName: String) {
         _state.value = state.value?.copy(cityName = cityName)
     }
 

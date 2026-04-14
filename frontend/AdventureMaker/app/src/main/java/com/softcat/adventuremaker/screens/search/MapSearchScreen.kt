@@ -11,44 +11,68 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.domain.entities.Place
+import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.navigation.BottomNavigationBar
 import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
 import com.softcat.adventuremaker.screens.search.components.CategoryChipsSection
 import com.softcat.adventuremaker.screens.search.components.PlacesList
+import com.softcat.adventuremaker.screens.search.model.SearchScreenState
 import com.softcat.adventuremaker.ui.components.SheetDragHandle
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
+import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.ui.theme.GradientGreen
+import com.softcat.adventuremaker.ui.theme.LightGray
+import com.softcat.adventuremaker.ui.theme.SearchLineBackground
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -67,7 +91,8 @@ fun MapSearchScreen(
         },
         floatingActionButton = {
             OpenBottomSheetButton(
-                onClick = viewModel::showBottomSheet
+                onClick = viewModel::showBottomSheet,
+                isBottomSheetVisible = state.value.bottomSheetState.isSheetVisible
             )
         }
     ) { paddingValues ->
@@ -79,18 +104,128 @@ fun MapSearchScreen(
             onPlaceClicked = { placeId ->
                 viewModel.navigateToPlaceDetails(navController, placeId)
             },
-            state = state.value.bottomSheetState,
+            onQueryChange = viewModel::changeQuery,
+            onQueryEntered = viewModel::searchPlaces,
+            onCitySelected = viewModel::selectCity,
+            state = state.value,
         )
     }
 }
 
 @Composable
-@Preview
+private fun SearchLine(
+    modifier: Modifier = Modifier,
+    text: String,
+    onTextChange: (String) -> Unit,
+    onTextEntered: ()-> Unit
+) {
+    OutlinedTextField(
+        modifier = modifier,
+        value = text,
+        leadingIcon = {
+            Icon(
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .size(48.dp)
+                    .padding(vertical = 10.dp),
+                painter = painterResource(R.drawable.search),
+                contentDescription = null,
+                tint = BasicIconsTint
+            )
+        },
+        onValueChange = onTextChange,
+        shape = RoundedCornerShape(50),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Black,
+            unfocusedTextColor = Black,
+            unfocusedContainerColor = SearchLineBackground,
+            focusedContainerColor = SearchLineBackground,
+            focusedBorderColor = BasicOrange,
+            unfocusedBorderColor = SearchLineBackground
+        ),
+        textStyle = MaterialTheme.typography.labelLarge,
+        maxLines = 1,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = { onTextEntered() }
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CitySelector(
+    modifier: Modifier = Modifier,
+    availableCities: List<String>,
+    selectedCity: String,
+    onCitySelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = selectedCity,
+            onValueChange = {},
+            placeholder = {
+                Text(
+                    text = stringResource(R.string.select_city),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Black
+                )
+            },
+            readOnly = true,
+            modifier = Modifier
+                .heightIn(max = 128.dp)
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = BasicOrange,
+                unfocusedBorderColor = BasicOrange
+            ),
+            shape = RoundedCornerShape(50),
+            maxLines = 1
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            availableCities.forEach { city ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            modifier = Modifier.wrapContentSize(),
+                            text = city,
+                            color = Black,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    },
+                    onClick = {
+                        onCitySelected(city)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun OpenBottomSheetButton(
     modifier: Modifier = Modifier,
-    isBottomSheetVisible: Boolean = false,
-    onClick: () -> Unit = {}
+    isBottomSheetVisible: Boolean,
+    onClick: () -> Unit
 ) {
+    if (isBottomSheetVisible)
+        return
     FloatingActionButton(
         modifier = Modifier
             .wrapContentSize()
@@ -99,10 +234,9 @@ private fun OpenBottomSheetButton(
         containerColor = GradientGreen,
         shape = CircleShape
     ) {
-        val img = if (isBottomSheetVisible) Icons.Default.Add else Icons.Default.ArrowDropDown
         Icon(
-            modifier = Modifier.size(64.dp).padding(6.dp),
-            imageVector = img,
+            modifier = Modifier.size(64.dp).padding(8.dp),
+            imageVector = Icons.Default.Add,
             contentDescription = null
         )
     }
@@ -111,11 +245,14 @@ private fun OpenBottomSheetButton(
 @Composable
 private fun MapSearchScreenContent(
     modifier: Modifier = Modifier,
-    state: SearchBottomSheetState,
+    state: SearchScreenState,
     onChangeFavouriteStatusClick: (String) -> Unit,
     onDismiss: () -> Unit,
     onCategorySelected: (Place.Category) -> Unit,
     onPlaceClicked: (String) -> Unit,
+    onQueryChange: (String) -> Unit,
+    onQueryEntered: () -> Unit,
+    onCitySelected: (String) -> Unit
 ) {
     Box(
         modifier = modifier.fillMaxSize()
@@ -128,11 +265,29 @@ private fun MapSearchScreenContent(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            state = state,
+            state = state.bottomSheetState,
             onChangeFavouriteStatusClick = onChangeFavouriteStatusClick,
             onDismiss = onDismiss,
             onCategorySelected = onCategorySelected,
             onPlaceClicked = onPlaceClicked,
+        )
+        SearchLine(
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .align(Alignment.TopStart)
+                .padding(start = 16.dp, top = 8.dp, end = 4.dp),
+            text = state.query,
+            onTextChange = onQueryChange,
+            onTextEntered = onQueryEntered
+        )
+        CitySelector(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .fillMaxSize(0.4f)
+                .padding(end = 16.dp, top = 8.dp),
+            availableCities = state.availableCities,
+            selectedCity = state.cityName,
+            onCitySelected = onCitySelected
         )
     }
 }
