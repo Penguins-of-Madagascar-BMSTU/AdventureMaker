@@ -8,9 +8,11 @@ interface PlacesRepository {
     suspend fun getPlaces(
         cityId: Int,
         query: String,
-        category: Place.Category?,
+        category: Place.Category,
         page: Int
     ): Result<List<Place>>
 
     suspend fun getCities(query: String): Result<List<City>>
+
+    suspend fun getAllCities(): Result<List<City>>
 }

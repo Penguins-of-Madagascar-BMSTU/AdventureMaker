@@ -17,12 +17,24 @@ import com.google.firebase.database.database
 import com.google.firebase.database.getValue
 import com.example.data.exceptions.DataCorruptedException
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.tasks.await
 
 class UserRepositoryImpl(
     private val dataStore: DataStore<Preferences>
 ): UserRepository {
+
+    private val loadLastUserRequest = MutableSharedFlow<Unit>(replay = 1)
+    private val userFlow = flow {
+        loadLastUserRequest.emit(Unit)
+        loadLastUserRequest.collect {
+            val user = loadLastUser()
+            emit(user)
+        }
+    }.retry(1) { true }
 
     private val usersStorage by lazy {
         Firebase.database.getReference(USERS_STORAGE_NAME)
@@ -87,14 +99,9 @@ class UserRepositoryImpl(
         forgetUser()
     }
 
-    override suspend fun getLastEnteredUser(): User? {
-        val datastoreKey = stringPreferencesKey(USER_KEY)
-        val userJson = dataStore.data.firstOrNull()?.get(datastoreKey)
-        val user = userJson?.let {
-            Gson().fromJson(userJson, User::class.java)
-        }
-        return user
-    }
+    override suspend fun getLastEnteredUser() = loadLastUser()
+
+    override fun observeLastEnteredUser() = userFlow
 
     private suspend fun readUser(email: String): Result<User> {
         // Получить пользователей, у которых поле email совпадает со значением переменной email.
@@ -127,6 +134,15 @@ class UserRepositoryImpl(
             val userKey = stringPreferencesKey(USER_KEY)
             preferences.remove(userKey)
         }
+    }
+
+    private suspend fun loadLastUser(): User? {
+        val datastoreKey = stringPreferencesKey(USER_KEY)
+        val userJson = dataStore.data.firstOrNull()?.get(datastoreKey)
+        val user = userJson?.let {
+            Gson().fromJson(userJson, User::class.java)
+        }
+        return user
     }
 
     companion object {
