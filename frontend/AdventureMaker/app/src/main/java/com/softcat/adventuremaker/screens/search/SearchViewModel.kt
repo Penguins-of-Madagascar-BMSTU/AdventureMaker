@@ -4,11 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.domain.entities.City
 import com.example.domain.entities.Place
 import com.example.domain.usecases.FavouriteUseCase
 import com.example.domain.usecases.PlacesUseCase
 import com.example.domain.usecases.UserUseCase
+import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.screens.search.model.SearchScreenState
 import com.softcat.adventuremaker.screens.search.model.SearchViewModelMapper
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +28,7 @@ class SearchViewModel(
     private val mapper: SearchViewModelMapper,
     private val placesUseCase: PlacesUseCase,
     private val favouriteUseCase: FavouriteUseCase,
-    userUseCase: UserUseCase
+    private val userUseCase: UserUseCase
 ): ViewModel() {
 
     // Подписка на список любимых мест. Если пользователь меняется, то этот список обновляется.
@@ -85,8 +87,49 @@ class SearchViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             placesUseCase.searchPlaces(cityId, state.query, selectedCategory, page)
-                .onSuccess { updatePlacesOnMap(it) }
+                .onSuccess {
+                    updatePlacesOnMap(it)
+                    showBottomSheet()
+                }
         }
+    }
+
+    fun dismissBottomSheet() {
+        val currentState = state.value ?: return
+        _state.value = currentState.copy(
+            bottomSheetState = currentState.bottomSheetState.copy(
+                isSheetVisible = false
+            )
+        )
+    }
+
+    fun showBottomSheet() {
+        val currentState = state.value ?: return
+        _state.value = currentState.copy(
+            bottomSheetState = currentState.bottomSheetState.copy(
+                isSheetVisible = true
+            )
+        )
+    }
+
+    fun changeFavouriteStatus(placeId: String) {
+        val isFavourite = placeId in favouritesFlow.value
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val userId = userUseCase.getLastEnteredUser()?.id ?: return@launch
+
+            if (isFavourite)
+                favouriteUseCase.removeFromFavourites(userId, placeId)
+            else {
+                val place = placesOnMap.find { it.id == placeId } ?: return@launch
+                favouriteUseCase.addToFavourite(userId, place)
+            }
+        }
+    }
+
+    fun navigateToPlaceDetails(navController: NavController, placeId: String) {
+        val place = placesOnMap.find { it.id == placeId } ?: return
+        navController.navigate(NavigationItem.Search.Details(place))
     }
 
     private fun loadAvailableCities() {
@@ -128,7 +171,7 @@ class SearchViewModel(
         )
     }
 
-    private fun initialSearchScreenState() = SearchScreenState(
+    fun initialSearchScreenState() = SearchScreenState(
         bottomSheetState = SearchBottomSheetState(
             places = emptyList(),
             categories = mapper.mapToCategoryList(Place.Category.Unknown),

@@ -10,15 +10,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.domain.entities.Place
-import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.navigation.BottomNavigationBar
 import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
 import com.softcat.adventuremaker.screens.search.components.CategoryChipsSection
@@ -41,96 +48,68 @@ import com.softcat.adventuremaker.screens.search.components.PlacesList
 import com.softcat.adventuremaker.ui.components.SheetDragHandle
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
 import com.softcat.adventuremaker.ui.theme.BasicOrange
+import com.softcat.adventuremaker.ui.theme.GradientGreen
 import kotlinx.coroutines.launch
-
-private val MapBaseColor = Color(0xFFD8E2D4)
-private val MapRoadColor = Color(0xFFFDFBF5)
-private val MapParkColor = Color(0xFFBCD5B5)
-private val MapWaterColor = Color(0xFFBFD7E5)
-private val MapBlockColor = Color(0xFFE7DFC8)
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MapSearchScreen(
     navController: NavController
 ) {
-    val state = remember {
-        SearchBottomSheetState(
-            places = listOf(
-                PlaceItemModel(
-                    id = "1",
-                    title = "Пруд с уточками",
-                    imageUrl = "",
-                    iconResId = R.drawable.heart_filled
-                ),
-                PlaceItemModel(
-                    id = "2",
-                    title = "Кофейня cup2cup",
-                    imageUrl = "",
-                    iconResId = R.drawable.heart
-                ),
-                PlaceItemModel(
-                    id = "3",
-                    title = "Гостиница в центре города",
-                    imageUrl = "",
-                    iconResId = R.drawable.heart_filled
-                )
-            ),
-            categories = listOf(
-                SearchCategoryModel(
-                    key = Place.Category.Unknown,
-                    titleResId = R.string.search_sheet_category_all,
-                    isSelected = true
-                ),
-                SearchCategoryModel(
-                    key = Place.Category.Entertainment,
-                    titleResId = R.string.entertainment_category,
-                    isSelected = false
-                ),
-                SearchCategoryModel(
-                    key = Place.Category.Restaurant,
-                    titleResId = R.string.restaurant_category,
-                    isSelected = false
-                ),
-                SearchCategoryModel(
-                    key = Place.Category.Attraction,
-                    titleResId = R.string.attraction_category,
-                    isSelected = false
-                ),
-                SearchCategoryModel(
-                    key = Place.Category.Hotel,
-                    titleResId = R.string.hotel_category,
-                    isSelected = false
-                ),
-                SearchCategoryModel(
-                    key = Place.Category.Bank,
-                    titleResId = R.string.bank_category,
-                    isSelected = false
-                )
-            ),
-            isSheetVisible = true
-        )
-    }
+    val viewModel: SearchViewModel = koinViewModel()
+    val state = viewModel.state.observeAsState(viewModel.initialSearchScreenState())
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
                 configuration = BottomBarConfiguration.Search,
                 navController = navController
             )
+        },
+        floatingActionButton = {
+            OpenBottomSheetButton(
+                onClick = viewModel::showBottomSheet
+            )
         }
     ) { paddingValues ->
         MapSearchScreenContent(
             modifier = Modifier.padding(paddingValues),
-            onChangeFavouriteStatusClick = {},
-            onDismiss = {},
-            onCategorySelected = {},
-            onPlaceClicked = {},
-            state = state,
+            onChangeFavouriteStatusClick = viewModel::changeFavouriteStatus,
+            onDismiss = viewModel::dismissBottomSheet,
+            onCategorySelected = viewModel::selectCategory,
+            onPlaceClicked = { placeId ->
+                viewModel.navigateToPlaceDetails(navController, placeId)
+            },
+            state = state.value.bottomSheetState,
         )
     }
 }
 
 @Composable
-fun MapSearchScreenContent(
+@Preview
+private fun OpenBottomSheetButton(
+    modifier: Modifier = Modifier,
+    isBottomSheetVisible: Boolean = false,
+    onClick: () -> Unit = {}
+) {
+    FloatingActionButton(
+        modifier = Modifier
+            .wrapContentSize()
+            .then(modifier),
+        onClick = onClick,
+        containerColor = GradientGreen,
+        shape = CircleShape
+    ) {
+        val img = if (isBottomSheetVisible) Icons.Default.Add else Icons.Default.ArrowDropDown
+        Icon(
+            modifier = Modifier.size(64.dp).padding(6.dp),
+            imageVector = img,
+            contentDescription = null
+        )
+    }
+}
+
+@Composable
+private fun MapSearchScreenContent(
     modifier: Modifier = Modifier,
     state: SearchBottomSheetState,
     onChangeFavouriteStatusClick: (String) -> Unit,
@@ -214,32 +193,36 @@ private fun MapPlacesBottomSheet(
 private fun MockMapBackground(
     modifier: Modifier = Modifier
 ) {
+    val mapBaseColor = Color(0xFFD8E2D4)
+    val mapParkColor = Color(0xFFBCD5B5)
+    val mapWaterColor = Color(0xFFBFD7E5)
+    val mapBlockColor = Color(0xFFE7DFC8)
     Box(
-        modifier = modifier.background(MapBaseColor)
+        modifier = modifier.background(mapBaseColor)
     ) {
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
             drawRoundRect(
-                color = MapWaterColor,
+                color = mapWaterColor,
                 topLeft = Offset(size.width * 0.06f, size.height * 0.10f),
                 size = Size(size.width * 0.28f, size.height * 0.16f),
                 cornerRadius = CornerRadius(x = 90f, y = 90f)
             )
             drawRoundRect(
-                color = MapParkColor,
+                color = mapParkColor,
                 topLeft = Offset(size.width * 0.62f, size.height * 0.14f),
                 size = Size(size.width * 0.24f, size.height * 0.22f),
                 cornerRadius = CornerRadius(x = 80f, y = 80f)
             )
             drawRoundRect(
-                color = MapBlockColor,
+                color = mapBlockColor,
                 topLeft = Offset(size.width * 0.18f, size.height * 0.46f),
                 size = Size(size.width * 0.18f, size.height * 0.12f),
                 cornerRadius = CornerRadius(x = 32f, y = 32f)
             )
             drawRoundRect(
-                color = MapBlockColor,
+                color = mapBlockColor,
                 topLeft = Offset(size.width * 0.66f, size.height * 0.42f),
                 size = Size(size.width * 0.16f, size.height * 0.10f),
                 cornerRadius = CornerRadius(x = 28f, y = 28f)
@@ -290,8 +273,9 @@ private fun DrawScope.drawRoad(
     start: Offset,
     end: Offset
 ) {
+    val mapRoadColor = Color(0xFFFDFBF5)
     drawLine(
-        color = MapRoadColor,
+        color = mapRoadColor,
         start = start,
         end = end,
         strokeWidth = 26f,

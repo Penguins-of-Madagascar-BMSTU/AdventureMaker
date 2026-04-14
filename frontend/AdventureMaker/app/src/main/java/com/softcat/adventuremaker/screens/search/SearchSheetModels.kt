@@ -14,7 +14,7 @@ data class PlaceItemModel(
     val id: String,
     val title: String,
     val imageUrl: String,
-    @DrawableRes val iconResId: Int
+    val isFavourite: Boolean
 )
 
 data class SearchBottomSheetState(

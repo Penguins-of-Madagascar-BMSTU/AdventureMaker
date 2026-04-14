@@ -13,16 +13,11 @@ class SearchViewModelMapper {
 
     fun mapToPlaceModels(places: List<Place>, favouriteIds: List<String>): List<PlaceItemModel> {
         return places.map {
-            val iconResId = if (it.id in favouriteIds)
-                R.drawable.heart_filled
-            else
-                R.drawable.heart
-
             PlaceItemModel(
                 id = it.id,
                 title = it.name,
                 imageUrl = it.imageUrls.firstOrNull() ?: "",
-                iconResId = iconResId
+                isFavourite = it.id in favouriteIds
             )
         }
     }
