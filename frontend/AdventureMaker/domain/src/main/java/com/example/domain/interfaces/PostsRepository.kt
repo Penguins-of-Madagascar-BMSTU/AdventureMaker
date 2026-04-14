@@ -11,6 +11,9 @@ interface PostsRepository {
     // Осуществляется подписка на StateFlow, так как посты могут подгружаться.
     fun getPosts(userLat: Float, userLon: Float): StateFlow<List<Post>>
 
+    // Все посты конкретного пользователя одним запросом
+    suspend fun getUserPosts(userId: String): Result<List<Post>>
+
     // Загрузить ещё несколько новых постов для тех же координат пользователя.
     // Нужно для подгрузки следующей порции постов при прокручивании списка с постами.
     suspend fun loadMorePosts()

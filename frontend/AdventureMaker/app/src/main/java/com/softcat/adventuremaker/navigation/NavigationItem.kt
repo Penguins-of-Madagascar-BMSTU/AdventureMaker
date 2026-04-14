@@ -22,6 +22,9 @@ sealed interface NavigationItem {
 
         @Serializable
         data object Profile: Networking
+
+        @Serializable
+        data object CreatePost: Networking
     }
 
     @Serializable

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,35 +53,16 @@ import com.softcat.adventuremaker.ui.theme.StarYellow
 import com.softcat.adventuremaker.ui.theme.TextGray
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun ProfileContent(navController: NavController) {
-
-    // мок - данные
-    val user = remember {
-        User(
-            id = "1",
-            name = "Антон",
-            email = "test@mail.com",
-            avatarUrl = "https://i.pravatar.cc/150?img=6"
-        )
-    }
-
-    val posts = remember {
-        listOf(
-            Post(
-                id = "1",
-                userId = "1",
-                imageUrl = "https://i.pravatar.cc/350?img=29",
-                scoreValue = 5,
-                description = "Шикарное место! Всем рекомендую!",
-                latitude = 55.75f,
-                longitude = 37.61f
-            )
-        )
-    }
-
+fun ProfileContent(
+    navController: NavController,
+    viewModel: ProfileViewModel = koinViewModel()
+) {
+    val state by viewModel.state.observeAsState(ProfileState.Loading)
 
     Scaffold(
         bottomBar = {
@@ -91,7 +73,7 @@ fun ProfileContent(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {}, // сюда добавить добавление поста
+                onClick = { navController.navigate(NavigationItem.Networking.CreatePost) },
                 containerColor = GradientGreen
             ) {
                 Icon(
@@ -101,29 +83,60 @@ fun ProfileContent(navController: NavController) {
             }
         }
     ) { padding ->
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-
-            item {
-                ProfileHeader(user)
+        when (val currentState = state) {
+            ProfileState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
 
-            item {
-                Text(
-                    text = stringResource(R.string.posts_title),
-                    modifier = Modifier.padding(12.dp)
-                )
+            ProfileState.NoUser -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = stringResource(R.string.no_user_title))
+                }
             }
 
-            items(
-                items = posts,
-                key = { it.id }
-            ) { post ->
-                PostItem(post, user)
+            is ProfileState.Content -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    item {
+                        ProfileHeader(currentState.user)
+                    }
+                    item {
+                        Text(
+                            text = stringResource(R.string.posts_title),
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+                    if (currentState.posts.isEmpty()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.posts_empty),
+                                modifier = Modifier.padding(horizontal = 12.dp)
+                            )
+                        }
+                    } else {
+                        items(
+                            items = currentState.posts,
+                            key = { it.id }
+                        ) { post ->
+                            PostItem(post = post, user = currentState.user)
+                        }
+                    }
+                }
             }
         }
     }
