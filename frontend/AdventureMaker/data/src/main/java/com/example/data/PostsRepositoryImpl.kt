@@ -45,6 +45,25 @@ class PostsRepositoryImpl: PostsRepository {
             )
     }
 
+    override suspend fun getUserPosts(userId: String): Result<List<Post>> {
+        return try {
+            val snapshot = postsStorage
+                .orderByChild("userId")
+                .equalTo(userId)
+                .get()
+                .await()
+            if (!snapshot.exists()) {
+                return Result.success(emptyList())
+            }
+            val posts = snapshot.children.mapNotNull { child ->
+                child.getValue<PostDto>()?.toEntity()
+            }
+            Result.success(posts)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun loadMorePosts() {
         loadPostsRequest.emit(Unit)
     }

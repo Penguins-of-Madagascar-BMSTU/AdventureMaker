@@ -45,6 +45,7 @@
 
     // Профиль
     <string name="posts_title">Посты</string>
+    <string name="posts_empty">Пока что постов нет</string>
     <string name="loading">Загрузка…</string>
 
     <string name="app_bar_title_details">Описание места</string>

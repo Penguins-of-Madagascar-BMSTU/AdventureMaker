@@ -44,6 +44,7 @@
 
     // Профиль
     <string name="posts_title">Posts</string>
+    <string name="posts_empty">No posts yet</string>
     <string name="loading">Loading…</string>
 
     <string name="app_bar_title_details">Place details</string>
