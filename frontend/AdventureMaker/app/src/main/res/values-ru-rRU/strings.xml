@@ -22,6 +22,13 @@
     <string name="bank_category">Банк</string>
     <string name="any_category">Все</string>
     <string name="unknown_category">Неизвестно</string>
+    <string name="search_sheet_category_all">Все</string>
+    <string name="search_sheet_category_museums">Музеи и выставки</string>
+    <string name="search_sheet_category_entertainment">Развлечения</string>
+    <string name="search_sheet_category_banks">Банки</string>
+    <string name="search_sheet_category_landmarks">Достопримечательности</string>
+    <string name="search_sheet_category_food">Где поесть</string>
+    <string name="search_sheet_category_hotels">Отели</string>
 
     // Регистрация / авторизация
     <string name="no_user_title">Вход и регистрация</string>
@@ -38,6 +45,7 @@
 
     // Профиль
     <string name="posts_title">Посты</string>
+    <string name="posts_empty">Пока что постов нет</string>
     <string name="create_post_title">Создать пост</string>
     <string name="create_post_description_placeholder">Где вы побывали?</string>
     <string name="create_post_publish">Опубликовать</string>
