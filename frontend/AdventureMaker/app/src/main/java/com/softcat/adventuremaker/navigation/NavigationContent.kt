@@ -10,6 +10,7 @@ import com.softcat.adventuremaker.navigation.NavTypes.PlaceNavType
 import com.softcat.adventuremaker.screens.details.DetailsContent
 import com.softcat.adventuremaker.screens.favourites.FavouritesContent
 import com.softcat.adventuremaker.screens.profile.ProfileContent
+import com.softcat.adventuremaker.screens.posts.CreatePostContent
 import com.softcat.adventuremaker.screens.tools.ToolsContent
 import com.softcat.adventuremaker.screens.search.MapSearchScreen
 import kotlin.reflect.typeOf
@@ -52,6 +53,9 @@ fun NavigationContent() {
         composable<NavigationItem.Networking.Posts> {}
         composable<NavigationItem.Networking.Profile> {
             ProfileContent(navController)
+        }
+        composable<NavigationItem.Networking.CreatePost> {
+            CreatePostContent(navController = navController)
         }
     }
 }

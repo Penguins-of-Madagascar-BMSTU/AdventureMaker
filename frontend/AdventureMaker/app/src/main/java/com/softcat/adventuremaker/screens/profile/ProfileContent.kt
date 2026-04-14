@@ -73,7 +73,7 @@ fun ProfileContent(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {}, // сюда добавить добавление поста
+                onClick = { navController.navigate(NavigationItem.Networking.CreatePost) },
                 containerColor = GradientGreen
             ) {
                 Icon(
