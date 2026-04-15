@@ -2,6 +2,7 @@ package com.example.domain.usecases
 
 import com.example.domain.entities.User
 import com.example.domain.interfaces.UserRepository
+import kotlinx.coroutines.flow.Flow
 
 class UserUseCase(
     private val repository: UserRepository
@@ -27,5 +28,9 @@ class UserUseCase(
 
     suspend fun getLastEnteredUser(): User? {
         return repository.getLastEnteredUser()
+    }
+
+    fun observeLastEnteredUser(): Flow<User?> {
+        return repository.observeLastEnteredUser()
     }
 }

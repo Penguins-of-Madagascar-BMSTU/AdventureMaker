@@ -11,11 +11,12 @@ data class Place(
     val name: String,
     val description: String,
     val category: Category,
-    val imageUrl: String,
+    val imageUrls: List<String>,
     val latitude: Float,
     val longitude: Float,
+    val address: String
 ): Parcelable {
     enum class Category {
-        Museum, Entertainment, Bank, Hotel, Attraction, Restaurant
+        Museum, Entertainment, Bank, Hotel, Attraction, Restaurant, Unknown
     }
 }

@@ -30,13 +30,13 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
-import com.softcat.adventuremaker.ui.theme.NavBarShadow
+import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
+import com.softcat.adventuremaker.ui.theme.NavBarShadow
 
 @Composable
 fun BottomNavigationBarElement(
@@ -75,13 +75,9 @@ fun BottomNavigationBarElement(
 }
 
 @Composable
-@Preview
 fun BottomNavigationBar(
-    configuration: BottomBarConfiguration = BottomBarConfiguration.Favourites,
-    onSearchItemClicked: () -> Unit = {},
-    onToolsItemClicked: () -> Unit = {},
-    onNetworkingItemClicked: () -> Unit = {},
-    onFavouritesItemClicked: () -> Unit = {},
+    configuration: BottomBarConfiguration,
+    navController: NavController
 ) {
     val shadow = Brush.linearGradient(
         colors = listOf(NavBarShadow, White),
@@ -114,7 +110,7 @@ fun BottomNavigationBar(
                     isActive = configuration == BottomBarConfiguration.Tools,
                     iconResId = R.drawable.tools,
                     labelResId = R.string.navigation_tools_label,
-                    onClick = onToolsItemClicked,
+                    onClick = { navController.navigate(NavigationItem.Tools) },
                 )
                 BottomNavigationBarElement(
                     modifier = Modifier
@@ -123,7 +119,7 @@ fun BottomNavigationBar(
                     isActive = configuration == BottomBarConfiguration.Search,
                     iconResId = R.drawable.search,
                     labelResId = R.string.navigation_search_label,
-                    onClick = onSearchItemClicked,
+                    onClick = { navController.navigate(NavigationItem.Search.Map) },
                 )
                 BottomNavigationBarElement(
                     modifier = Modifier
@@ -132,7 +128,7 @@ fun BottomNavigationBar(
                     isActive = configuration == BottomBarConfiguration.Networking,
                     iconResId = R.drawable.networking,
                     labelResId = R.string.navigation_networking_label,
-                    onClick = onNetworkingItemClicked,
+                    onClick = { navController.navigate(NavigationItem.Networking.Profile) },
                 )
                 BottomNavigationBarElement(
                     modifier = Modifier
@@ -141,7 +137,7 @@ fun BottomNavigationBar(
                     isActive = configuration == BottomBarConfiguration.Favourites,
                     iconResId = R.drawable.heart,
                     labelResId = R.string.navigation_favourites_label,
-                    onClick = onFavouritesItemClicked,
+                    onClick = { navController.navigate(NavigationItem.Favourites.Content) },
                 )
             }
         }

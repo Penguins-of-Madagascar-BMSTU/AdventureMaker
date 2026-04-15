@@ -17,10 +17,12 @@ class AdventureMakerApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        FirebaseApp.initializeApp(this)
         startKoin {
             androidContext(this@AdventureMakerApplication)
             modules(viewModelModule, repositoryModule, dataModule)
+        }
+        if (FirebaseApp.getApps(this).isEmpty()) {
+            FirebaseApp.initializeApp(applicationContext)
         }
     }
 

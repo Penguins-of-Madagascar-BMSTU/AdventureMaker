@@ -1,13 +1,18 @@
 package com.softcat.adventuremaker.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.domain.entities.Place
 import com.softcat.adventuremaker.navigation.NavTypes.PlaceNavType
+import com.softcat.adventuremaker.screens.details.DetailsContent
 import com.softcat.adventuremaker.screens.favourites.FavouritesContent
+import com.softcat.adventuremaker.screens.profile.ProfileContent
+import com.softcat.adventuremaker.screens.posts.CreatePostContent
+import com.softcat.adventuremaker.screens.tools.ToolsContent
+import com.softcat.adventuremaker.screens.search.MapSearchScreen
 import kotlin.reflect.typeOf
 
 /*
@@ -20,7 +25,6 @@ T - тип, по которому navController определяет текущ�
 fun NavigationContent() {
     val navController = rememberNavController()
     NavHost(
-        modifier = Modifier,
         navController = navController,
         startDestination = NavigationItem.Favourites.Content
     ) {
@@ -31,12 +35,27 @@ fun NavigationContent() {
                 onPlaceClick = { navController.navigate(NavigationItem.Favourites.PlaceDetails(it)) }
             )
         }
-        composable<NavigationItem.Search.Map> {}
+        composable<NavigationItem.Favourites.PlaceDetails>(
+            typeMap = mapOf(typeOf<Place>() to PlaceNavType)
+        ) { entry ->
+            val args = entry.toRoute<NavigationItem.Favourites.PlaceDetails>()
+            DetailsContent(args.place, navController)
+        }
+        composable<NavigationItem.Search.Map> {
+            MapSearchScreen(navController = navController)
+        }
         composable<NavigationItem.Search.Details>(
             typeMap = mapOf(typeOf<Place>() to PlaceNavType)
         ) {}
-        composable<NavigationItem.Tools> {}
+        composable<NavigationItem.Tools> {
+            ToolsContent(navController = navController)
+        }
         composable<NavigationItem.Networking.Posts> {}
-        composable<NavigationItem.Networking.Profile> {}
+        composable<NavigationItem.Networking.Profile> {
+            ProfileContent(navController)
+        }
+        composable<NavigationItem.Networking.CreatePost> {
+            CreatePostContent(navController = navController)
+        }
     }
 }

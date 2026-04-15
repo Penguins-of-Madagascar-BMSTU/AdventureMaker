@@ -256,7 +256,7 @@ private fun Content(
             ) { place ->
                 PlaceCard(
                     modifier = Modifier.height(200.dp).fillMaxWidth(),
-                    imageUrl = place.imageUrl,
+                    imageUrl = place.imageUrls.firstOrNull() ?: "",
                     title = place.name,
                     category = place.category,
                     onClick = { onPlaceClick(place) }
@@ -296,10 +296,7 @@ fun FavouritesContent(
         bottomBar = {
             BottomNavigationBar(
                 configuration = NavigationItem.BottomBarConfiguration.Favourites,
-                onSearchItemClicked = { navController.navigate(NavigationItem.Search.Map) },
-                onToolsItemClicked = { navController.navigate(NavigationItem.Tools) },
-                onNetworkingItemClicked = { navController.navigate(NavigationItem.Networking.Posts) },
-                onFavouritesItemClicked = { navController.navigate(NavigationItem.Favourites.Content) }
+                navController = navController
             )
         }
     ) { paddingValues ->

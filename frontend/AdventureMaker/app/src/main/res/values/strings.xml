@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">AdventureMaker</string>
 
-    // Надписи на панели навигации
     <string name="navigation_favourites_label">Favourites</string>
     <string name="navigation_tools_label">Tools</string>
     <string name="navigation_networking_label">Networking</string>
@@ -21,6 +20,14 @@
     <string name="attraction_category">Attraction</string>
     <string name="bank_category">Bank</string>
     <string name="any_category">All</string>
+    <string name="unknown_category">Unknown</string>
+    <string name="search_sheet_category_all">All</string>
+    <string name="search_sheet_category_museums">Museums and exhibitions</string>
+    <string name="search_sheet_category_entertainment">Entertainment</string>
+    <string name="search_sheet_category_banks">Banks</string>
+    <string name="search_sheet_category_landmarks">Landmarks</string>
+    <string name="search_sheet_category_food">Where to eat</string>
+    <string name="search_sheet_category_hotels">Hotels</string>
 
     // Регистрация / авторизация
     <string name="no_user_title">Enter or register</string>
@@ -34,4 +41,27 @@
     <string name="register_repeat_password_label">Repeat your password</string>
     <string name="register_submit">Register</string>
     <string name="login_switch">Enter</string>
+
+    // Профиль
+    <string name="posts_title">Posts</string>
+    <string name="posts_empty">No posts yet</string>
+    <string name="create_post_title">Create post</string>
+    <string name="create_post_description_placeholder">Where have you been?</string>
+    <string name="create_post_publish">Publish</string>
+    <string name="loading">Loading…</string>
+
+    <string name="app_bar_title_details">Place details</string>
+
+    <string name="tools_screen_title">Useful tools</string>
+    <string name="tools_chip_currency">Converter</string>
+    <string name="tools_chip_translation">Translation</string>
+    <string name="tools_chip_emergency">Emergency numbers</string>
+
+    <string name="tools_translation_hint">Enter text</string>
+    <string name="tools_translate_button">Translate</string>
+    <string name="lang_english">English</string>
+    <string name="lang_russian">Russian</string>
+
+    // Карта и поиск
+    <string name="select_city">City</string>
 </resources>

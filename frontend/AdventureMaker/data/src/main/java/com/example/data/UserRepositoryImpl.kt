@@ -4,6 +4,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.data.FirebaseRules.USERS_STORAGE_NAME
+import com.example.data.api.dto.UserDto
+import com.example.data.api.toDto
+import com.example.data.api.toEntity
 import com.example.data.exceptions.UserNotFoundException
 import com.example.domain.entities.User
 import com.example.domain.interfaces.UserRepository
@@ -13,12 +17,24 @@ import com.google.firebase.database.database
 import com.google.firebase.database.getValue
 import com.example.data.exceptions.DataCorruptedException
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.tasks.await
 
 class UserRepositoryImpl(
     private val dataStore: DataStore<Preferences>
 ): UserRepository {
+
+    private val loadLastUserRequest = MutableSharedFlow<Unit>(replay = 1)
+    private val userFlow = flow {
+        loadLastUserRequest.emit(Unit)
+        loadLastUserRequest.collect {
+            val user = loadLastUser()
+            emit(user)
+        }
+    }.retry(1) { true }
 
     private val usersStorage by lazy {
         Firebase.database.getReference(USERS_STORAGE_NAME)
@@ -46,10 +62,10 @@ class UserRepositoryImpl(
             val user = User(
                 id = reference.key.toString(),
                 email = email,
-                name = "\"$name\"",
+                name = name,
                 avatarUrl = null
             )
-            val job = reference.setValue(user)
+            val job = reference.setValue(user.toDto())
             job.await()
             job.exception?.let {
                 auth.signOut()
@@ -83,14 +99,9 @@ class UserRepositoryImpl(
         forgetUser()
     }
 
-    override suspend fun getLastEnteredUser(): User? {
-        val datastoreKey = stringPreferencesKey(USER_KEY)
-        val userJson = dataStore.data.firstOrNull()?.get(datastoreKey)
-        val user = userJson?.let {
-            Gson().fromJson(userJson, User::class.java)
-        }
-        return user
-    }
+    override suspend fun getLastEnteredUser() = loadLastUser()
+
+    override fun observeLastEnteredUser() = userFlow
 
     private suspend fun readUser(email: String): Result<User> {
         // Получить пользователей, у которых поле email совпадает со значением переменной email.
@@ -103,11 +114,11 @@ class UserRepositoryImpl(
 
         // result.children - массив из 1 JSON пользователя, в котором нужный email.
         val userSnapshot = result.children.first()
-        val user = userSnapshot.getValue<User>()
+        val user = userSnapshot.getValue<UserDto>()
             ?: return Result.failure(
                 DataCorruptedException("User data is invalid.")
             )
-        return Result.success(user)
+        return Result.success(user.toEntity())
     }
 
     private suspend fun rememberUser(user: User) {
@@ -125,9 +136,16 @@ class UserRepositoryImpl(
         }
     }
 
-    companion object {
-        private const val USERS_STORAGE_NAME = "Users"
+    private suspend fun loadLastUser(): User? {
+        val datastoreKey = stringPreferencesKey(USER_KEY)
+        val userJson = dataStore.data.firstOrNull()?.get(datastoreKey)
+        val user = userJson?.let {
+            Gson().fromJson(userJson, User::class.java)
+        }
+        return user
+    }
 
+    companion object {
         private const val USER_KEY = "user"
     }
 }

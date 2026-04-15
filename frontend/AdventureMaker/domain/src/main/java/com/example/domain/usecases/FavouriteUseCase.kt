@@ -13,9 +13,14 @@ class FavouriteUseCase(
         return repository.getFavourites(userId)
     }
 
+    fun getFavouriteIds(userId: String): StateFlow<List<String>> {
+        Log.d("${this::class.simpleName}", "getFavourites($userId)")
+        return repository.getFavouriteIds(userId)
+    }
+
     suspend fun addToFavourite(userId: String, place: Place) {
         Log.d("${this::class.simpleName}", "addToFavourite($userId, $place)")
-        return repository.addToFavourite(userId, place)
+        return repository.addToFavourite(userId, place.id)
     }
 
     suspend fun removeFromFavourites(userId: String, placeId: String) {
