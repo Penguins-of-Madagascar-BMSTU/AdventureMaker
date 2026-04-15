@@ -58,7 +58,6 @@ dependencies {
     implementation(libs.compose.runtime)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil)
-
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
