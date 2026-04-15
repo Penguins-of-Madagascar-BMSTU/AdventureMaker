@@ -62,4 +62,7 @@
     <string name="tools_translate_button">Перевести</string>
     <string name="lang_english">Английский</string>
     <string name="lang_russian">Русский</string>
+
+    // Карта и поиск
+    <string name="select_city">Город</string>
 </resources>

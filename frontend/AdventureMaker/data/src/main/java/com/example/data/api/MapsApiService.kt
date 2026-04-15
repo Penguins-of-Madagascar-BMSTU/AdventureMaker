@@ -28,6 +28,9 @@ interface MapsApiService {
         @Query("q") query: String
     ): RegionsResponse
 
+    @GET("2.0/region/list")
+    suspend fun getAvailableCities(): RegionsResponse
+
     companion object {
         private const val FIELDS_PARAM = "items.description,items.name,items.address,items.point,items.rubrics"
     }

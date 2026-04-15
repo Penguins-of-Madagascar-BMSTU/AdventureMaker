@@ -61,4 +61,7 @@
     <string name="tools_translate_button">Translate</string>
     <string name="lang_english">English</string>
     <string name="lang_russian">Russian</string>
+
+    // Карта и поиск
+    <string name="select_city">City</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.example.domain.interfaces
 
 import com.example.domain.entities.User
+import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
 
@@ -11,4 +12,6 @@ interface UserRepository {
     suspend fun exit()
 
     suspend fun getLastEnteredUser(): User?
+
+    fun observeLastEnteredUser(): Flow<User?>
 }
