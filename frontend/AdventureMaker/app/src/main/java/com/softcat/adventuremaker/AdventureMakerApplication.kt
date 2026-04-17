@@ -10,7 +10,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
 class AdventureMakerApplication: Application() {
-
+// HERE IS AI TEST
     val dataStore by preferencesDataStore(
         name = DATASTORE_NAME
     )
