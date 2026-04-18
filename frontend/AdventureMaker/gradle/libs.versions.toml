@@ -34,6 +34,7 @@ foundationLayout = "1.10.6"
 uiGraphics = "1.10.6"
 foundation = "1.10.6"
 lifecycleViewmodelKtx = "2.10.0"
+dokka = "2.2.0"
 
 
 [libraries]
@@ -82,6 +83,7 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 
 [plugins]
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }

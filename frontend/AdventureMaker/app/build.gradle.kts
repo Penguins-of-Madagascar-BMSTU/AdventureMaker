@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.dokka)
 }
 
 android {

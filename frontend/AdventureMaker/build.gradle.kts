@@ -6,4 +6,11 @@ plugins {
     alias(libs.plugins.kotlinx.serialization) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.google.gms.google.services) apply false
+    alias(libs.plugins.dokka)
+}
+
+dependencies {
+    dokka(project(":app"))
+    dokka(project(":domain"))
+    dokka(project(":data"))
 }
