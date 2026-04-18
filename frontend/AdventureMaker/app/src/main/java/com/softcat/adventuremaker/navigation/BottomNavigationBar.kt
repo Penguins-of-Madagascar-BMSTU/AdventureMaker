@@ -128,7 +128,7 @@ fun BottomNavigationBar(
                     isActive = configuration == BottomBarConfiguration.Networking,
                     iconResId = R.drawable.networking,
                     labelResId = R.string.navigation_networking_label,
-                    onClick = { navController.navigate(NavigationItem.Networking.Profile) },
+                    onClick = { navController.navigate(NavigationItem.Networking.Posts) },
                 )
                 BottomNavigationBarElement(
                     modifier = Modifier

@@ -67,7 +67,7 @@ fun ProfileContent(
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Networking,
+                configuration = NavigationItem.BottomBarConfiguration.None,
                 navController = navController
             )
         },
@@ -96,14 +96,7 @@ fun ProfileContent(
             }
 
             ProfileState.NoUser -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = stringResource(R.string.no_user_title))
-                }
+                navController.navigate(NavigationItem.Auth)
             }
 
             is ProfileState.Content -> {

@@ -26,6 +26,10 @@ class AuthViewModel(
     private val _logInEvent = MutableSharedFlow<AuthEvent>()
     val logInEvent: SharedFlow<AuthEvent> = _logInEvent.asSharedFlow()
 
+    init {
+        _state.value = AuthState.NoUser
+    }
+
     /*-----------Функции для изменения вводимых данных.-----------*/
 
     fun changeName(newValue: String) {

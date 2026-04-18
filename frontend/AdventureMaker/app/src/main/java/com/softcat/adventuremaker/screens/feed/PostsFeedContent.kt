@@ -83,7 +83,9 @@ private val mockPosts = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FeedTopBar() {
+private fun FeedTopBar(
+    onProfileClick: () -> Unit
+) {
     TopAppBar(
         expandedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
         windowInsets = TopAppBarDefaults.windowInsets,
@@ -97,7 +99,9 @@ private fun FeedTopBar() {
             )
         },
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(
+                onClick = onProfileClick
+            ) {
                 Icon(
                     modifier = Modifier.size(32.dp),
                     imageVector = Icons.Default.Person,
@@ -181,7 +185,13 @@ fun PostsFeedContent(
     navController: NavController
 ) {
     Scaffold(
-        topBar = { FeedTopBar() },
+        topBar = {
+            FeedTopBar(
+                onProfileClick = {
+                    navController.navigate(NavigationItem.Networking.Profile)
+                }
+            )
+        },
         bottomBar = {
             BottomNavigationBar(
                 configuration = NavigationItem.BottomBarConfiguration.Networking,

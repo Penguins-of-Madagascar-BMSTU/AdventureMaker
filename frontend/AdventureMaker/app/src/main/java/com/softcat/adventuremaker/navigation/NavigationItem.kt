@@ -41,6 +41,9 @@ sealed interface NavigationItem {
     data object Tools: NavigationItem
 
     enum class BottomBarConfiguration {
-        Favourites, Tools, Search, Networking
+        Favourites, Tools, Search, Networking, None
     }
+
+    @Serializable
+    data object Auth : NavigationItem
 }
