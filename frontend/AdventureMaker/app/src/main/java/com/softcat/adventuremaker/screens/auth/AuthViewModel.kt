@@ -100,8 +100,14 @@ class AuthViewModel(
     }
 
     private fun processRegisterRequest(currentState: AuthState.Register) = with (currentState) {
-        if (name.isBlank() || email.isBlank() || password.isEmpty() || repeatedPassword.isEmpty())
+        if (name.isBlank() || email.isBlank() || password.isEmpty() || repeatedPassword.isEmpty()) {
+            viewModelScope.launch {
+                _logInEvent.emit(
+                    AuthEvent.Error("Fill in all fields")
+                )
+            }
             return@with
+        }
 
         // Запуск регистрации на отдельном потоке
         viewModelScope.launch(Dispatchers.IO) {
@@ -118,8 +124,14 @@ class AuthViewModel(
     }
 
     private fun processEnterRequest(currentState: AuthState.Enter) = with (currentState) {
-        if (email.isBlank() || password.isEmpty())
+        if (email.isBlank() || password.isEmpty()) {
+            viewModelScope.launch {
+                _logInEvent.emit(
+                    AuthEvent.Error("Заполни все поля")
+                )
+            }
             return@with
+        }
 
         // Запуск входа на отдельном потоке
         viewModelScope.launch(Dispatchers.IO) {

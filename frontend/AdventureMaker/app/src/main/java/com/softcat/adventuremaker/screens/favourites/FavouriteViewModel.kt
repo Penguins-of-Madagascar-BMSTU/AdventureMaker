@@ -45,7 +45,7 @@ class FavouriteViewModel(
 
     private suspend fun subscribeFavourites(userId: String) {
         favouriteUseCase.getFavourites(userId)
-            .filter { it.isNotEmpty() }
+            //.filter { it.isNotEmpty() }
             .collect { placeList ->
                 withContext(Dispatchers.Main) {
                     _state.value = state.value?.let {

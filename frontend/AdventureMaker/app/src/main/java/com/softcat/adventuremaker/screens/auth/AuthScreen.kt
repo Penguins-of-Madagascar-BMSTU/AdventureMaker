@@ -20,7 +20,25 @@ fun AuthScreen(
 ) {
     val state by viewModel.state.observeAsState(AuthState.Loading)
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.logInEvent.collect { event ->
+            when (event) {
+                is AuthEvent.LoggedIn -> {
+                    navController.navigate(NavigationItem.Networking.Profile) {
+                        popUpTo(NavigationItem.Auth) { inclusive = true }
+                    }
+                }
+                is AuthEvent.Error -> {
+                    snackbarHostState.showSnackbar(event.msg)
+                }
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             BottomNavigationBar(
                 configuration = NavigationItem.BottomBarConfiguration.None,
