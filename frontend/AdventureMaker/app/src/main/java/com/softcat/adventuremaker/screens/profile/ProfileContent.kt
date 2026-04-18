@@ -54,6 +54,7 @@ import com.softcat.adventuremaker.ui.theme.TextGray
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
+import com.softcat.adventuremaker.screens.auth.SecondaryButton
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -67,7 +68,7 @@ fun ProfileContent(
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Networking,
+                configuration = NavigationItem.BottomBarConfiguration.None,
                 navController = navController
             )
         },
@@ -96,13 +97,10 @@ fun ProfileContent(
             }
 
             ProfileState.NoUser -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = stringResource(R.string.no_user_title))
+                LaunchedEffect(Unit) {
+                    navController.navigate(NavigationItem.Auth) {
+                        popUpTo(0) // очистка стека
+                    }
                 }
             }
 
@@ -113,7 +111,10 @@ fun ProfileContent(
                         .padding(padding)
                 ) {
                     item {
-                        ProfileHeader(currentState.user)
+                        ProfileHeader(
+                            user = currentState.user,
+                            onLogoutClick = viewModel::logout
+                        )
                     }
                     item {
                         Text(
@@ -146,6 +147,7 @@ fun ProfileContent(
 @Composable
 fun ProfileHeader(
     user: User,
+    onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -194,6 +196,10 @@ fun ProfileHeader(
             Spacer(Modifier.height(8.dp))
 
             Text(user.name)
+
+            Spacer(Modifier.height(12.dp))
+
+            SecondaryButton(stringResource(R.string.log_out), onClick = onLogoutClick, modifier = Modifier.padding(horizontal = 8.dp))
         }
     }
 }

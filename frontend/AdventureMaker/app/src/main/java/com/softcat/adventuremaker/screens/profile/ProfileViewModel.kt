@@ -1,5 +1,7 @@
 package com.softcat.adventuremaker.screens.profile
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -39,6 +41,16 @@ class ProfileViewModel(
                     user = user,
                     posts = posts
                 )
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch(Dispatchers.IO) {
+            userUseCase.exit()
+
+            withContext(Dispatchers.Main) {
+                _state.value = ProfileState.NoUser
             }
         }
     }
