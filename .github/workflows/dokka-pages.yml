@@ -1,0 +1,66 @@
+name: Dokka → GitHub Pages
+
+on:
+  push:
+    # Ветка не указана — workflow срабатывает при push в любую ветку (удобно проверить с фичи). Чтобы только main/develop — добавь: branches: [main, develop]
+    paths:
+      - "frontend/AdventureMaker/**"
+      - ".github/workflows/dokka-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/AdventureMaker
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Generate Dokka HTML (aggregated)
+        run: >
+          ./gradlew :dokkaGenerate --no-daemon --stacktrace
+          -PapiKey2GIS=ci
+          -Ps3AccessKey=ci
+          -Ps3SecretKey=ci
+          -Ps3Region=eu-central-1
+          -Ps3Endpoint=https://example.org
+          -PbucketName=ci
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/AdventureMaker/build/dokka/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
