@@ -34,6 +34,7 @@ foundationLayout = "1.10.6"
 uiGraphics = "1.10.6"
 foundation = "1.10.6"
 lifecycleViewmodelKtx = "2.10.0"
+mockk = "1.14.6"
 
 
 [libraries]
@@ -80,6 +81,7 @@ androidx-compose-foundation-layout = { group = "androidx.compose.foundation", na
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
