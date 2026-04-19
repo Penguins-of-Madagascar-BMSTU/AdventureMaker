@@ -1,8 +1,9 @@
-package com.example.domain.usecases
+package com.example.domain
 
 import com.example.domain.entities.City
 import com.example.domain.entities.Place
 import com.example.domain.interfaces.PlacesRepository
+import com.example.domain.usecases.PlacesUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

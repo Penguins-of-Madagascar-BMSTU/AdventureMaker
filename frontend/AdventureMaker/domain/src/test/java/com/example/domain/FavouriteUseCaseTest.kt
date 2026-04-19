@@ -1,8 +1,9 @@
-package com.example.domain.usecases
+package com.example.domain
 
 import android.util.Log
 import com.example.domain.entities.Place
 import com.example.domain.interfaces.FavouriteRepository
+import com.example.domain.usecases.FavouriteUseCase
 import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.every

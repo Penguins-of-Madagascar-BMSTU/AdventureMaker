@@ -18,6 +18,7 @@ firebaseDatabase = "22.0.1"
 firebaseAuth = "24.0.1"
 koin = "4.1.1"
 liveData = "2.10.0"
+mockitoCore = "5.23.0"
 navigation = "2.8.9"
 datastore = "1.2.0"
 gson = "2.13.2"
@@ -63,6 +64,7 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "liveData" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }

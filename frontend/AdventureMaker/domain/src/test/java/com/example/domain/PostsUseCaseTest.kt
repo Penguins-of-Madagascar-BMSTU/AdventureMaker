@@ -1,7 +1,8 @@
-package com.example.domain.usecases
+package com.example.domain
 
 import com.example.domain.entities.Post
 import com.example.domain.interfaces.PostsRepository
+import com.example.domain.usecases.PostsUseCase
 import io.mockk.coEvery
 import io.mockk.coJustRun
 import io.mockk.coVerify
