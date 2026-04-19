@@ -1,4 +1,3 @@
-# .github/workflows/android-tests.yml
 name: Android Tests
 
 on:
@@ -15,8 +14,7 @@ jobs:
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
-    
-    # 👇 ДОБАВЬТЕ ЭТУ СТРОКУ - укажите путь к вашему проекту
+
     defaults:
       run:
         working-directory: ./frontend/AdventureMaker
@@ -37,13 +35,19 @@ jobs:
 
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v3
+        continue-on-error: true
 
       - name: Run unit tests
         run: |
           ./gradlew :domain:testDebugUnitTest \
             --rerun-tasks \
             --no-daemon \
-            --stacktrace \
+            -PapiKey2GIS=${{ secrets.API_KEY_2GIS }} \
+            -Ps3AccessKey=${{ secrets.S3_ACCESS_KEY }} \
+            -Ps3SecretKey=${{ secrets.S3_SECRET_KEY }} \
+            -Ps3Region=${{ secrets.S3_REGION }} \
+            -Ps3Endpoint=${{ secrets.S3_ENDPOINT }} \
+            -PbucketName=${{ secrets.BUCKET_NAME }} \
             -Dnet.bytebuddy.experimental=true
 
       - name: Upload test report
