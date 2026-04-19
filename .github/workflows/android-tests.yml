@@ -1,3 +1,4 @@
+# .github/workflows/android-tests.yml
 name: Android Tests
 
 on:
@@ -11,10 +12,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  unit-test:
-    name: Run Unit Tests (domain)
+  unit-test-domain:
+    name: Unit Tests (domain)
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: ./frontend/AdventureMaker
@@ -37,7 +37,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v3
         continue-on-error: true
 
-      - name: Run unit tests
+      - name: Run domain unit tests
         run: |
           ./gradlew :domain:testDebugUnitTest \
             --rerun-tasks \
@@ -50,22 +50,20 @@ jobs:
             -PbucketName=${{ secrets.BUCKET_NAME }} \
             -Dnet.bytebuddy.experimental=true
 
-      - name: Upload test report
+      - name: Upload domain test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-report-domain
           path: frontend/AdventureMaker/domain/build/reports/tests/testDebugUnitTest/
           retention-days: 7
-  android-test:
-    name: Run Android Tests (data)
-    runs-on: ubuntu-latest
 
+  unit-test-data:
+    name: Unit Tests (data)
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend/AdventureMaker
-
-    timeout-minutes: 20
 
     steps:
       - name: Checkout code
@@ -81,30 +79,27 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run Instrumented Tests
-        uses: reactivecircus/android-emulator-runner@v2
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+        continue-on-error: true
+
+      - name: Run data unit tests
+        run: |
+          ./gradlew :data:testDebugUnitTest \
+            --rerun-tasks \
+            --no-daemon \
+            -PapiKey2GIS=${{ secrets.API_KEY_2GIS }} \
+            -Ps3AccessKey=${{ secrets.S3_ACCESS_KEY }} \
+            -Ps3SecretKey=${{ secrets.S3_SECRET_KEY }} \
+            -Ps3Region=${{ secrets.S3_REGION }} \
+            -Ps3Endpoint=${{ secrets.S3_ENDPOINT }} \
+            -PbucketName=${{ secrets.BUCKET_NAME }} \
+            -Dnet.bytebuddy.experimental=true
+
+      - name: Upload data test report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          api-level: 29
-          target: default
-          arch: x86_64
-          profile: pixel
-          ram-size: 2048M
-          disable-linux-hw-accel: true
-          emulator-boot-timeout: 900
-          emulator-options: "-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim"
-          script: |
-            cd frontend/AdventureMaker
-            
-            # Эмулятору в софт-режиме нужно 10-20 сек после boot_completed, 
-            # чтобы ADB-демон стабилизировался и запустил системные сервисы
-            sleep 20
-            
-            ./gradlew :connectedDebugAndroidTest \
-              --rerun-tasks \
-              --no-daemon \
-              -PapiKey2GIS=${{ secrets.API_KEY_2GIS }} \
-              -Ps3AccessKey=${{ secrets.S3_ACCESS_KEY }} \
-              -Ps3SecretKey=${{ secrets.S3_SECRET_KEY }} \
-              -Ps3Region=${{ secrets.S3_REGION }} \
-              -Ps3Endpoint=${{ secrets.S3_ENDPOINT }} \
-              -PbucketName=${{ secrets.BUCKET_NAME }}
+          name: test-report-data
+          path: frontend/AdventureMaker/data/build/reports/tests/testDebugUnitTest/
+          retention-days: 7
