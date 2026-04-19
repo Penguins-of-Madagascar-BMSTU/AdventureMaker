@@ -5,6 +5,7 @@ import com.example.domain.entities.Place
 import com.example.domain.interfaces.FavouriteRepository
 import kotlinx.coroutines.flow.StateFlow
 
+/** Избранные места: список, идентификаторы, добавление/удаление и признак «в избранном». */
 class FavouriteUseCase(
     private val repository: FavouriteRepository
 ) {

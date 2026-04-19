@@ -4,6 +4,9 @@ import com.example.domain.entities.User
 import com.example.domain.interfaces.UserRepository
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Сценарии работы с текущим пользователем: регистрация, вход, выход и наблюдение за сессией.
+ */
 class UserUseCase(
     private val repository: UserRepository
 ) {
@@ -14,7 +17,7 @@ class UserUseCase(
         repeatedPassword: String
     ): Result<User> {
         if (password != repeatedPassword)
-            return Result.failure(Exception("Create user error: asswords do not match."))
+            return Result.failure(Exception("Create user error: Passwords do not match."))
         return repository.createUser(name, email, password)
     }
 

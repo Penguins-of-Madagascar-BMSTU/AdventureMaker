@@ -15,11 +15,13 @@ import com.softcat.adventuremaker.screens.tools.ToolsContent
 import com.softcat.adventuremaker.screens.search.MapSearchScreen
 import kotlin.reflect.typeOf
 
-/*
-Это реализация навигации.
-Каждая вершина в графе навигации задана функцией composable<T>.
-T - тип, по которому navController определяет текущую конфигурацию экрана.
-Когда создаётся новый экран, его следует прописать сюда.
+/**
+ * Реализация навигации приложения.
+ *
+ * Каждая вершина графа задаётся вызовом `composable` с типом маршрута **T** из [NavigationItem]:
+ * по этому типу `NavController` определяет текущую конфигурацию экрана.
+ *
+ * При появлении нового экрана добавь для него маршрут в [NavigationItem] и зарегистрируй destination в этом `NavHost`.
  */
 @Composable
 fun NavigationContent() {

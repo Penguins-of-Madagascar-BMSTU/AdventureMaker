@@ -3,6 +3,9 @@ package com.softcat.adventuremaker.navigation
 import com.example.domain.entities.Place
 import kotlinx.serialization.Serializable
 
+/**
+ * Типобезопасные маршруты приложения для Jetpack Navigation (Serializable).
+ */
 sealed interface NavigationItem {
 
     @Serializable
@@ -40,6 +43,7 @@ sealed interface NavigationItem {
     @Serializable
     data object Tools: NavigationItem
 
+    /** Какой пункт нижней панели считается активным на текущем экране. */
     enum class BottomBarConfiguration {
         Favourites, Tools, Search, Networking
     }

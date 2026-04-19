@@ -5,25 +5,28 @@ import android.net.Uri
 import com.example.domain.entities.Post
 import kotlinx.coroutines.flow.StateFlow
 
+/** Доступ к постам в облаке: лента по геолокации, посты пользователя, публикация и удаление. */
 interface PostsRepository {
 
-    // Получить список постов, связанных с местом, наиболее близким к координатам пользователя.
-    // Осуществляется подписка на StateFlow, так как посты могут подгружаться.
+    /**
+     * Посты рядом с точкой пользователя; обновления через [StateFlow] при подгрузке порций.
+     */
     fun getPosts(userLat: Float, userLon: Float): StateFlow<List<Post>>
 
-    // Все посты конкретного пользователя одним запросом
+    /** Все посты указанного пользователя одним запросом. */
     suspend fun getUserPosts(userId: String): Result<List<Post>>
 
-    // Загрузить ещё несколько новых постов для тех же координат пользователя.
-    // Нужно для подгрузки следующей порции постов при прокручивании списка с постами.
+    /** Следующая порция постов для тех же координат (пагинация при скролле). */
     suspend fun loadMorePosts()
 
-    // Сохранить пост в удалённой базе данных.
+    /**
+     * Публикация поста в удалённое хранилище.
+     *
+     * @param imageUri URI изображения из галереи устройства.
+     */
     suspend fun publishPost(
         context: Context,
-        imageUri: Uri, // Uri файла с изображением, хранящегося в галерее устройства.
-
-        // Некоторые поля поста.
+        imageUri: Uri,
         userId: String,
         description: String,
         latitude: Float,
@@ -31,5 +34,6 @@ interface PostsRepository {
         scoreValue: Int? = null
     ): Result<Post>
 
+    /** Удаление поста по идентификатору. */
     suspend fun deletePost(postId: String): Result<Unit>
 }

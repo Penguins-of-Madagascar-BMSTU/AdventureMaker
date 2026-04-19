@@ -1,8 +1,10 @@
-name: Dokka → GitHub Pages
+name: Dokka & GitHub Pages
 
 on:
   push:
-    # Ветка не указана — workflow срабатывает при push в любую ветку (удобно проверить с фичи). Чтобы только main/develop — добавь: branches: [main, develop]
+    branches:
+      - main
+      - develop
     paths:
       - "frontend/AdventureMaker/**"
       - ".github/workflows/dokka-pages.yml"

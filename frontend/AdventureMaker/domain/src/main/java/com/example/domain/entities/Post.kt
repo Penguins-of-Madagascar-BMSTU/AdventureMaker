@@ -1,5 +1,8 @@
 package com.example.domain.entities
 
+/**
+ * Пост в ленте: автор, медиа, текст,  оценка места и координаты на карте.
+ */
 data class Post(
     val id: String, // Идентификатор поста.
     val userId: String, // Идентификатор автора.

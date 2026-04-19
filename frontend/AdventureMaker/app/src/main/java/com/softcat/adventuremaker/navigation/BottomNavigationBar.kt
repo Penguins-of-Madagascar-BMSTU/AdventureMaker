@@ -38,6 +38,7 @@ import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
 import com.softcat.adventuremaker.ui.theme.NavBarShadow
 
+/** Одна кнопка нижней панели: иконка, подпись и подсветка при [isActive]. */
 @Composable
 fun BottomNavigationBarElement(
     modifier: Modifier = Modifier,
@@ -74,6 +75,7 @@ fun BottomNavigationBarElement(
     }
 }
 
+/** Нижняя панель с четырьмя разделами приложения; [configuration] задаёт активную вкладку. */
 @Composable
 fun BottomNavigationBar(
     configuration: BottomBarConfiguration,
