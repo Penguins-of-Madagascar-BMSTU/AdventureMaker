@@ -5,6 +5,17 @@ plugins {
 }
 
 android {
+    tasks.withType<Test> {
+        useJUnit()
+        jvmArgs("-Dnet.bytebuddy.experimental=true")
+
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = true
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        }
+    }
+
     namespace = "com.example.domain"
     compileSdk {
         version = release(36)
