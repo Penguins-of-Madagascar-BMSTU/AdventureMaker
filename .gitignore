@@ -69,6 +69,7 @@ application-prod.yaml
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !gradle/wrapper/gradle-wrapper.properties
+!frontend/AdventureMaker/gradle/wrapper/gradle-wrapper.jar
 
 # Kotlin specific
 
