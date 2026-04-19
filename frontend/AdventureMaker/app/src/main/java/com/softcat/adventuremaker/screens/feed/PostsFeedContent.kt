@@ -163,7 +163,7 @@ private fun FeedItem(post: Post) {
             Text(
                 text = post.description,
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = Black
             )
             Row {
@@ -187,7 +187,7 @@ fun PostsFeedContent(
         topBar = {
             FeedTopBar(
                 onProfileClick = {
-                    navController.navigate(NavigationItem.Networking.Profile)
+                    navController.navigate(NavigationItem.Networking.Auth)
                 }
             )
         },

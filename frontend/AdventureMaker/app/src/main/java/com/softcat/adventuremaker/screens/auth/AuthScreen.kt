@@ -1,11 +1,18 @@
 package com.softcat.adventuremaker.screens.auth
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.softcat.adventuremaker.navigation.BottomNavigationBar
@@ -18,27 +25,27 @@ fun AuthScreen(
     navController: NavController,
     viewModel: AuthViewModel = koinViewModel()
 ) {
-    val state by viewModel.state.observeAsState(AuthState.Loading)
-
-    val snackbarHostState = remember { SnackbarHostState() }
+    val state by viewModel.state.observeAsState(AuthState.Initial)
+    val snackBarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.logInEvent.collect { event ->
             when (event) {
                 is AuthEvent.LoggedIn -> {
-                    navController.navigate(NavigationItem.Networking.Profile) {
-                        popUpTo(NavigationItem.Auth) { inclusive = true }
+                    navController.navigate(NavigationItem.Networking.Profile(event.user)) {
+                        popUpTo(NavigationItem.Networking.Auth) { inclusive = true }
                     }
                 }
                 is AuthEvent.Error -> {
-                    snackbarHostState.showSnackbar(event.msg)
+                    snackBarHostState.showSnackbar(event.throwable.toErrorMessage(context))
                 }
             }
         }
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         bottomBar = {
             BottomNavigationBar(
                 configuration = NavigationItem.BottomBarConfiguration.None,
@@ -46,25 +53,21 @@ fun AuthScreen(
             )
         }
     ) { padding ->
-
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp)
+                .padding(horizontal = 16.dp)
         ) {
             when (val s = state) {
 
-                AuthState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+                AuthState.Loading -> LoadingContent()
 
-                AuthState.NoUser -> {
-                    NoUserContent(
+                AuthState.Initial -> {
+                    InitialContent(
                         onEnterClick = viewModel::switchToEnter,
                         onRegisterClick = viewModel::switchToRegister,
+                        onBackClick = { navController.navigate(NavigationItem.Networking.Posts) },
                         modifier = modifier
                     )
                 }
@@ -76,6 +79,7 @@ fun AuthScreen(
                         onPasswordChange = viewModel::changePassword,
                         onLoginClick = viewModel::onLogInClicked,
                         onSwitchToRegister = viewModel::switchToRegister,
+                        onBackClick = viewModel::switchToInitial,
                         modifier = modifier
                     )
                 }
@@ -89,6 +93,7 @@ fun AuthScreen(
                         onRepeatPasswordChange = viewModel::changeRepeatedPassword,
                         onRegisterClick = viewModel::onLogInClicked,
                         onSwitchToEnter = viewModel::switchToEnter,
+                        onBackClick = viewModel::switchToInitial,
                         modifier = modifier
                     )
                 }

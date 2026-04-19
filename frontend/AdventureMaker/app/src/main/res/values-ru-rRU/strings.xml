@@ -35,6 +35,7 @@
     <string name="no_user_description">Это позволяет видеть рекомендации на других устройствах…</string>
     <string name="enter_button">Вход</string>
     <string name="register_button">Создание аккаунта</string>
+    <string name="empty_auth_fields_error">Заполните все поля</string>
 
     <string name="register_name_label">Введите имя</string>
     <string name="register_email_label">Введите email</string>
