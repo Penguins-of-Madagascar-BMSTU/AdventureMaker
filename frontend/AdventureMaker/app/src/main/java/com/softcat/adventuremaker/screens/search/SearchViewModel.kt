@@ -11,6 +11,7 @@ import com.example.domain.usecases.FavouriteUseCase
 import com.example.domain.usecases.PlacesUseCase
 import com.example.domain.usecases.UserUseCase
 import com.softcat.adventuremaker.navigation.NavigationItem
+import com.softcat.adventuremaker.screens.search.model.MapState
 import com.softcat.adventuremaker.screens.search.model.SearchScreenState
 import com.softcat.adventuremaker.screens.search.model.SearchViewModelMapper
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.osmdroid.util.GeoPoint
 import kotlin.random.Random
 
 class SearchViewModel(
@@ -63,14 +65,27 @@ class SearchViewModel(
     }
 
     fun selectCity(cityName: String) {
-        _state.value = state.value?.copy(cityName = cityName)
+        val city = availableCities.find { it.name == cityName } ?: return
+        val currentState = state.value ?: return
+
+        _state.value = currentState.copy(
+            cityName = cityName,
+            mapState = currentState.mapState.copy(
+                // Для перемещения камеры карты на новый выбранный город.
+                center = GeoPoint(city.latitude, city.longitude)
+            )
+        )
     }
 
     fun selectCategory(category: Place.Category) {
         val bottomSheetState = state.value?.bottomSheetState ?: return
+        val visiblePlaces = placesOnMap
+            .filter { category == Place.Category.Unknown || it.category == category }
+
         val newBottomSheetState = bottomSheetState.copy(
             // Получаем новый список категорий для BottomSheet.
-            categories = mapper.mapToCategoryList(category)
+            categories = mapper.mapToCategoryList(category),
+            places = mapper.mapToPlaceModels(visiblePlaces, favouritesFlow.value)
         )
         _state.value = state.value?.copy(bottomSheetState = newBottomSheetState)
     }
@@ -87,10 +102,7 @@ class SearchViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             placesUseCase.searchPlaces(cityId, state.query, selectedCategory, page)
-                .onSuccess {
-                    updatePlacesOnMap(it)
-                    showBottomSheet()
-                }
+                .onSuccess { updatePlacesOnMap(it) }
         }
     }
 
@@ -105,11 +117,12 @@ class SearchViewModel(
 
     fun showBottomSheet() {
         val currentState = state.value ?: return
-        _state.value = currentState.copy(
+        val newState = currentState.copy(
             bottomSheetState = currentState.bottomSheetState.copy(
                 isSheetVisible = true
             )
         )
+        _state.postValue(newState)
     }
 
     fun changeFavouriteStatus(placeId: String) {
@@ -165,9 +178,18 @@ class SearchViewModel(
             places = visiblePlaces,
             favouriteIds = favouritesFlow.value
         )
-        val newSheetState = currentState.bottomSheetState.copy(places = newPlaceModels)
+        val newSheetState = currentState.bottomSheetState.copy(
+            places = newPlaceModels,
+            isSheetVisible = true
+        )
+        val newMapState = currentState.mapState.copy(
+            places = mapper.mapToPins(places)
+        )
         _state.postValue(
-            state.value?.copy(bottomSheetState = newSheetState)
+            state.value?.copy(
+                bottomSheetState = newSheetState,
+                mapState = newMapState
+            )
         )
     }
 
@@ -179,7 +201,12 @@ class SearchViewModel(
         ),
         query = "",
         cityName = "",
-        availableCities = availableCities.map { it.name }
+        availableCities = availableCities.map { it.name },
+        mapState = MapState(
+            places = emptyList(),
+            center = GeoPoint(55.7558, 37.6173),
+            zoom = 10.0
+        )
     )
 
     companion object {

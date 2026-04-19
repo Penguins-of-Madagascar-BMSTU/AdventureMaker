@@ -29,9 +29,12 @@ interface MapsApiService {
     ): RegionsResponse
 
     @GET("2.0/region/list")
-    suspend fun getAvailableCities(): RegionsResponse
+    suspend fun getAvailableCities(
+        @Query("fields") fields: String = REGION_FIELDS_PARAM
+    ): RegionsResponse
 
     companion object {
         private const val FIELDS_PARAM = "items.description,items.name,items.address,items.point,items.rubrics"
+        private const val REGION_FIELDS_PARAM = "items.default_pos"
     }
 }

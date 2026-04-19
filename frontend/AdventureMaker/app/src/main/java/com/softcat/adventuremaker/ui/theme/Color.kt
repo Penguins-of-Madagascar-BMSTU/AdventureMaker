@@ -24,4 +24,3 @@ val TextGray = Color(0xFF757575)
 
 val EmergencyTableLabelBackground = Color(0xFFDFF5E4)
 val TranslationActionButton = Color(0xFF98D8B8)
-val SearchLineBackground = Color(0xFFEDEDED)

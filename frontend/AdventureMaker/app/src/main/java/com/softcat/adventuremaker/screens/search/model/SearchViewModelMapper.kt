@@ -4,6 +4,7 @@ import com.example.domain.entities.Place
 import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.screens.search.PlaceItemModel
 import com.softcat.adventuremaker.screens.search.SearchCategoryModel
+import org.osmdroid.util.GeoPoint
 
 class SearchViewModelMapper {
 
@@ -20,6 +21,13 @@ class SearchViewModelMapper {
                 isFavourite = it.id in favouriteIds
             )
         }
+    }
+
+    fun mapToPins(places: List<Place>) = places.map {
+        PlacePin(
+            point = GeoPoint(it.latitude.toDouble(), it.longitude.toDouble()),
+            title = it.name
+        )
     }
 
     private fun mapToCategoryModel(category: Place.Category, isSelected: Boolean): SearchCategoryModel {

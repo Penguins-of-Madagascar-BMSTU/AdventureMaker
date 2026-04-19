@@ -28,7 +28,7 @@ fun NavigationContent() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = NavigationItem.Favourites.Content
+        startDestination = NavigationItem.Search.Map
     ) {
         composable<NavigationItem.Favourites.Content> {
             FavouritesContent(

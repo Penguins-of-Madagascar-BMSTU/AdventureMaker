@@ -32,7 +32,9 @@ fun String.toCategory() = when (this) {
 
 fun RegionDto.toEntity() = City(
     id = id,
-    name = name
+    name = name,
+    latitude = regionLocDto.latitude,
+    longitude = regionLocDto.longitude
 )
 
 fun UserDto.toEntity() = User(
