@@ -50,6 +50,8 @@
     <string name="create_post_publish">Publish</string>
     <string name="loading">Loading…</string>
 
+    <string name="log_out">Log out of your account</string>
+
     <string name="app_bar_title_details">Place details</string>
 
     <string name="tools_screen_title">Useful tools</string>
@@ -61,4 +63,7 @@
     <string name="tools_translate_button">Translate</string>
     <string name="lang_english">English</string>
     <string name="lang_russian">Russian</string>
+
+    // Карта и поиск
+    <string name="select_city">City</string>
 </resources>

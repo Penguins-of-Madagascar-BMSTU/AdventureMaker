@@ -59,7 +59,14 @@ fun CreatePostContent(
         navController = navController,
         editingState = editingState,
         onDescriptionChange = viewModel::updateDescription,
-        onBackClick = { navController.popBackStack() }
+        onBackClick = { navController.popBackStack() },
+        onPublishClick = {
+            viewModel.publishPost(
+                context = navController.context,
+                latitude = 0f,
+                longitude = 0f
+            )
+        }
     )
 }
 
@@ -68,7 +75,8 @@ private fun CreatePostLayout(
     navController: NavController,
     editingState: CreatePostState.Editing,
     onDescriptionChange: (String) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onPublishClick: () -> Unit
 ) {
     Scaffold(
         bottomBar = {
@@ -104,12 +112,12 @@ private fun CreatePostLayout(
                     color = Black,
                     textAlign = TextAlign.Center
                 )
-                Icon(
+                /*Icon(
                     modifier = Modifier.padding(start = 16.dp).size(18.dp),
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
                     tint = BasicIconsTint
-                )
+                )*/
             }
 
             Text(
@@ -167,7 +175,7 @@ private fun CreatePostLayout(
                         .weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = BasicOrange),
                     shape = RoundedCornerShape(28.dp),
-                    onClick = {}
+                    onClick = onPublishClick
                 ) {
                     Text(
                         text = stringResource(R.string.create_post_publish),
@@ -190,7 +198,8 @@ private fun CreatePostContentPreview() {
             score = 3
         ),
         onDescriptionChange = {},
-        onBackClick = {}
+        onBackClick = {},
+        onPublishClick = {}
     )
 }
 

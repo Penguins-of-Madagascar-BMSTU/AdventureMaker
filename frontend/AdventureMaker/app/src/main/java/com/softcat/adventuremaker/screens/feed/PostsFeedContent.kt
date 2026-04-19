@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -83,7 +82,9 @@ private val mockPosts = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FeedTopBar() {
+private fun FeedTopBar(
+    onProfileClick: () -> Unit
+) {
     TopAppBar(
         expandedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
         windowInsets = TopAppBarDefaults.windowInsets,
@@ -97,7 +98,9 @@ private fun FeedTopBar() {
             )
         },
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(
+                onClick = onProfileClick
+            ) {
                 Icon(
                     modifier = Modifier.size(32.dp),
                     imageVector = Icons.Default.Person,
@@ -181,7 +184,13 @@ fun PostsFeedContent(
     navController: NavController
 ) {
     Scaffold(
-        topBar = { FeedTopBar() },
+        topBar = {
+            FeedTopBar(
+                onProfileClick = {
+                    navController.navigate(NavigationItem.Networking.Profile)
+                }
+            )
+        },
         bottomBar = {
             BottomNavigationBar(
                 configuration = NavigationItem.BottomBarConfiguration.Networking,
@@ -191,7 +200,9 @@ fun PostsFeedContent(
         floatingActionButton = {
             FloatingActionButton(
                 containerColor = GradientGreen,
-                onClick = {}
+                onClick = {
+                    navController.navigate(NavigationItem.Networking.CreatePost)
+                }
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }

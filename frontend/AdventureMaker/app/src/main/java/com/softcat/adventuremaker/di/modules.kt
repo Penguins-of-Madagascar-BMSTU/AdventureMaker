@@ -26,6 +26,7 @@ import com.example.domain.interfaces.UserRepository
 import com.example.domain.usecases.ConvertCurrencyUseCase
 import com.example.domain.usecases.FavouriteUseCase
 import com.example.domain.usecases.GetEmergencyNumbersUseCase
+import com.example.domain.usecases.PlacesUseCase
 import com.example.domain.usecases.PostsUseCase
 import com.example.domain.usecases.TranslateTextUseCase
 import com.example.domain.usecases.UserUseCase
@@ -35,6 +36,8 @@ import com.softcat.adventuremaker.screens.details.PlaceDetailsViewModel
 import com.softcat.adventuremaker.screens.favourites.FavouriteViewModel
 import com.softcat.adventuremaker.screens.posts.CreatePostViewModel
 import com.softcat.adventuremaker.screens.profile.ProfileViewModel
+import com.softcat.adventuremaker.screens.search.SearchViewModel
+import com.softcat.adventuremaker.screens.search.model.SearchViewModelMapper
 import com.softcat.adventuremaker.screens.tools.ToolsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -46,6 +49,7 @@ val viewModelModule = module {
     viewModelOf(::FavouriteViewModel)
     viewModelOf(::CreatePostViewModel)
     viewModelOf(::ProfileViewModel)
+    viewModelOf(::SearchViewModel)
 
     viewModel { (place: Place) ->
         PlaceDetailsViewModel(place, get(), get())
@@ -67,6 +71,7 @@ val repositoryModule = module {
     single { TranslateTextUseCase(get()) }
     single { GetEmergencyNumbersUseCase(get()) }
     single { ConvertCurrencyUseCase(get()) }
+    single { PlacesUseCase(get()) }
 }
 
 
@@ -82,4 +87,5 @@ val dataModule = module {
     }
 
     single { PlaceImageProvider() }
+    single { SearchViewModelMapper() }
 }

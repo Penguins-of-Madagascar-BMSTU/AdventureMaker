@@ -14,7 +14,7 @@ class PlacesRepositoryImpl(
     override suspend fun getPlaces(
         cityId: Int,
         query: String,
-        category: Place.Category?,
+        category: Place.Category,
         page: Int
     ): Result<List<Place>> {
         return try {
@@ -46,7 +46,17 @@ class PlacesRepositoryImpl(
         }
     }
 
-    private fun Place.Category?.toAlias() = when (this) {
+    override suspend fun getAllCities(): Result<List<City>> {
+        return try {
+            val models = mapsApiService.getAvailableCities().result.items
+            val cities = models.map { it.toEntity() }
+            Result.success(cities)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private fun Place.Category.toAlias() = when (this) {
         Place.Category.Museum -> "branch"
         Place.Category.Entertainment -> "adm_div.place"
         Place.Category.Bank -> "branch"

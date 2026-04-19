@@ -2,7 +2,6 @@ package com.softcat.adventuremaker.screens.search.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -103,9 +102,13 @@ fun PlaceItem(
                 overflow = TextOverflow.Ellipsis
             )
             IconButton(onClick = onFavouriteClick) {
+                val iconResId = if (place.isFavourite)
+                    R.drawable.heart_filled
+                else
+                    R.drawable.heart
                 Icon(
                     modifier = Modifier.size(32.dp),
-                    painter = painterResource(place.iconResId),
+                    painter = painterResource(iconResId),
                     contentDescription = null,
                     tint = CustomRed
                 )
@@ -122,7 +125,13 @@ fun PlaceItemPreview() {
             id ="1",
             title = "Кофейня cup2up",
             imageUrl = "",
-            iconResId = R.drawable.heart_filled
+            isFavourite = true
         )
     }
+    PlaceItem(
+        place = place,
+        onFavouriteClick = {},
+        onPlaceClick = {},
+        modifier = Modifier
+    )
 }

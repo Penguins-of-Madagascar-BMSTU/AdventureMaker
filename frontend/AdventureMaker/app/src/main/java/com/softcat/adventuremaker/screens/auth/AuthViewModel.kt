@@ -26,6 +26,10 @@ class AuthViewModel(
     private val _logInEvent = MutableSharedFlow<AuthEvent>()
     val logInEvent: SharedFlow<AuthEvent> = _logInEvent.asSharedFlow()
 
+    init {
+        _state.value = AuthState.NoUser
+    }
+
     /*-----------Функции для изменения вводимых данных.-----------*/
 
     fun changeName(newValue: String) {
@@ -96,8 +100,14 @@ class AuthViewModel(
     }
 
     private fun processRegisterRequest(currentState: AuthState.Register) = with (currentState) {
-        if (name.isBlank() || email.isBlank() || password.isEmpty() || repeatedPassword.isEmpty())
+        if (name.isBlank() || email.isBlank() || password.isEmpty() || repeatedPassword.isEmpty()) {
+            viewModelScope.launch {
+                _logInEvent.emit(
+                    AuthEvent.Error("Fill in all fields")
+                )
+            }
             return@with
+        }
 
         // Запуск регистрации на отдельном потоке
         viewModelScope.launch(Dispatchers.IO) {
@@ -114,8 +124,14 @@ class AuthViewModel(
     }
 
     private fun processEnterRequest(currentState: AuthState.Enter) = with (currentState) {
-        if (email.isBlank() || password.isEmpty())
+        if (email.isBlank() || password.isEmpty()) {
+            viewModelScope.launch {
+                _logInEvent.emit(
+                    AuthEvent.Error("Заполни все поля")
+                )
+            }
             return@with
+        }
 
         // Запуск входа на отдельном потоке
         viewModelScope.launch(Dispatchers.IO) {
