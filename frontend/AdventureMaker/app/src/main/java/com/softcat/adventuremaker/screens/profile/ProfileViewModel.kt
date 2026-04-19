@@ -1,40 +1,40 @@
 package com.softcat.adventuremaker.screens.profile
 
-import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.entities.User
 import com.example.domain.usecases.PostsUseCase
 import com.example.domain.usecases.UserUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ProfileViewModel(
+    private val user: User,
     private val userUseCase: UserUseCase,
     private val postsUseCase: PostsUseCase
 ) : ViewModel() {
 
-    private val _state = MutableLiveData<ProfileState>(ProfileState.Loading)
+    private val _state = MutableLiveData<ProfileState>(
+        ProfileState.Content(user, emptyList())
+    )
     val state: LiveData<ProfileState>
         get() = _state
 
+    private val _profileEvent = MutableSharedFlow<ProfileEvent>()
+    val profileEvent: SharedFlow<ProfileEvent> = _profileEvent.asSharedFlow()
+
     init {
-        loadProfile()
+        loadPosts()
     }
 
-    fun loadProfile() {
+    fun loadPosts() {
         viewModelScope.launch(Dispatchers.IO) {
-            val user = userUseCase.getLastEnteredUser()
-            if (user == null) {
-                withContext(Dispatchers.Main) {
-                    _state.value = ProfileState.NoUser
-                }
-                return@launch
-            }
-
             val posts = postsUseCase.getUserPosts(user.id).getOrElse { emptyList() }
             withContext(Dispatchers.Main) {
                 _state.value = ProfileState.Content(
@@ -50,7 +50,7 @@ class ProfileViewModel(
             userUseCase.exit()
 
             withContext(Dispatchers.Main) {
-                _state.value = ProfileState.NoUser
+                _profileEvent.emit(ProfileEvent.Exited)
             }
         }
     }

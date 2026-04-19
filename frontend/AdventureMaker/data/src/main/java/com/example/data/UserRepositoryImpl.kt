@@ -127,6 +127,7 @@ class UserRepositoryImpl(
             val userJson = Gson().toJson(user)
             preferences[userKey] = userJson
         }
+        loadLastUserRequest.emit(Unit)
     }
 
     private suspend fun forgetUser() {
@@ -134,6 +135,7 @@ class UserRepositoryImpl(
             val userKey = stringPreferencesKey(USER_KEY)
             preferences.remove(userKey)
         }
+        loadLastUserRequest.emit(Unit)
     }
 
     private suspend fun loadLastUser(): User? {

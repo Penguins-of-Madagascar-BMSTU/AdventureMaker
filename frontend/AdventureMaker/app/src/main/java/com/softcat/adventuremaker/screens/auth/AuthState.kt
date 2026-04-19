@@ -4,7 +4,7 @@ sealed interface AuthState {
 
     data object Loading: AuthState
 
-    data object NoUser: AuthState
+    data object Initial: AuthState
 
     data class Enter(
         val email: String,

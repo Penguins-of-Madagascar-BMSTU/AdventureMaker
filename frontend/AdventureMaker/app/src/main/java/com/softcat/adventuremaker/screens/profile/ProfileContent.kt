@@ -40,6 +40,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -56,14 +57,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
 import com.softcat.adventuremaker.screens.auth.SecondaryButton
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 
 @Composable
 fun ProfileContent(
     navController: NavController,
-    viewModel: ProfileViewModel = koinViewModel()
+    user: User
 ) {
+    val viewModel: ProfileViewModel = koinViewModel { parametersOf(user) }
     val state by viewModel.state.observeAsState(ProfileState.Loading)
+
+    LaunchedEffect(Unit) {
+        viewModel.profileEvent.collect { event ->
+            when (event) {
+                ProfileEvent.Exited -> {
+                    navController.navigate(NavigationItem.Networking.Auth) {
+                        popUpTo(0)
+                    }
+                }
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -93,14 +108,6 @@ fun ProfileContent(
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
-                }
-            }
-
-            ProfileState.NoUser -> {
-                LaunchedEffect(Unit) {
-                    navController.navigate(NavigationItem.Auth) {
-                        popUpTo(0) // очистка стека
-                    }
                 }
             }
 
@@ -150,9 +157,7 @@ fun ProfileHeader(
     onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Box {
-
         Box(
             modifier = modifier
                 .fillMaxWidth()
@@ -199,7 +204,11 @@ fun ProfileHeader(
 
             Spacer(Modifier.height(12.dp))
 
-            SecondaryButton(stringResource(R.string.log_out), onClick = onLogoutClick, modifier = Modifier.padding(horizontal = 8.dp))
+            SecondaryButton(
+                text = stringResource(R.string.log_out),
+                onClick = onLogoutClick,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
         }
     }
 }
@@ -211,7 +220,6 @@ fun PostItem(
     user: User,
     modifier: Modifier = Modifier
 ) {
-
     val context = LocalContext.current
     var address by remember { mutableStateOf<String?>(null) }
 
@@ -230,11 +238,9 @@ fun PostItem(
             .fillMaxWidth()
             .padding(12.dp)
     ) {
-
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             // Аватар
             if (user.avatarUrl != null) {
                 AsyncImage(
@@ -286,12 +292,10 @@ fun PostItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Text(
                 text = post.description,
                 modifier = Modifier.weight(1f)
             )
-
             Row {
                 repeat(post.scoreValue ?: 0) {
                     Icon(

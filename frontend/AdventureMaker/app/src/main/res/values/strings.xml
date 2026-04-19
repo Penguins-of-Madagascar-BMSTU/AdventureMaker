@@ -34,6 +34,7 @@
     <string name="no_user_description">It will enable you to see favourite places on other devices</string>
     <string name="enter_button">Enter</string>
     <string name="register_button">Create an account</string>
+    <string name="empty_auth_fields_error">Fill in all fields</string>
 
     <string name="register_name_label">Enter your name</string>
     <string name="register_email_label">Enter your email</string>

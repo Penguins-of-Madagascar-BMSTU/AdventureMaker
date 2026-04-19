@@ -7,7 +7,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.domain.entities.Place
+import com.example.domain.entities.User
 import com.softcat.adventuremaker.navigation.NavTypes.PlaceNavType
+import com.softcat.adventuremaker.navigation.NavTypes.UserNavType
 import com.softcat.adventuremaker.screens.auth.AuthScreen
 import com.softcat.adventuremaker.screens.details.DetailsContent
 import com.softcat.adventuremaker.screens.favourites.FavouritesContent
@@ -34,7 +36,7 @@ fun NavigationContent() {
         composable<NavigationItem.Favourites.Content> {
             FavouritesContent(
                 navController = navController,
-                onEnterClick = { navController.navigate(NavigationItem.Networking.Profile) },
+                onProfileClick = {},
                 onPlaceClick = { navController.navigate(NavigationItem.Favourites.PlaceDetails(it)) }
             )
         }
@@ -56,14 +58,16 @@ fun NavigationContent() {
         composable<NavigationItem.Networking.Posts> {
             PostsFeedContent(navController)
         }
-        composable<NavigationItem.Networking.Profile> {
-            ProfileContent(navController)
+        composable<NavigationItem.Networking.Profile>(
+            typeMap = mapOf(typeOf<User>() to UserNavType)
+        ) { entry ->
+            val args = entry.toRoute<NavigationItem.Networking.Profile>()
+            ProfileContent(navController, args.user)
         }
         composable<NavigationItem.Networking.CreatePost> {
             CreatePostContent(navController = navController)
         }
-
-        composable<NavigationItem.Auth> {
+        composable<NavigationItem.Networking.Auth> {
             AuthScreen(navController = navController)
         }
     }
