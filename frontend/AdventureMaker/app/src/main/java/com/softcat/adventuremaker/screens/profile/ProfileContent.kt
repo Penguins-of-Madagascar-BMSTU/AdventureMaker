@@ -1,5 +1,7 @@
 package com.softcat.adventuremaker.screens.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -65,6 +67,11 @@ fun ProfileContent(
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val state by viewModel.state.observeAsState(ProfileState.Loading)
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { selectedImageUri ->
+        selectedImageUri?.let(viewModel::onAvatarSelected)
+    }
 
     Scaffold(
         bottomBar = {
@@ -115,7 +122,7 @@ fun ProfileContent(
                         ProfileHeader(
                             user = currentState.user,
                             onLogoutClick = viewModel::logout,
-                            onAvatarClick = {}
+                            onAvatarClick = { pickImageLauncher.launch("image/*") }
                         )
                     }
                     item {
