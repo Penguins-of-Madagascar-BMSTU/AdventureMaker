@@ -1,5 +1,10 @@
 package com.softcat.adventuremaker.screens.profile
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -48,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import androidx.core.content.ContextCompat
 import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.screens.details.getAddressFromCoordinates
 import com.softcat.adventuremaker.ui.theme.AvatarPlaceholder
@@ -60,6 +66,20 @@ import androidx.compose.runtime.livedata.observeAsState
 import com.softcat.adventuremaker.screens.auth.SecondaryButton
 import org.koin.androidx.compose.koinViewModel
 
+private const val IMAGE_MIME_TYPE = "image/*"
+
+private fun getGalleryPermission(): String {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+}
+
+private fun hasPermission(context: android.content.Context, permission: String): Boolean {
+    return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+}
+
 
 @Composable
 fun ProfileContent(
@@ -67,10 +87,31 @@ fun ProfileContent(
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val state by viewModel.state.observeAsState(ProfileState.Loading)
+    val context = LocalContext.current
+    val galleryPermission = getGalleryPermission()
     val pickImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { selectedImageUri ->
-        selectedImageUri?.let(viewModel::onAvatarSelected)
+        selectedImageUri?.let { uri ->
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (_: SecurityException) {
+                // Some providers may not grant persistable permission.
+            }
+            viewModel.onAvatarSelected(context, uri)
+        }
+    }
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            pickImageLauncher.launch(arrayOf(IMAGE_MIME_TYPE))
+        } else {
+            Toast.makeText(context, R.string.permission_denied, Toast.LENGTH_SHORT).show()
+        }
     }
 
     Scaffold(
@@ -121,8 +162,15 @@ fun ProfileContent(
                     item {
                         ProfileHeader(
                             user = currentState.user,
+                            avatarModel = currentState.selectedAvatarUri ?: currentState.user.avatarUrl,
                             onLogoutClick = viewModel::logout,
-                            onAvatarClick = { pickImageLauncher.launch("image/*") }
+                            onAvatarClick = {
+                                if (hasPermission(context, galleryPermission)) {
+                                    pickImageLauncher.launch(arrayOf(IMAGE_MIME_TYPE))
+                                } else {
+                                    requestPermissionLauncher.launch(galleryPermission)
+                                }
+                            }
                         )
                     }
                     item {
@@ -156,6 +204,7 @@ fun ProfileContent(
 @Composable
 fun ProfileHeader(
     user: User,
+    avatarModel: Any?,
     onLogoutClick: () -> Unit,
     onAvatarClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -183,9 +232,9 @@ fun ProfileHeader(
         ) {
 
             // Аватар
-            if (user.avatarUrl != null) {
+            if (avatarModel != null) {
                 AsyncImage(
-                    model = user.avatarUrl,
+                    model = avatarModel,
                     contentDescription = null,
                     modifier = Modifier
                         .size(80.dp)

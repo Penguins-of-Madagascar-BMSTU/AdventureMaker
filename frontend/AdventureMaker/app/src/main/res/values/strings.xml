@@ -49,6 +49,7 @@
     <string name="create_post_description_placeholder">Where have you been?</string>
     <string name="create_post_publish">Publish</string>
     <string name="loading">Loading…</string>
+    <string name="permission_denied">Permission to gallery was denied</string>
 
     <string name="log_out">Log out of your account</string>
 

@@ -55,7 +55,27 @@ class ProfileViewModel(
         }
     }
 
-    fun onAvatarSelected(uri: Uri) {
-        // TODO
+    fun onAvatarSelected(context: Context, uri: Uri) {
+        val currentState = _state.value
+        if (currentState is ProfileState.Content) {
+            _state.value = currentState.copy(selectedAvatarUri = uri)
+        }
+        uploadAvatar(context, uri)
+    }
+
+    private fun uploadAvatar(context: Context, uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = userUseCase.uploadAvatar(context, uri)
+            val currentState = _state.value
+            if (result.isSuccess && currentState is ProfileState.Content) {
+                val updatedUser = result.getOrNull() ?: return@launch
+                withContext(Dispatchers.Main) {
+                    _state.value = currentState.copy(
+                        user = updatedUser,
+                        selectedAvatarUri = null
+                    )
+                }
+            }
+        }
     }
 }

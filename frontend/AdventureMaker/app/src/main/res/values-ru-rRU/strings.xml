@@ -50,6 +50,7 @@
     <string name="create_post_description_placeholder">Где вы побывали?</string>
     <string name="create_post_publish">Опубликовать</string>
     <string name="loading">Загрузка…</string>
+    <string name="permission_denied">Доступ к галерее отклонён</string>
 
     <string name="log_out">Выйти из аккаунта</string>
 

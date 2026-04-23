@@ -1,5 +1,7 @@
 package com.example.domain.usecases
 
+import android.content.Context
+import android.net.Uri
 import com.example.domain.entities.User
 import com.example.domain.interfaces.UserRepository
 import kotlinx.coroutines.flow.Flow
@@ -32,5 +34,9 @@ class UserUseCase(
 
     fun observeLastEnteredUser(): Flow<User?> {
         return repository.observeLastEnteredUser()
+    }
+
+    suspend fun uploadAvatar(context: Context, avatarUri: Uri): Result<User> {
+        return repository.uploadAvatar(context, avatarUri)
     }
 }
