@@ -1,6 +1,7 @@
 package com.softcat.adventuremaker.screens.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,7 +114,8 @@ fun ProfileContent(
                     item {
                         ProfileHeader(
                             user = currentState.user,
-                            onLogoutClick = viewModel::logout
+                            onLogoutClick = viewModel::logout,
+                            onAvatarClick = {}
                         )
                     }
                     item {
@@ -148,6 +150,7 @@ fun ProfileContent(
 fun ProfileHeader(
     user: User,
     onLogoutClick: () -> Unit,
+    onAvatarClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -179,14 +182,16 @@ fun ProfileHeader(
                     contentDescription = null,
                     modifier = Modifier
                         .size(80.dp)
-                        .clip(CircleShape),
+                        .clip(CircleShape)
+                        .clickable(onClick = onAvatarClick),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Box(
                     modifier = Modifier
                         .size(80.dp)
-                        .background(AvatarPlaceholder, CircleShape),
+                        .background(AvatarPlaceholder, CircleShape)
+                        .clickable(onClick = onAvatarClick),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Default.Person, null)

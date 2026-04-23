@@ -54,4 +54,8 @@ class ProfileViewModel(
             }
         }
     }
+
+    fun onAvatarSelected(uri: Uri) {
+        // TODO
+    }
 }
