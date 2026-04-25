@@ -1,7 +1,10 @@
 package com.softcat.adventuremaker.screens.feed
 
+import android.annotation.SuppressLint
+import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,57 +31,38 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.domain.entities.Post
+import com.google.android.gms.location.LocationServices
 import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.navigation.BottomNavigationBar
 import com.softcat.adventuremaker.navigation.NavigationItem
+import com.softcat.adventuremaker.screens.details.getAddressFromCoordinates
+import com.softcat.adventuremaker.screens.posts.PostsState
 import com.softcat.adventuremaker.ui.theme.AvatarPlaceholder
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.GradientGreen
 import com.softcat.adventuremaker.ui.theme.StarYellow
 import com.softcat.adventuremaker.ui.theme.TextGray
+import org.koin.androidx.compose.koinViewModel
 
-private val mockPosts = listOf(
-    Post(
-        id = "1",
-        userId = "Дарья",
-        imageUrl = "https://yandex-images.clstorage.net/iXe5d3139/6f4159Q-K/StD2gciEYMCzchyGzYa84kXmMnAgF6UGOYi-FIcTlOV3IamOVlFA_KbQPW6mqcv7_5vLce9NW83kG-uTJdUH4wfBr5iZrRncs2ZNquS21NIFswIFLEKtYimV2iSKtjkglsgQdo-wuRVasXQP8qzm0uvCY5m_WB6kYP5ae2XQjqrmzD7B2Bx59KvS7YbN1qAaNSO20NT-pQPxbCu1Dp5RfJpESGaTcJUBisHgJzIIW86PkksooygOpKTKlsMZTHIWSqTe1RRgfTDnCjkurZrcUpVPInwIGhV3leRj3QbaDTTWxFCiG5BpIfIBOAMu_DNm89bP0J-ADphYej7blTz6Pn6oVgF4RCHIw1L5AgFOtKJtgy6EVF4x-4XsM0VOav2YChzIkg_YATmueaiXomyT2j86l4z7nA4gzJbam714fqZ6oGLh3PQZ3AO-gfaFVrTGTYM6HGzugbt9CBM5bp5RYPYghFoXTBHh2g0oF_aAv_7_Wl9g95RCXBCKQgPppK4KVuy6MXTcZewvdkUqPTJgxknTbpQokn1_iYg3AeIG1YSmVLQO2wSh0TaBtPfSABd-x9rDIBdAusBAfkK3GSBy-uZUYnVc9PUYA_YBBokSrCLp274oHM7xE63Mty0mQt00vtjcZl_QHTl2sdjjArynop-Ch0zjXLokqFYWM320OlIK1CKJ0Aw97DNOTYpBxlTeYceyQHzCwSeJpCMBIupBQC5kKHrvWBmF9pFcj4ocy9L_st9sL1TOJDgiSuN5NAo-6sCWCXzYeSQfImkCnWawptlHaiDkZpVjjXQj_QJWmeimACzac8zh4XbZIB-iqLtCSwKz7IfUBlBgfj7LGSwi-obs3gFgCPXIX8JFEqEaWEINn9pMCPa9a_F8Ezne4qE4mgDI8muQQQ0-vcjz0vBTbj-CV7g7fC4g5Crq7410LlJWvD5thFiBJNcu1WY5Lkwy1dPWTGwONbfR6AMJbqJk",
-        scoreValue = 5,
-        description = "Шикарное место, всем советую!!!",
-        latitude = 0f,
-        longitude = 0f
-    ),
-    Post(
-        id = "2",
-        userId = "Дарья",
-        imageUrl = "https://i.pinimg.com/474x/dd/05/d7/dd05d7148472d861d380a8723436cd0c.jpg?nii=t",
-        scoreValue = 4,
-        description = "Еще одно классное место",
-        latitude = 0f,
-        longitude = 0f
-    ),
-    Post(
-        id = "3",
-        userId = "Мария",
-        imageUrl = "https://i.pinimg.com/474x/dd/05/d7/dd05d7148472d861d380a8723436cd0c.jpg?nii=t",
-        scoreValue = 5,
-        description = "неплохое место с красивым видом, можно сделать крутые фотографии",
-        latitude = 0f,
-        longitude = 0f
-    )
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,6 +98,21 @@ private fun FeedTopBar(
 
 @Composable
 private fun FeedItem(post: Post) {
+
+    // получение адреса по координатам
+    val context = LocalContext.current
+    var address by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(post.latitude, post.longitude) {
+        getAddressFromCoordinates(
+            context = context,
+            latitude = post.latitude.toDouble(),
+            longitude = post.longitude.toDouble()
+        ) { result ->
+            address = result
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,7 +137,7 @@ private fun FeedItem(post: Post) {
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = "Зарядье",
+                        text = address ?: stringResource(R.string.loading),
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextGray
                     )
@@ -180,9 +179,30 @@ private fun FeedItem(post: Post) {
 }
 
 @Composable
-fun PostsFeedContent(
-    navController: NavController
-) {
+fun PostsFeedContent(navController: NavController) {
+
+    val viewModel: PostsViewModel = koinViewModel()
+    val state by viewModel.state.observeAsState(PostsState.Loading)
+
+    val context = LocalContext.current
+
+    // permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            if (granted) {
+                getCurrentLocation(context) { lat, lon ->
+                    viewModel.loadPosts(lat.toFloat(), lon.toFloat())
+                }
+            }
+        }
+    )
+
+    // запрос permission
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
     Scaffold(
         topBar = {
             FeedTopBar(
@@ -208,27 +228,58 @@ fun PostsFeedContent(
             }
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.Top
-        ) {
-            items(mockPosts, key = { it.id }) { post ->
-                FeedItem(post)
+        when (state) {
+
+            is PostsState.Loading -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(stringResource(R.string.loading))
+                }
+            }
+
+            is PostsState.Empty -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(stringResource(R.string.no_posts))
+                }
+            }
+
+            is PostsState.Error -> {
+                val message = (state as PostsState.Error).message
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("${stringResource(R.string.error)}: $message")
+                }
+            }
+
+            is PostsState.Content -> {
+                val posts = (state as PostsState.Content).posts
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    items(posts, key = { it.id }) { post ->
+                        FeedItem(post)
+                    }
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun FeedItemPreview() {
-    FeedItem(post = mockPosts.first())
-}
 
-@Preview(showBackground = true)
-@Composable
-private fun PostsFeedContentPreview() {
-    PostsFeedContent(navController = rememberNavController())
+// получение текущих координат пользователя
+@SuppressLint("MissingPermission")
+fun getCurrentLocation(context: Context, onResult: (Double, Double) -> Unit) {
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    fusedLocationClient.lastLocation
+        .addOnSuccessListener { location ->
+            if (location != null) {
+                onResult(location.latitude, location.longitude)
+            }
+            else
+            {
+                onResult(55.7558, 37.6173) // по умолчанию вы в Москве)
+            }
+        }
 }
