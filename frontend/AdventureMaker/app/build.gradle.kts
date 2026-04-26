@@ -89,6 +89,8 @@ dependencies {
 
     implementation(libs.coil.compose.v260)
 
+    implementation(libs.play.services.location)
+
     implementation(project(":domain"))
     implementation(project(":data"))
 }

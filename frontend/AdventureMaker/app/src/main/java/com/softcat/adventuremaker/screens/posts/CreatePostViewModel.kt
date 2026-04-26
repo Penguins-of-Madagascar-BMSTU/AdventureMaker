@@ -1,92 +1,111 @@
 package com.softcat.adventuremaker.screens.posts
 
-import android.content.Context
+import android.app.Application
 import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.interfaces.PostsRepository
+import com.example.domain.usecases.LocationUseCase
 import com.example.domain.usecases.UserUseCase
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.softcat.adventuremaker.R
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
 class CreatePostViewModel(
     private val postsRepository: PostsRepository,
-    private val userUseCase: UserUseCase
-) : ViewModel() {
+    private val userUseCase: UserUseCase,
+    private val locationUseCase: LocationUseCase,
+    private val application: Application
+) : AndroidViewModel(application) {
 
-    private val _state = MutableLiveData<CreatePostState>(CreatePostState.Editing())
+    private val _state = MutableLiveData<CreatePostState>(CreatePostState())
     val state: LiveData<CreatePostState>
         get() = _state
 
-    // обновление текста
+    private val _event = MutableSharedFlow<CreatePostEvent>()
+    val event: SharedFlow<CreatePostEvent>
+        get() = _event.asSharedFlow()
+
+    private var userLocation: Pair<Double, Double>? = null
+    private var locationCollectionJob: Job? = null
+
+    private val locationTokenSource = CancellationTokenSource()
+
+    init {
+        startLocationTracking()
+    }
+
+    fun startLocationTracking() {
+        locationCollectionJob?.cancel()
+
+        locationCollectionJob = viewModelScope.launch {
+            locationUseCase.observeUserLocation(locationTokenSource.token)
+                .collect { userLocation = it }
+        }
+    }
+
     fun updateDescription(newValue: String) {
-        val current = _state.value
-        if (current is CreatePostState.Editing) {
-            _state.value = current.copy(description = newValue)
-        }
+        _state.value = state.value?.copy(description = newValue)
     }
 
-    // обновление картинки
     fun updateImage(uri: Uri) {
-        val current = _state.value
-        if (current is CreatePostState.Editing) {
-            _state.value = current.copy(imageUri = uri)
-        }
+        _state.value = state.value?.copy(imageUri = uri)
     }
 
-    // обновление рейтинга
     fun updateScore(score: Int?) {
-        val current = _state.value
-        if (current is CreatePostState.Editing) {
-            _state.value = current.copy(score = score)
-        }
+        _state.value = state.value?.copy(score = score)
     }
 
-    // публикация поста
-    fun publishPost(context: Context, latitude: Float, longitude: Float) {
-
-        val current = _state.value
-        if (current !is CreatePostState.Editing) return
-
+    fun publishPost() {
+        val current = _state.value ?: return
         if (current.imageUri == null) {
-            _state.value = CreatePostState.Error("No image")
+            val msg = application.getString(R.string.no_image_selected_error)
+            _state.value = current.copy(errorMessage = msg)
             return
         }
+        _state.value = current.copy(isLoading = true)
 
         viewModelScope.launch(Dispatchers.IO) {
-
-            _state.postValue(CreatePostState.Loading)
-
             val userId = userUseCase.getLastEnteredUser()?.id
-
             if (userId == null) {
-                _state.postValue(CreatePostState.Error("No user"))
+                val msg = application.getString(R.string.no_user_error)
+                _state.postValue(
+                    current.copy(errorMessage = msg, isLoading = false)
+                )
                 return@launch
             }
 
             val result = postsRepository.publishPost(
-                context = context,
+                context = application,
                 imageUri = current.imageUri,
                 userId = userId,
                 description = current.description,
-                latitude = latitude,
-                longitude = longitude,
+                latitude = userLocation?.first?.toFloat() ?: 0f,
+                longitude = userLocation?.second?.toFloat() ?: 0f,
                 scoreValue = current.score
             )
 
             withContext(Dispatchers.Main) {
-                if (result.isSuccess) {
-                    _state.value = CreatePostState.Success
-                } else {
-                    _state.value = CreatePostState.Error(
-                        result.exceptionOrNull()?.message ?: "Error"
-                    )
+                result.onSuccess {
+                    _event.emit(CreatePostEvent.Published)
+                }.onFailure {
+                    _state.value = current.copy(errorMessage = it.message, isLoading = false)
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        locationTokenSource.cancel()
     }
 }

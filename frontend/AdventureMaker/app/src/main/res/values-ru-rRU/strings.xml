@@ -68,4 +68,8 @@
 
     // Карта и поиск
     <string name="select_city">Город</string>
+
+    // Создание поста
+    <string name="no_user_error">Сначала авторизуйтесь</string>
+    <string name="no_image_selected_error">Изображение не выбрано</string>
 </resources>
