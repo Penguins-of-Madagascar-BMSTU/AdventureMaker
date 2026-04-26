@@ -209,12 +209,23 @@ class ToolsViewModel(
                     targetLanguage = t.targetLanguage,
                 )
                 withContext(Dispatchers.Main) {
-                    result.onSuccess { text ->
-                        val latest = _state.value ?: return@onSuccess
-                        _state.value = latest.copy(
-                            translation = latest.translation.copy(translatedText = text)
-                        )
-                    }
+                    result
+                        .onSuccess { text ->
+                            val latest = _state.value ?: return@onSuccess
+                            _state.value = latest.copy(
+                                translation = latest.translation.copy(translatedText = text)
+                            )
+                        }
+                        .onFailure { error ->
+                            android.util.Log.e("TRANSLATE", "UI error: ${error.message}", error)
+
+                            val latest = _state.value ?: return@onFailure
+                            _state.value = latest.copy(
+                                translation = latest.translation.copy(
+                                    translatedText = "Translation failed"
+                                )
+                            )
+                        }
                 }
             } catch (e: CancellationException) {
                 throw e
