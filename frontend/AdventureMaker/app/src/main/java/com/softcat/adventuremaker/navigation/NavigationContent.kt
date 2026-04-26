@@ -35,7 +35,6 @@ fun NavigationContent() {
         composable<NavigationItem.Favourites.Content> {
             FavouritesContent(
                 navController = navController,
-                onProfileClick = {},
                 onPlaceClick = { navController.navigate(NavigationItem.Favourites.PlaceDetails(it)) }
             )
         }
