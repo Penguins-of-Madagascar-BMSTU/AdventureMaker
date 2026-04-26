@@ -286,13 +286,12 @@ private fun Loading(
 fun FavouritesContent(
     navController: NavController,
     viewModel: FavouriteViewModel = koinViewModel(),
-    onProfileClick: () -> Unit,
     onPlaceClick: (Place) -> Unit
 ) {
     val state = viewModel.state.observeAsState(FavouriteState.Loading)
 
     Scaffold(
-        topBar = { FavouritesAppBar(onProfileClick) },
+        topBar = { FavouritesAppBar() },
         bottomBar = {
             BottomNavigationBar(
                 configuration = NavigationItem.BottomBarConfiguration.Favourites,
@@ -320,7 +319,6 @@ fun FavouritesContent(
 
             FavouriteState.NoUser -> NoUser(
                 modifier = Modifier.padding(paddingValues),
-                onEnterClick = onProfileClick
             )
         }
     }

@@ -25,9 +25,7 @@ import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun FavouritesAppBar(
-    navigateToProfile: () -> Unit = {}
-) {
+fun FavouritesAppBar() {
     TopAppBar(
         expandedHeight = TopAppBarDefaults.MediumAppBarCollapsedHeight,
         windowInsets = TopAppBarDefaults.windowInsets,
@@ -39,18 +37,6 @@ fun FavouritesAppBar(
                 style = MaterialTheme.typography.headlineSmall,
                 color = Black
             )
-        },
-        actions = {
-            IconButton(
-                onClick = navigateToProfile
-            ) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    imageVector = Icons.Default.Person,
-                    tint = BasicIconsTint,
-                    contentDescription = null
-                )
-            }
         },
         colors = TopAppBarDefaults.topAppBarColors().copy(
             containerColor = White
