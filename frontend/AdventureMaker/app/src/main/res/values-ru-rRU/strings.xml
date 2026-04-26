@@ -76,4 +76,7 @@
     <string name="no_posts">Нет постов</string>
     <string name="error">Ошибка</string>
 
+    // Создание поста
+    <string name="no_user_error">Сначала авторизуйтесь</string>
+    <string name="no_image_selected_error">Изображение не выбрано</string>
 </resources>

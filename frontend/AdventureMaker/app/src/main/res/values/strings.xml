@@ -75,4 +75,7 @@
     <string name="no_posts">No posts</string>
     <string name="error">Error</string>
 
+    // Создание поста
+    <string name="no_user_error">No user authorized</string>
+    <string name="no_image_selected_error">No image selected</string>
 </resources>
