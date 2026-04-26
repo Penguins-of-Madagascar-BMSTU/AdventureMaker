@@ -14,7 +14,7 @@ import org.junit.Test
 
 class PlacesUseCaseTest {
 
-    private val cities = listOf(City(id = 1, name = "Москва"))
+    private val cities = listOf(City(id = 1, name = "Москва", latitude = 55.7558, longitude = 37.6173))
 
     private val places = listOf(
         Place(
