@@ -1,5 +1,7 @@
 package com.example.data
 
+import android.content.Context
+import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -22,9 +24,12 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class UserRepositoryImpl(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val context: Context,
+    private val imageLoader: S3ImageLoader
 ): UserRepository {
 
     private val loadLastUserRequest = MutableSharedFlow<Unit>(replay = 1)
@@ -102,6 +107,21 @@ class UserRepositoryImpl(
     override suspend fun getLastEnteredUser() = loadLastUser()
 
     override fun observeLastEnteredUser() = userFlow
+
+    override suspend fun updateAvatar(uri: Uri, avatarUrl: String?): Result<String> {
+        return try {
+            avatarUrl?.let { imageLoader.deleteImageFromS3(it) }
+            val id = UUID.randomUUID().toString()
+            val result = imageLoader.uploadImageToS3(uri, id)
+            result.onSuccess {
+                val updatedUser = getLastEnteredUser()?.copy(avatarUrl = it)
+                updatedUser?.let { rememberUser(it) }
+            }
+            result
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     private suspend fun readUser(email: String): Result<User> {
         // Получить пользователей, у которых поле email совпадает со значением переменной email.
