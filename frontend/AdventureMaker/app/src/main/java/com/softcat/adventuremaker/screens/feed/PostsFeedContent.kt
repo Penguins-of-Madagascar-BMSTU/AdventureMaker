@@ -190,20 +190,20 @@ fun PostsFeedContent(navController: NavController) {
         when (state) {
 
             is PostsState.Loading -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.loading))
                 }
             }
 
             is PostsState.Empty -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.no_posts))
                 }
             }
 
             is PostsState.Error -> {
                 val msg = (state as PostsState.Error).message
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                     Text("${stringResource(R.string.error)}: $msg")
                 }
             }
