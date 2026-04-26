@@ -1,6 +1,7 @@
-package com.example.domain.usecases
+package com.example.domain
 
 import com.example.domain.interfaces.TranslationRepository
+import com.example.domain.usecases.TranslateTextUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

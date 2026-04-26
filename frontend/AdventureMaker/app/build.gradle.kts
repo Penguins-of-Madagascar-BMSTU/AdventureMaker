@@ -61,8 +61,9 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    implementation(libs.map)
-    implementation(libs.map.compose)
+    implementation(libs.osmdroid.android)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     implementation(libs.firebase.database)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.ui.graphics)

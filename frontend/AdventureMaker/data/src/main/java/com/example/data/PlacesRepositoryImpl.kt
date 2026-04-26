@@ -18,17 +18,15 @@ class PlacesRepositoryImpl(
         page: Int
     ): Result<List<Place>> {
         return try {
-            val places = mutableListOf<Place>()
             val placeList = mapsApiService.loadPlaces(
                 query = query,
                 categoryAlias = category.toAlias(),
                 cityId = cityId,
                 page = page
             )
-            val newPlaces = placeList.result.items
+            val places = placeList.result.items
                 .map { it.toEntity() }
-                .filter { it.category == category }
-            places.addAll(newPlaces)
+                .filter { category == Place.Category.Unknown || it.category == category }
             val result = placeImageProvider.provideImages(places)
             Result.success(result)
         } catch (e: Exception) {

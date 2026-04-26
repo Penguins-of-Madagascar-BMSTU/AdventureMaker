@@ -1,6 +1,5 @@
 package com.softcat.adventuremaker.screens.search
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.domain.entities.Place
 

@@ -8,6 +8,10 @@ android {
         version = release(36)
     }
 
+    testOptions {
+        animationsDisabled = true
+    }
+
     defaultConfig {
         minSdk = 24
 
@@ -78,6 +82,7 @@ dependencies {
     implementation(libs.android.maps.utils)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
