@@ -67,4 +67,9 @@
 
     // Карта и поиск
     <string name="select_city">Город</string>
+
+    // Посты
+    <string name="no_posts">Нет постов</string>
+    <string name="error">Ошибка</string>
+
 </resources>

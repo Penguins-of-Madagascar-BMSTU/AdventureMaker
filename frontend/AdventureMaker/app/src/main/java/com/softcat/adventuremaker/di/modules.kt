@@ -34,6 +34,7 @@ import com.softcat.adventuremaker.AdventureMakerApplication
 import com.softcat.adventuremaker.screens.auth.AuthViewModel
 import com.softcat.adventuremaker.screens.details.PlaceDetailsViewModel
 import com.softcat.adventuremaker.screens.favourites.FavouriteViewModel
+import com.softcat.adventuremaker.screens.feed.PostsViewModel
 import com.softcat.adventuremaker.screens.posts.CreatePostViewModel
 import com.softcat.adventuremaker.screens.profile.ProfileViewModel
 import com.softcat.adventuremaker.screens.search.SearchViewModel
@@ -50,6 +51,7 @@ val viewModelModule = module {
     viewModelOf(::CreatePostViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::SearchViewModel)
+    viewModel { PostsViewModel(get()) }
 
     viewModel { (place: Place) ->
         PlaceDetailsViewModel(place, get(), get())
