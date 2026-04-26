@@ -64,6 +64,9 @@
     <string name="lang_english">English</string>
     <string name="lang_russian">Russian</string>
 
+    // Переводчик
+    <string name="translate_error">Translate error</string>
+
     // Карта и поиск
     <string name="select_city">City</string>
 </resources>

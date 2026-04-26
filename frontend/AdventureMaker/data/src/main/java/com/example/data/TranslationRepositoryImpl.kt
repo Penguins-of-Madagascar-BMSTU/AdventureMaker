@@ -7,6 +7,7 @@ import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.tasks.await
 
 class TranslationRepositoryImpl : TranslationRepository {
 
@@ -39,13 +40,23 @@ class TranslationRepositoryImpl : TranslationRepository {
         }
 
         return try {
-            cachedTranslator.downloadModelIfNeeded()
-            Result.success(Tasks.await(cachedTranslator.translator.translate(text)))
-        } catch (exception: InterruptedException) {
-            Thread.currentThread().interrupt()
-            Result.failure(exception)
-        } catch (exception: Exception) {
-            Result.failure(exception.cause ?: exception)
+            android.util.Log.d("TRANSLATE", "Download model $normalizedSourceLanguage -> $normalizedTargetLanguage")
+
+            // ожидание загрузки модели
+            cachedTranslator.translator.downloadModelIfNeeded().await()
+
+            android.util.Log.d("TRANSLATE", "Model ready")
+
+            // ожидание перевода
+            val result = cachedTranslator.translator.translate(text).await()
+
+            android.util.Log.d("TRANSLATE", "Translation success: $result")
+
+            Result.success(result)
+
+        } catch (e: Exception) {
+            android.util.Log.e("TRANSLATE", "Translate failed: ${e.message}", e)
+            Result.failure(e)
         }
     }
 
