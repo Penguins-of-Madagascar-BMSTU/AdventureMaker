@@ -1,8 +1,15 @@
 package com.softcat.adventuremaker.screens.profile
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,9 +45,10 @@ import com.softcat.adventuremaker.ui.theme.BasicOrange
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Card
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +63,10 @@ import com.softcat.adventuremaker.ui.theme.TextGray
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
 import com.softcat.adventuremaker.screens.auth.SecondaryButton
+import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -67,6 +78,7 @@ fun ProfileContent(
 ) {
     val viewModel: ProfileViewModel = koinViewModel { parametersOf(user) }
     val state by viewModel.state.observeAsState(ProfileState.Loading)
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.profileEvent.collect { event ->
@@ -76,14 +88,51 @@ fun ProfileContent(
                         popUpTo(0)
                     }
                 }
+
+                is ProfileEvent.Error -> {
+                    Toast.makeText(context, event.msg, Toast.LENGTH_SHORT).show()
+                }
             }
+        }
+    }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = viewModel::selectAvatar
+    )
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                pickImageLauncher.launch(
+                    input = PickVisualMediaRequest(
+                        mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
+                )
+            }
+        }
+    )
+    val onAvatarClick: () -> Unit = {
+        val permission = Manifest.permission.READ_MEDIA_IMAGES
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context, permission
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (hasPermission) {
+            pickImageLauncher.launch(
+                input = PickVisualMediaRequest(
+                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+        } else {
+            requestPermissionLauncher.launch(permission)
         }
     }
 
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.None,
+                configuration = NavigationItem.BottomBarConfiguration.Networking,
                 navController = navController
             )
         },
@@ -98,63 +147,95 @@ fun ProfileContent(
                 )
             }
         }
-    ) { padding ->
-        when (val currentState = state) {
-            ProfileState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
+    ) { paddingValues ->
+        ProfileStateContent(
+            state = state,
+            paddingValues = paddingValues,
+            onLogoutClick = viewModel::logout,
+            onAvatarClick = onAvatarClick,
+            onBackClick = { navController.popBackStack() }
+        )
+    }
+}
 
-            is ProfileState.Content -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                ) {
-                    item {
-                        ProfileHeader(
-                            user = currentState.user,
-                            onLogoutClick = viewModel::logout
-                        )
-                    }
+@Composable
+fun ProfileStateContent(
+    state: ProfileState,
+    paddingValues: PaddingValues,
+    onLogoutClick: () -> Unit,
+    onAvatarClick: () -> Unit,
+    onBackClick: () -> Unit
+) {
+    when (state) {
+        ProfileState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is ProfileState.Content -> {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                item {
+                    ProfileHeader(
+                        user = state.user,
+                        onLogoutClick = onLogoutClick,
+                        onAvatarClick = onAvatarClick
+                    )
+                }
+                item {
+                    Text(
+                        text = stringResource(R.string.posts_title),
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+                if (state.posts.isEmpty()) {
                     item {
                         Text(
-                            text = stringResource(R.string.posts_title),
-                            modifier = Modifier.padding(12.dp)
+                            text = stringResource(R.string.posts_empty),
+                            modifier = Modifier.padding(horizontal = 12.dp)
                         )
                     }
-                    if (currentState.posts.isEmpty()) {
-                        item {
-                            Text(
-                                text = stringResource(R.string.posts_empty),
-                                modifier = Modifier.padding(horizontal = 12.dp)
-                            )
-                        }
-                    } else {
-                        items(
-                            items = currentState.posts,
-                            key = { it.id }
-                        ) { post ->
-                            PostItem(post = post, user = currentState.user)
-                        }
+                } else {
+                    items(
+                        items = state.posts,
+                        key = { it.id }
+                    ) { post ->
+                        PostItem(post = post, user = state.user)
                     }
                 }
             }
         }
     }
+    IconButton(
+        modifier = Modifier
+            .padding(start = 24.dp, top = paddingValues.calculateTopPadding())
+            .padding(top = 4.dp)
+            .background(MaterialTheme.colorScheme.background, CircleShape),
+        onClick = onBackClick,
+    ) {
+        Icon(
+            modifier = Modifier.size(64.dp),
+            painter = painterResource(R.drawable.chevron_backward),
+            contentDescription = null,
+            tint = BasicIconsTint
+        )
+    }
 }
-
 
 @Composable
 fun ProfileHeader(
     user: User,
     onLogoutClick: () -> Unit,
+    onAvatarClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box {
@@ -178,23 +259,28 @@ fun ProfileHeader(
         ) {
 
             // Аватар
-            if (user.avatarUrl != null) {
-                AsyncImage(
-                    model = user.avatarUrl,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .background(AvatarPlaceholder, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Person, null)
+            Card(
+                shape = CircleShape,
+                onClick = onAvatarClick
+            ) {
+                if (user.avatarUrl != null) {
+                    AsyncImage(
+                        model = user.avatarUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .background(AvatarPlaceholder, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Person, null)
+                    }
                 }
             }
 

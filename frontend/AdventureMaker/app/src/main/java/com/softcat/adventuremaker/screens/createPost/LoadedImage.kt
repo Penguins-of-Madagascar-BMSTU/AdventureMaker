@@ -1,4 +1,4 @@
-package com.softcat.adventuremaker.screens.posts
+package com.softcat.adventuremaker.screens.createPost
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Box

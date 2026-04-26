@@ -14,7 +14,7 @@ import com.softcat.adventuremaker.screens.details.DetailsContent
 import com.softcat.adventuremaker.screens.favourites.FavouritesContent
 import com.softcat.adventuremaker.screens.feed.PostsFeedContent
 import com.softcat.adventuremaker.screens.profile.ProfileContent
-import com.softcat.adventuremaker.screens.posts.CreatePostContent
+import com.softcat.adventuremaker.screens.createPost.CreatePostContent
 import com.softcat.adventuremaker.screens.tools.ToolsContent
 import com.softcat.adventuremaker.screens.search.MapSearchScreen
 import kotlin.reflect.typeOf

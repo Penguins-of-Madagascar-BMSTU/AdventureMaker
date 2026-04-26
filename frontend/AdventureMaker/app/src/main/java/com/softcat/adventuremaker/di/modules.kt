@@ -11,6 +11,7 @@ import com.example.data.LocationRepositoryImpl
 import com.example.data.PlaceImageProvider
 import com.example.data.PlacesRepositoryImpl
 import com.example.data.PostsRepositoryImpl
+import com.example.data.S3ImageLoader
 import com.example.data.TranslationRepositoryImpl
 import com.example.data.UserRepositoryImpl
 import com.example.data.api.CurrencyApiFactory
@@ -38,7 +39,7 @@ import com.softcat.adventuremaker.AdventureMakerApplication
 import com.softcat.adventuremaker.screens.auth.AuthViewModel
 import com.softcat.adventuremaker.screens.details.PlaceDetailsViewModel
 import com.softcat.adventuremaker.screens.favourites.FavouriteViewModel
-import com.softcat.adventuremaker.screens.posts.CreatePostViewModel
+import com.softcat.adventuremaker.screens.createPost.CreatePostViewModel
 import com.softcat.adventuremaker.screens.profile.ProfileViewModel
 import com.softcat.adventuremaker.screens.search.SearchViewModel
 import com.softcat.adventuremaker.screens.search.model.SearchViewModelMapper
@@ -61,13 +62,13 @@ val viewModelModule = module {
 }
 
 val repositoryModule = module {
-    single<UserRepository> { UserRepositoryImpl(get()) }
+    single<UserRepository> { UserRepositoryImpl(get(), get<Context>(), get()) }
     single<TranslationRepository> { TranslationRepositoryImpl() }
     single<EmergencyNumbersRepository> { EmergencyNumbersRepositoryImpl() }
     single<CurrencyConverterRepository> { CurrencyConverterRepositoryImpl(get()) }
     single<FavouriteRepository> { FavouriteRepositoryImpl(get()) }
     single<PlacesRepository> { PlacesRepositoryImpl(get(), get()) }
-    single<PostsRepository> { PostsRepositoryImpl() }
+    single<PostsRepository> { PostsRepositoryImpl(get()) }
     single<LocationRepository> { LocationRepositoryImpl(get(), get<Context>()) }
 
     single { UserUseCase(get()) }
@@ -79,7 +80,6 @@ val repositoryModule = module {
     single { PlacesUseCase(get()) }
     single { LocationUseCase(get()) }
 }
-
 
 val dataModule = module {
 
@@ -98,4 +98,5 @@ val dataModule = module {
     single {
         LocationServices.getFusedLocationProviderClient(get<Context>())
     }
+    single { S3ImageLoader(get<Context>()) }
 }

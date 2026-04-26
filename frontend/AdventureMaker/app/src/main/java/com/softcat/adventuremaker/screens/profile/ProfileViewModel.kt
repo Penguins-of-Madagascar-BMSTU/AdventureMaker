@@ -1,5 +1,6 @@
 package com.softcat.adventuremaker.screens.profile
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -51,6 +52,23 @@ class ProfileViewModel(
 
             withContext(Dispatchers.Main) {
                 _profileEvent.emit(ProfileEvent.Exited)
+            }
+        }
+    }
+
+    fun selectAvatar(uri: Uri?) {
+        val currentState = state.value as? ProfileState.Content ?: return
+        uri ?: return
+
+        viewModelScope.launch {
+            userUseCase.updateAvatar(uri, user.avatarUrl).onSuccess { url ->
+                _state.postValue(
+                    currentState.copy(
+                        user = currentState.user.copy(avatarUrl = url)
+                    )
+                )
+            }.onFailure {
+                _profileEvent.emit(ProfileEvent.Error(it.message ?: "Unknown error"))
             }
         }
     }

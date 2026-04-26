@@ -1,6 +1,7 @@
 package com.softcat.adventuremaker.screens.auth
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,7 +24,9 @@ fun LoadingContent() {
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(

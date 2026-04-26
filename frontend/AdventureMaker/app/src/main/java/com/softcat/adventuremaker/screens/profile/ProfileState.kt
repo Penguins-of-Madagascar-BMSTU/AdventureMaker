@@ -9,6 +9,6 @@ sealed interface ProfileState {
 
     data class Content(
         val user: User,
-        val posts: List<Post>
+        val posts: List<Post>,
     ) : ProfileState
 }
