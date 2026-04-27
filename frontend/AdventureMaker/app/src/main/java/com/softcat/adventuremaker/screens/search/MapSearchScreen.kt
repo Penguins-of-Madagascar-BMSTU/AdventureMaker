@@ -30,9 +30,12 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -53,11 +56,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.domain.entities.Place
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
-import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
 import com.softcat.adventuremaker.screens.search.components.CategoryChipsSection
 import com.softcat.adventuremaker.screens.search.components.OpenStreetMapView
 import com.softcat.adventuremaker.screens.search.components.PlacesList
+import com.softcat.adventuremaker.screens.search.model.SearchScreenEvent
 import com.softcat.adventuremaker.screens.search.model.SearchScreenState
 import com.softcat.adventuremaker.ui.components.SheetDragHandle
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
@@ -73,19 +75,16 @@ fun MapSearchScreen(
 ) {
     val viewModel: SearchViewModel = koinViewModel()
     val state = viewModel.state.observeAsState(viewModel.initialSearchScreenState())
+    val snackBarHostState = remember { SnackbarHostState() }
+
     Scaffold(
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = BottomBarConfiguration.Search,
-                navController = navController
-            )
-        },
         floatingActionButton = {
             OpenBottomSheetButton(
                 onClick = viewModel::showBottomSheet,
                 isBottomSheetVisible = state.value.bottomSheetState.isSheetVisible
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { paddingValues ->
         MapSearchScreenContent(
             modifier = Modifier.padding(paddingValues),
@@ -100,6 +99,16 @@ fun MapSearchScreen(
             onCitySelected = viewModel::selectCity,
             state = state.value,
         )
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is SearchScreenEvent.Error -> {
+                    snackBarHostState.showSnackbar(event.message)
+                }
+            }
+        }
     }
 }
 

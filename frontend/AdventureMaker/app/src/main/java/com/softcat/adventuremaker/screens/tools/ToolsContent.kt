@@ -54,8 +54,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
-import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.BasicOrange
@@ -398,13 +396,7 @@ fun ToolsContent(
     val scrollState = rememberScrollState()
 
     Scaffold(
-        containerColor = White,
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Tools,
-                navController = navController,
-            )
-        },
+        containerColor = White
     ) { paddingValues ->
         Column(
             modifier = Modifier

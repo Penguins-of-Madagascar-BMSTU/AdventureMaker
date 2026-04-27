@@ -1,8 +1,9 @@
 package com.softcat.adventuremaker.screens.search
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.domain.entities.City
@@ -10,13 +11,17 @@ import com.example.domain.entities.Place
 import com.example.domain.usecases.FavouriteUseCase
 import com.example.domain.usecases.PlacesUseCase
 import com.example.domain.usecases.UserUseCase
+import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.screens.search.model.MapState
+import com.softcat.adventuremaker.screens.search.model.SearchScreenEvent
 import com.softcat.adventuremaker.screens.search.model.SearchScreenState
 import com.softcat.adventuremaker.screens.search.model.SearchViewModelMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -30,16 +35,16 @@ class SearchViewModel(
     private val mapper: SearchViewModelMapper,
     private val placesUseCase: PlacesUseCase,
     private val favouriteUseCase: FavouriteUseCase,
-    private val userUseCase: UserUseCase
-): ViewModel() {
+    private val userUseCase: UserUseCase,
+    private val application: Application
+): AndroidViewModel(application) {
 
     // Подписка на список любимых мест. Если пользователь меняется, то этот список обновляется.
     @OptIn(ExperimentalCoroutinesApi::class)
     val favouritesFlow = userUseCase.observeLastEnteredUser()
         .flatMapLatest { user ->
-            user?.id?.let {
-                favouriteUseCase.getFavouriteIds(it)
-            } ?: flowOf(emptyList())
+            user?.id?.let { favouriteUseCase.getFavouriteIds(it) }
+                ?: flowOf(emptyList())
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -56,8 +61,12 @@ class SearchViewModel(
     val state: LiveData<SearchScreenState>
         get() = _state
 
+    private val _events = MutableSharedFlow<SearchScreenEvent>()
+    val events: SharedFlow<SearchScreenEvent> = _events
+
     init {
         loadAvailableCities()
+        observeFavourites()
     }
 
     fun changeQuery(newValue: String) {
@@ -94,7 +103,11 @@ class SearchViewModel(
         val state = state.value ?: return
         val cityId = availableCities.find {
             it.name == state.cityName
-        }?.id ?: return
+        }?.id
+        if (cityId == null) {
+            noCityError()
+            return
+        }
         val selectedCategory = state.bottomSheetState.categories
             .find { it.isSelected }?.key ?: return
         // Пока не ясна логика определения параметра page, поэтому так :)
@@ -102,7 +115,11 @@ class SearchViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             placesUseCase.searchPlaces(cityId, state.query, selectedCategory, page)
-                .onSuccess { updatePlacesOnMap(it) }
+                .onSuccess {
+                    updatePlacesOnMap(it)
+                }.onFailure {
+                    nothingFoundEvent()
+                }
         }
     }
 
@@ -163,7 +180,39 @@ class SearchViewModel(
         }
     }
 
+    private fun observeFavourites() {
+        viewModelScope.launch(Dispatchers.IO) {
+            favouritesFlow.collect { favourites ->
+                val currentState = state.value ?: return@collect
+                val newPlaces = mapper.mapToPlaceModels(placesOnMap, favourites)
+                val newState = state.value?.copy(
+                    bottomSheetState = currentState.bottomSheetState.copy(places = newPlaces)
+                )
+                _state.postValue(newState)
+            }
+        }
+    }
+
+    private fun nothingFoundEvent() {
+        viewModelScope.launch {
+            val msg = application.getString(R.string.empty_search_result)
+            _events.emit(SearchScreenEvent.Error(msg))
+        }
+    }
+
+    private fun noCityError() {
+        viewModelScope.launch {
+            val msg = application.getString(R.string.no_city_selected)
+            _events.emit(SearchScreenEvent.Error(msg))
+        }
+    }
+
     private fun updatePlacesOnMap(places: List<Place>) {
+        if (places.isEmpty()) {
+            nothingFoundEvent()
+            return
+        }
+
         placesOnMap = places
         val currentState = state.value ?: return
 
