@@ -113,7 +113,7 @@ class FavouriteRepositoryImpl(
     }
 
     private suspend fun loadFavouriteStatus(): Boolean {
-        val (placeId, userId) = selectedUserAndPlace ?: return false
+        val (userId, placeId) = selectedUserAndPlace ?: return false
         try {
             val favouriteRef = favouritesStorage
                 .child(userId)

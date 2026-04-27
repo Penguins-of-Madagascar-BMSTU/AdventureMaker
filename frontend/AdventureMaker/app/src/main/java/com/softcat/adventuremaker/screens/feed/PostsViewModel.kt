@@ -1,14 +1,14 @@
-package com.softcat.adventuremaker.screens.posts
+package com.softcat.adventuremaker.screens.feed
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.usecases.PostsUseCase
+import com.softcat.adventuremaker.screens.posts.PostsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 
 class PostsViewModel(
     private val postsUseCase: PostsUseCase

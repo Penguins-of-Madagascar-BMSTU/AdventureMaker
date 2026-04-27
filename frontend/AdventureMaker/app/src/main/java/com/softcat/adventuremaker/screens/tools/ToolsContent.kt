@@ -305,7 +305,11 @@ private fun TranslationPanel(
             )
             HorizontalDivider(color = LightGray, thickness = 1.dp)
             OutlinedTextField(
-                value = state.translatedText,
+                value = if (state.translatedText == "Translation failed") {
+                        stringResource(R.string.translate_error)
+                    } else {
+                        state.translatedText
+                    },
                 onValueChange = {},
                 readOnly = true,
                 modifier = Modifier

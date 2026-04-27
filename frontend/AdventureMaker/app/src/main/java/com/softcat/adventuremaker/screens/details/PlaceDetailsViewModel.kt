@@ -27,7 +27,7 @@ class PlaceDetailsViewModel(
             val userId = userUseCase.getLastEnteredUser()?.id ?: return@launch
             savedUserId = userId
             favouriteUseCase.observeIsFavourite(userId, place.id).collect {
-                _state.value = PlaceDetailsState(it, place)
+                _state.postValue(PlaceDetailsState(it, place))
             }
         }
     }

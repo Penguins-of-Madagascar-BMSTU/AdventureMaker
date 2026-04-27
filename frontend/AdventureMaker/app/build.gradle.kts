@@ -89,6 +89,9 @@ dependencies {
 
     implementation(libs.coil.compose.v260)
 
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
     implementation(project(":domain"))
     implementation(project(":data"))
 }
