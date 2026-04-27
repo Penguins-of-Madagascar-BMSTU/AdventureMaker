@@ -15,7 +15,7 @@ class UserUseCase(
         repeatedPassword: String
     ): Result<User> {
         if (password != repeatedPassword)
-            return Result.failure(Exception("Create user error: asswords do not match."))
+            return Result.failure(Exception("Create user error: passwords do not match."))
         return repository.createUser(name, email, password)
     }
 
@@ -35,7 +35,11 @@ class UserUseCase(
         return repository.observeLastEnteredUser()
     }
 
-    suspend fun updateAvatar(uri: Uri, avatarUrl: String?): Result<String> {
-        return repository.updateAvatar(uri, avatarUrl)
+    suspend fun updateAvatar(userId: String, uri: Uri, avatarUrl: String?): Result<String> {
+        return repository.updateAvatar(userId, uri, avatarUrl)
+    }
+
+    suspend fun getPostsAuthors(ids: List<String>): Result<Map<String, User?>> {
+        return repository.getPostsAuthors(ids)
     }
 }
