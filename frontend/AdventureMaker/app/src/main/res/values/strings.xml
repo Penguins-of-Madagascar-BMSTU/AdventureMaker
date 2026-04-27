@@ -34,6 +34,7 @@
     <string name="no_user_description">It will enable you to see favourite places on other devices</string>
     <string name="enter_button">Enter</string>
     <string name="register_button">Create an account</string>
+    <string name="empty_auth_fields_error">Fill in all fields</string>
 
     <string name="register_name_label">Enter your name</string>
     <string name="register_email_label">Enter your email</string>
@@ -74,4 +75,7 @@
     <string name="no_posts">No posts</string>
     <string name="error">Error</string>
 
+    // Создание поста
+    <string name="no_user_error">No user authorized</string>
+    <string name="no_image_selected_error">No image selected</string>
 </resources>

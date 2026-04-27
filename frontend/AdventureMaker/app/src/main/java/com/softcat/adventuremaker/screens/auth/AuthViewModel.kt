@@ -18,7 +18,7 @@ class AuthViewModel(
 ): ViewModel() {
 
     // Состояние экрана, данные которого отображаются для пользователя.
-    private val _state = MutableLiveData<AuthState>(AuthState.Loading)
+    private val _state = MutableLiveData<AuthState>(AuthState.Initial)
     val state: LiveData<AuthState> // Это неизменяемый объект LiveData для подписки на состояние.
         get() = _state
 
@@ -27,7 +27,8 @@ class AuthViewModel(
     val logInEvent: SharedFlow<AuthEvent> = _logInEvent.asSharedFlow()
 
     init {
-        _state.value = AuthState.NoUser
+        _state.value = AuthState.Initial
+        tryEnter()
     }
 
     /*-----------Функции для изменения вводимых данных.-----------*/
@@ -66,7 +67,7 @@ class AuthViewModel(
         val currentState = state.value
         Log.d("AuthVM", "switchToRegister called with $currentState")
         when (currentState) {
-            AuthState.NoUser -> {
+            AuthState.Initial -> {
                 _state.value = AuthState.Register("", "", "", "")
             }
             is AuthState.Enter -> {
@@ -80,7 +81,7 @@ class AuthViewModel(
         val currentState = state.value
         Log.d("AuthVM", "switchToEnter called with $currentState")
         when (currentState) {
-            AuthState.NoUser -> {
+            AuthState.Initial -> {
                 _state.value = AuthState.Enter("", "")
             }
             is AuthState.Register -> {
@@ -88,6 +89,19 @@ class AuthViewModel(
             }
             else -> {}
         }
+    }
+
+    fun switchToInitial() {
+        val currentState = state.value
+        Log.d("AuthVM", "switchToInitial called with $currentState")
+
+        val newState = when (currentState) {
+            is AuthState.Register -> AuthState.Initial
+            is AuthState.Enter -> AuthState.Initial
+            else -> null
+        } ?: return
+
+        _state.value = newState
     }
 
 
@@ -99,11 +113,19 @@ class AuthViewModel(
         else -> {}
     }
 
+    private fun tryEnter() {
+        viewModelScope.launch {
+            userUseCase.getLastEnteredUser()?.let { user ->
+                _logInEvent.emit(AuthEvent.LoggedIn(user))
+            }
+        }
+    }
+
     private fun processRegisterRequest(currentState: AuthState.Register) = with (currentState) {
         if (name.isBlank() || email.isBlank() || password.isEmpty() || repeatedPassword.isEmpty()) {
             viewModelScope.launch {
                 _logInEvent.emit(
-                    AuthEvent.Error("Fill in all fields")
+                    AuthEvent.Error(EmptyAuthFieldsException())
                 )
             }
             return@with
@@ -117,7 +139,8 @@ class AuthViewModel(
                 result.onSuccess {
                     _logInEvent.emit(AuthEvent.LoggedIn(it))
                 }.onFailure {
-                    _logInEvent.emit(AuthEvent.Error(it.message ?: ""))
+                    _state.value = currentState
+                    _logInEvent.emit(AuthEvent.Error(it))
                 }
             }
         }
@@ -127,11 +150,12 @@ class AuthViewModel(
         if (email.isBlank() || password.isEmpty()) {
             viewModelScope.launch {
                 _logInEvent.emit(
-                    AuthEvent.Error("Заполни все поля")
+                    AuthEvent.Error(EmptyAuthFieldsException())
                 )
             }
             return@with
         }
+        _state.value = AuthState.Loading
 
         // Запуск входа на отдельном потоке
         viewModelScope.launch(Dispatchers.IO) {
@@ -141,7 +165,8 @@ class AuthViewModel(
                 result.onSuccess {
                     _logInEvent.emit(AuthEvent.LoggedIn(it))
                 }.onFailure {
-                    _logInEvent.emit(AuthEvent.Error(it.message ?: ""))
+                    _state.value = currentState
+                    _logInEvent.emit(AuthEvent.Error(it))
                 }
             }
         }

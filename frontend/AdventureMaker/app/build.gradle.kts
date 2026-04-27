@@ -83,14 +83,14 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
 
     implementation(libs.coil.compose.v260)
 
-    implementation(libs.kotlinx.coroutines.play.services)
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation(libs.play.services.location)
 
     implementation(project(":domain"))
     implementation(project(":data"))
