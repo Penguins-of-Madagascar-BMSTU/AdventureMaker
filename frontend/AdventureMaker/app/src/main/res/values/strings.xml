@@ -74,6 +74,8 @@
     // Посты
     <string name="no_posts">No posts</string>
     <string name="error">Error</string>
+    <string name="empty_search_result">Search result is empty</string>
+    <string name="no_city_selected">No city selected</string>
 
     // Создание поста
     <string name="no_user_error">No user authorized</string>

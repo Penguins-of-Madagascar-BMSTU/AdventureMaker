@@ -6,7 +6,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,14 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -36,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,11 +39,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import com.example.domain.entities.FavouriteScreenVariant
 import com.example.domain.entities.Place
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
-import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.ui.theme.CustomRed
 import com.softcat.adventuremaker.ui.theme.LightGray
@@ -139,16 +131,6 @@ private fun CategoryCard(
     }
 }
 
-private fun getCategoryNameId(category: Place.Category?) = when (category) {
-    Place.Category.Museum -> R.string.museum_category
-    Place.Category.Entertainment -> R.string.entertainment_category
-    Place.Category.Bank -> R.string.bank_category
-    Place.Category.Hotel -> R.string.hotel_category
-    Place.Category.Attraction -> R.string.attraction_category
-    Place.Category.Restaurant -> R.string.restaurant_category
-    else -> R.string.any_category
-}
-
 @Composable
 @Preview
 private fun CategorySelector(
@@ -183,57 +165,13 @@ private fun CategorySelector(
 }
 
 @Composable
-@Preview
-private fun PlaceCard(
-    modifier: Modifier = Modifier,
-    imageUrl: String = "",
-    title: String = "Main title",
-    category: Place.Category = Place.Category.Restaurant,
-    onClick: () -> Unit = {}
-) {
-    Card(
-        modifier = modifier,
-        onClick = onClick,
-        shape = RectangleShape
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            AsyncImage(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center),
-                model = imageUrl,
-                contentDescription = null
-            )
-            Column(
-                modifier = Modifier
-                    .padding(12.dp)
-                    .align(Alignment.BottomStart)
-            ) {
-                Text(
-                    text = stringResource(getCategoryNameId(category)),
-                    color = LightGray,
-                    style = MaterialTheme.typography.labelSmall
-                )
-                Text(
-                    text = title,
-                    color = White,
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-        }
-    }
-}
-
-@Composable
-@Preview
 private fun Content(
     modifier: Modifier = Modifier,
-    onPlaceClick: (Place) -> Unit = {},
-    places: List<Place> = emptyList(),
+    onPlaceClick: (Place) -> Unit,
+    places: List<Place>,
+    onCategoryClicked: (Place.Category?) -> Unit,
     filterCategory: Place.Category? = null,
-    onCategoryClicked: (Place.Category?) -> Unit = {}
+    variant: FavouriteScreenVariant = FavouriteScreenVariant.First
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -242,27 +180,12 @@ private fun Content(
             onCategoryClicked = onCategoryClicked,
             category = filterCategory
         )
-        LazyVerticalGrid(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxSize()
-                .then(modifier),
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(4.dp)
-        ) {
-            items(
-                items = places,
-                key = { it.id }
-            ) { place ->
-                PlaceCard(
-                    modifier = Modifier.height(200.dp).fillMaxWidth(),
-                    imageUrl = place.imageUrls.firstOrNull() ?: "",
-                    title = place.name,
-                    category = place.category,
-                    onClick = { onPlaceClick(place) }
-                )
-            }
-        }
+        FavouriteList(
+            modifier = Modifier.fillMaxSize().padding(top = 24.dp),
+            variant = variant,
+            onPlaceClick = onPlaceClick,
+            places = places
+        )
     }
 }
 
@@ -291,13 +214,7 @@ fun FavouritesContent(
     val state = viewModel.state.observeAsState(FavouriteState.Loading)
 
     Scaffold(
-        topBar = { FavouritesAppBar() },
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Favourites,
-                navController = navController
-            )
-        }
+        topBar = { FavouritesAppBar() }
     ) { paddingValues ->
         when (val currentState = state.value) {
 
@@ -309,7 +226,8 @@ fun FavouritesContent(
                         currentState.filterCategory == null || it.category == currentState.filterCategory
                     },
                     filterCategory = currentState.filterCategory,
-                    onCategoryClicked = { viewModel.changeCategoryFilter(it) }
+                    onCategoryClicked = { viewModel.changeCategoryFilter(it) },
+                    variant = currentState.variant
                 )
             }
 

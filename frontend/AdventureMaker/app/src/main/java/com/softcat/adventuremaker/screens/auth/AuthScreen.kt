@@ -14,15 +14,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
+import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
 import com.softcat.adventuremaker.navigation.NavigationItem
 
 @Composable
 fun AuthScreen(
-    modifier: Modifier = Modifier,
-    navController: NavController,
+    navController: NavHostController,
     viewModel: AuthViewModel = koinViewModel()
 ) {
     val state by viewModel.state.observeAsState(AuthState.Initial)
@@ -45,16 +43,10 @@ fun AuthScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackBarHostState) },
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.None,
-                navController = navController
-            )
-        }
+        snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { padding ->
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(horizontal = 16.dp)
@@ -68,7 +60,7 @@ fun AuthScreen(
                         onEnterClick = viewModel::switchToEnter,
                         onRegisterClick = viewModel::switchToRegister,
                         onBackClick = { navController.navigate(NavigationItem.Networking.Posts) },
-                        modifier = modifier
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
 
@@ -80,7 +72,7 @@ fun AuthScreen(
                         onLoginClick = viewModel::onLogInClicked,
                         onSwitchToRegister = viewModel::switchToRegister,
                         onBackClick = viewModel::switchToInitial,
-                        modifier = modifier
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
 
@@ -94,7 +86,7 @@ fun AuthScreen(
                         onRegisterClick = viewModel::onLogInClicked,
                         onSwitchToEnter = viewModel::switchToEnter,
                         onBackClick = viewModel::switchToInitial,
-                        modifier = modifier
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }

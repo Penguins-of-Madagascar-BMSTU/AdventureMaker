@@ -1,6 +1,5 @@
 package com.example.data
 
-import android.content.Context
 import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -28,7 +27,6 @@ import java.util.UUID
 
 class UserRepositoryImpl(
     private val dataStore: DataStore<Preferences>,
-    private val context: Context,
     private val imageLoader: S3ImageLoader
 ): UserRepository {
 

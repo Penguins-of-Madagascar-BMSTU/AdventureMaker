@@ -1,5 +1,6 @@
 package com.softcat.adventuremaker.navigation
 
+import androidx.navigation.NavController
 import com.example.domain.entities.Place
 import com.example.domain.entities.User
 import kotlinx.serialization.Serializable
@@ -46,5 +47,21 @@ sealed interface NavigationItem {
 
     enum class BottomBarConfiguration {
         Favourites, Tools, Search, Networking, None
+    }
+
+    companion object {
+        fun resolveBottomBarConfiguration(navController: NavController): BottomBarConfiguration {
+            val fullRoute = navController.currentBackStackEntry?.destination?.route ?:
+                return BottomBarConfiguration.None
+            val screenName = fullRoute.split('.')[5]
+
+            return when(screenName) {
+                Favourites::class.simpleName -> BottomBarConfiguration.Favourites
+                Networking::class.simpleName -> BottomBarConfiguration.Networking
+                Search::class.simpleName -> BottomBarConfiguration.Search
+                Tools::class.simpleName -> BottomBarConfiguration.Tools
+                else -> BottomBarConfiguration.None
+            }
+        }
     }
 }
