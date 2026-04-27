@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.StateFlow
 class FavouriteUseCase(
     private val repository: FavouriteRepository
 ) {
-    fun getFavourites(userId: String): StateFlow<List<Place>> {
+    suspend fun getFavourites(userId: String): StateFlow<List<Place>> {
         Log.d("${this::class.simpleName}", "getFavourites($userId)")
         return repository.getFavourites(userId)
     }
 
-    fun getFavouriteIds(userId: String): StateFlow<List<String>> {
+    suspend fun getFavouriteIds(userId: String): StateFlow<List<String>> {
         Log.d("${this::class.simpleName}", "getFavourites($userId)")
         return repository.getFavouriteIds(userId)
     }
@@ -28,7 +28,7 @@ class FavouriteUseCase(
         return repository.removeFromFavourites(userId, placeId)
     }
 
-    fun observeIsFavourite(userId: String, placeId: String): StateFlow<Boolean> {
+    suspend fun observeIsFavourite(userId: String, placeId: String): StateFlow<Boolean> {
         Log.d("${this::class.simpleName}", "observeIsFavourite($userId, $placeId)")
         return repository.observeIsFavourite(userId, placeId)
     }

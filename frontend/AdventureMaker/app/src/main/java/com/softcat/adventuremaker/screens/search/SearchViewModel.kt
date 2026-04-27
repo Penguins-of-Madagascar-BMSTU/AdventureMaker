@@ -37,9 +37,8 @@ class SearchViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     val favouritesFlow = userUseCase.observeLastEnteredUser()
         .flatMapLatest { user ->
-            user?.id?.let {
-                favouriteUseCase.getFavouriteIds(it)
-            } ?: flowOf(emptyList())
+            user?.id?.let { favouriteUseCase.getFavouriteIds(it) }
+                ?: flowOf(emptyList())
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -58,6 +57,7 @@ class SearchViewModel(
 
     init {
         loadAvailableCities()
+        observeFavourites()
     }
 
     fun changeQuery(newValue: String) {
@@ -159,6 +159,19 @@ class SearchViewModel(
                 }.onFailure {
                     delay(CITIES_LOADING_RETRY_PERIOD)
                 }
+            }
+        }
+    }
+
+    private fun observeFavourites() {
+        viewModelScope.launch(Dispatchers.IO) {
+            favouritesFlow.collect { favourites ->
+                val currentState = state.value ?: return@collect
+                val newPlaces = mapper.mapToPlaceModels(placesOnMap, favourites)
+                val newState = state.value?.copy(
+                    bottomSheetState = currentState.bottomSheetState.copy(places = newPlaces)
+                )
+                _state.postValue(newState)
             }
         }
     }
