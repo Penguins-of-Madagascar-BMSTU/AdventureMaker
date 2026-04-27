@@ -56,7 +56,7 @@ val viewModelModule = module {
     viewModelOf(::CreatePostViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::SearchViewModel)
-    viewModel { PostsViewModel(get()) }
+    viewModelOf(::PostsViewModel)
 
     viewModel { (place: Place) ->
         PlaceDetailsViewModel(place, get(), get())
