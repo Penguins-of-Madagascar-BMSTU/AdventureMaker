@@ -61,7 +61,7 @@ class ProfileViewModel(
         uri ?: return
 
         viewModelScope.launch {
-            userUseCase.updateAvatar(uri, user.avatarUrl).onSuccess { url ->
+            userUseCase.updateAvatar(user.id, uri, user.avatarUrl).onSuccess { url ->
                 _state.postValue(
                     currentState.copy(
                         user = currentState.user.copy(avatarUrl = url)
