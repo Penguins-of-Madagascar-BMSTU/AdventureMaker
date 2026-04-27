@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import com.example.data.api.CurrencyApiService
 import com.example.data.CurrencyConverterRepositoryImpl
 import com.example.data.EmergencyNumbersRepositoryImpl
+import com.example.data.ExperimentsRepositoryImpl
 import com.example.data.FavouriteRepositoryImpl
 import com.example.data.LocationRepositoryImpl
 import com.example.data.PlaceImageProvider
@@ -20,6 +21,7 @@ import com.example.data.api.MapsApiService
 import com.example.domain.entities.Place
 import com.example.domain.interfaces.CurrencyConverterRepository
 import com.example.domain.interfaces.EmergencyNumbersRepository
+import com.example.domain.interfaces.ExperimentsRepository
 import com.example.domain.interfaces.FavouriteRepository
 import com.example.domain.interfaces.LocationRepository
 import com.example.domain.interfaces.PlacesRepository
@@ -27,6 +29,7 @@ import com.example.domain.interfaces.PostsRepository
 import com.example.domain.interfaces.TranslationRepository
 import com.example.domain.interfaces.UserRepository
 import com.example.domain.usecases.ConvertCurrencyUseCase
+import com.example.domain.usecases.ExperimentsUseCase
 import com.example.domain.usecases.FavouriteUseCase
 import com.example.domain.usecases.GetEmergencyNumbersUseCase
 import com.example.domain.usecases.LocationUseCase
@@ -64,7 +67,7 @@ val viewModelModule = module {
 }
 
 val repositoryModule = module {
-    single<UserRepository> { UserRepositoryImpl(get(), get<Context>(), get()) }
+    single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<TranslationRepository> { TranslationRepositoryImpl() }
     single<EmergencyNumbersRepository> { EmergencyNumbersRepositoryImpl() }
     single<CurrencyConverterRepository> { CurrencyConverterRepositoryImpl(get()) }
@@ -72,6 +75,7 @@ val repositoryModule = module {
     single<PlacesRepository> { PlacesRepositoryImpl(get(), get()) }
     single<PostsRepository> { PostsRepositoryImpl(get()) }
     single<LocationRepository> { LocationRepositoryImpl(get(), get<Context>()) }
+    single<ExperimentsRepository> { ExperimentsRepositoryImpl(get()) }
 
     single { UserUseCase(get()) }
     single { FavouriteUseCase(get()) }
@@ -81,6 +85,7 @@ val repositoryModule = module {
     single { ConvertCurrencyUseCase(get()) }
     single { PlacesUseCase(get()) }
     single { LocationUseCase(get()) }
+    single { ExperimentsUseCase(get()) }
 }
 
 val dataModule = module {
