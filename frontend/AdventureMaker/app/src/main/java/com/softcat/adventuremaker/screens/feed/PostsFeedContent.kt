@@ -6,15 +6,37 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
@@ -32,9 +54,13 @@ import com.google.android.gms.location.LocationServices
 import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.navigation.BottomNavigationBar
 import com.softcat.adventuremaker.navigation.NavigationItem
+import com.softcat.adventuremaker.screens.createPost.PostsState
 import com.softcat.adventuremaker.screens.details.getAddressFromCoordinates
-import com.softcat.adventuremaker.screens.posts.PostsState
-import com.softcat.adventuremaker.ui.theme.*
+import com.softcat.adventuremaker.ui.theme.AvatarPlaceholder
+import com.softcat.adventuremaker.ui.theme.BasicIconsTint
+import com.softcat.adventuremaker.ui.theme.GradientGreen
+import com.softcat.adventuremaker.ui.theme.StarYellow
+import com.softcat.adventuremaker.ui.theme.TextGray
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -96,7 +122,10 @@ private fun FeedItem(post: Post) {
         AsyncImage(
             model = post.imageUrl,
             contentDescription = null,
-            modifier = Modifier.fillMaxWidth().height(260.dp).padding(top = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+                .padding(top = 8.dp),
             contentScale = ContentScale.Crop
         )
 
@@ -166,7 +195,7 @@ fun PostsFeedContent(navController: NavController) {
     Scaffold(
         topBar = {
             FeedTopBar {
-                navController.navigate(NavigationItem.Networking.Profile)
+                navController.navigate(NavigationItem.Networking.Auth)
             }
         },
         bottomBar = {
@@ -190,7 +219,11 @@ fun PostsFeedContent(navController: NavController) {
         when (state) {
 
             is PostsState.Loading -> {
-                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding), contentAlignment = Alignment.Center
+                ) {
                     Text(stringResource(R.string.loading))
                 }
             }
