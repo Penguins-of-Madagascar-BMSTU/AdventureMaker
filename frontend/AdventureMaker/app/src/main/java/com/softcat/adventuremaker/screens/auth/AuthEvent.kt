@@ -6,5 +6,5 @@ sealed interface AuthEvent {
 
     data class LoggedIn(val user: User): AuthEvent
 
-    data class Error(val msg: String): AuthEvent
+    data class Error(val throwable: Throwable): AuthEvent
 }

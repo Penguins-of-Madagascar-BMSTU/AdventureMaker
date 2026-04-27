@@ -1,6 +1,7 @@
 package com.softcat.adventuremaker.navigation
 
 import com.example.domain.entities.Place
+import com.example.domain.entities.User
 import kotlinx.serialization.Serializable
 
 sealed interface NavigationItem {
@@ -21,10 +22,13 @@ sealed interface NavigationItem {
         data object Posts: Networking
 
         @Serializable
-        data object Profile: Networking
+        data class Profile(val user: User): Networking
 
         @Serializable
         data object CreatePost: Networking
+
+        @Serializable
+        data object Auth : NavigationItem
     }
 
     @Serializable
@@ -43,7 +47,4 @@ sealed interface NavigationItem {
     enum class BottomBarConfiguration {
         Favourites, Tools, Search, Networking, None
     }
-
-    @Serializable
-    data object Auth : NavigationItem
 }

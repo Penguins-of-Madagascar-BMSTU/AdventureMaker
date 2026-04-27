@@ -10,6 +10,7 @@ android {
 
     defaultConfig {
         minSdk = 24
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -57,6 +58,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.play.services.location)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
