@@ -48,8 +48,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.domain.entities.Place
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
-import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.ui.theme.CustomRed
 import com.softcat.adventuremaker.ui.theme.LightGray
@@ -291,13 +289,7 @@ fun FavouritesContent(
     val state = viewModel.state.observeAsState(FavouriteState.Loading)
 
     Scaffold(
-        topBar = { FavouritesAppBar() },
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Favourites,
-                navController = navController
-            )
-        }
+        topBar = { FavouritesAppBar() }
     ) { paddingValues ->
         when (val currentState = state.value) {
 

@@ -53,8 +53,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.domain.entities.Place
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
-import com.softcat.adventuremaker.navigation.NavigationItem.BottomBarConfiguration
 import com.softcat.adventuremaker.screens.search.components.CategoryChipsSection
 import com.softcat.adventuremaker.screens.search.components.OpenStreetMapView
 import com.softcat.adventuremaker.screens.search.components.PlacesList
@@ -74,12 +72,6 @@ fun MapSearchScreen(
     val viewModel: SearchViewModel = koinViewModel()
     val state = viewModel.state.observeAsState(viewModel.initialSearchScreenState())
     Scaffold(
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = BottomBarConfiguration.Search,
-                navController = navController
-            )
-        },
         floatingActionButton = {
             OpenBottomSheetButton(
                 onClick = viewModel::showBottomSheet,

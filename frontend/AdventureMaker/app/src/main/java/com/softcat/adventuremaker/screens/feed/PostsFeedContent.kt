@@ -198,12 +198,6 @@ fun PostsFeedContent(navController: NavController) {
                 navController.navigate(NavigationItem.Networking.Auth)
             }
         },
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Networking,
-                navController = navController
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(
                 containerColor = GradientGreen,

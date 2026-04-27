@@ -177,18 +177,13 @@ fun DetailsContent(
     val viewModel: PlaceDetailsViewModel = koinViewModel { parametersOf(place) }
     val state by viewModel.state.observeAsState(PlaceDetailsState(null, place))
 
+
     Scaffold(
         topBar = {
             DetailsAppBar(
                 isFavourite = state.isFavourite,
                 changeFavouriteStatus = viewModel::changeFavouriteStatus,
                 onBackClicked = { navController.popBackStack() }
-            )
-        },
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Favourites,
-                navController = navController
             )
         }
     ) { paddingValues ->

@@ -44,8 +44,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
-import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.ui.theme.LightGray
@@ -121,13 +119,7 @@ private fun CreatePostLayout(
     onSelectPhotoClick: () -> Unit
 ) {
     Scaffold(
-        topBar = { CreatePostTopBar(onBackClick = { navController.popBackStack() }) },
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Networking,
-                navController = navController
-            )
-        }
+        topBar = { CreatePostTopBar(onBackClick = { navController.popBackStack() }) }
     ) { paddingValues ->
         Box(
             modifier = Modifier

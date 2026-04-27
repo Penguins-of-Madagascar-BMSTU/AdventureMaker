@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.domain.entities.Post
 import com.example.domain.entities.User
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
 import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.BasicOrange
 import androidx.compose.foundation.lazy.items
@@ -130,12 +129,6 @@ fun ProfileContent(
     }
 
     Scaffold(
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Networking,
-                navController = navController
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(NavigationItem.Networking.CreatePost) },
