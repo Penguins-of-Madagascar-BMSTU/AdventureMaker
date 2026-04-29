@@ -26,7 +26,7 @@ sealed interface NavigationItem {
         data class Profile(val user: User): Networking
 
         @Serializable
-        data object CreatePost: Networking
+        data class CreatePost(val userId: String): Networking
 
         @Serializable
         data object Auth : NavigationItem

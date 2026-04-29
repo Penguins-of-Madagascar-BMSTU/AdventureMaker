@@ -9,8 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.entities.Post
 import com.example.domain.usecases.PostsUseCase
 import com.example.domain.usecases.UserUseCase
-import com.softcat.adventuremaker.screens.createPost.PostsState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -24,26 +25,31 @@ class PostsViewModel(
     private val application: Application
 ) : AndroidViewModel(application) {
 
-    private val _state = MutableLiveData<PostsState>(PostsState.Loading)
+    private val _state = MutableLiveData<PostsState>(PostsState(isLoading = true))
     val state: LiveData<PostsState>
         get() = _state
 
+    private val _events = MutableSharedFlow<PostsEvent>()
+    val events: SharedFlow<PostsEvent> = _events
+
+    init {
+        checkUserAuthorization()
+    }
+
     fun loadPosts(userLat: Float, userLon: Float) {
+        _state.value = state.value?.copy(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 postsUseCase.getPosts(userLat, userLon).collect { posts ->
                     val postModels = createPostsModels(posts)
                     withContext(Dispatchers.Main) {
-                        _state.value =
-                            if (postModels.isEmpty())
-                                PostsState.Empty
-                            else
-                                PostsState.Content(postModels)
+                        _state.value = state.value?.copy(posts = postModels, isLoading = false)
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _state.value = PostsState.Error(e.message ?: "Unknown error")
+                    val msg = e.message ?: "Unknown error"
+                    _events.emit(PostsEvent.Error(msg))
                 }
             }
         }
@@ -105,6 +111,15 @@ class PostsViewModel(
         } catch (e: Exception) {
             if (continuation.isActive) {
                 continuation.resumeWithException(e)
+            }
+        }
+    }
+
+    private fun checkUserAuthorization() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = userUseCase.getLastEnteredUser()?.id
+            withContext(Dispatchers.Main) {
+                _state.value = state.value?.copy(userId = id)
             }
         }
     }

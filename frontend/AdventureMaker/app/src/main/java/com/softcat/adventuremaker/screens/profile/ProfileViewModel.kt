@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.entities.User
-import com.example.domain.usecases.PostsUseCase
+import com.example.domain.usecases.UserPostsUseCase
 import com.example.domain.usecases.UserUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
 class ProfileViewModel(
     private val user: User,
     private val userUseCase: UserUseCase,
-    private val postsUseCase: PostsUseCase
+    private val userPostsUseCase: UserPostsUseCase
 ) : ViewModel() {
 
     private val _state = MutableLiveData<ProfileState>(
@@ -31,17 +31,18 @@ class ProfileViewModel(
     val profileEvent: SharedFlow<ProfileEvent> = _profileEvent.asSharedFlow()
 
     init {
-        loadPosts()
+        observeUserPosts()
     }
 
-    fun loadPosts() {
+    fun observeUserPosts() {
         viewModelScope.launch(Dispatchers.IO) {
-            val posts = postsUseCase.getUserPosts(user.id).getOrElse { emptyList() }
-            withContext(Dispatchers.Main) {
-                _state.value = ProfileState.Content(
-                    user = user,
-                    posts = posts
-                )
+            userPostsUseCase.observe(user.id).collect { posts ->
+                withContext(Dispatchers.Main) {
+                    _state.value = ProfileState.Content(
+                        user = user,
+                        posts = posts
+                    )
+                }
             }
         }
     }
