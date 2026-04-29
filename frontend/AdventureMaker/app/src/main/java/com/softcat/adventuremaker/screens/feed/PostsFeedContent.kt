@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,8 +38,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -49,14 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.domain.entities.Post
 import com.google.android.gms.location.LocationServices
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
 import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.screens.createPost.PostsState
-import com.softcat.adventuremaker.screens.details.getAddressFromCoordinates
-import com.softcat.adventuremaker.ui.theme.AvatarPlaceholder
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.GradientGreen
 import com.softcat.adventuremaker.ui.theme.StarYellow
@@ -86,35 +81,33 @@ private fun FeedTopBar(onProfileClick: () -> Unit) {
 }
 
 @Composable
-private fun FeedItem(post: Post) {
-    val context = LocalContext.current
-    var address by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(post.latitude, post.longitude) {
-        getAddressFromCoordinates(
-            context,
-            post.latitude.toDouble(),
-            post.longitude.toDouble()
-        ) { address = it }
-    }
-
+private fun FeedItem(post: PostModel) {
     Column(Modifier.fillMaxWidth().padding(12.dp)) {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
 
             Box(
-                Modifier.size(52.dp).background(AvatarPlaceholder, CircleShape),
+                Modifier.size(52.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Person, null, tint = White)
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize().clip(CircleShape),
+                    model = post.authorAvatarUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
+                )
             }
 
             Column(Modifier.padding(start = 8.dp).weight(1f)) {
-                Text(post.userId, color = Black)
+                Text(post.authorName, color = Black)
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.LocationOn, null, tint = TextGray, modifier = Modifier.size(16.dp))
-                    Text(address ?: stringResource(R.string.loading), color = TextGray)
+                    Text(
+                        text = post.address,
+                        color = TextGray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }
@@ -133,10 +126,13 @@ private fun FeedItem(post: Post) {
             Modifier.fillMaxWidth().padding(top = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(post.description, modifier = Modifier.weight(1f))
+            Text(
+                text = post.description,
+                modifier = Modifier.weight(1f)
+            )
 
             Row {
-                repeat(post.scoreValue ?: 0) {
+                repeat(post.score ?: 0) {
                     Icon(Icons.Default.Star, null, tint = StarYellow)
                 }
             }

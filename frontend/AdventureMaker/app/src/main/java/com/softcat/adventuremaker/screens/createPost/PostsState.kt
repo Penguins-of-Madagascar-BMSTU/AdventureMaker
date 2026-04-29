@@ -1,6 +1,7 @@
 package com.softcat.adventuremaker.screens.createPost
 
 import com.example.domain.entities.Post
+import com.softcat.adventuremaker.screens.feed.PostModel
 
 sealed interface PostsState {
 
@@ -9,7 +10,7 @@ sealed interface PostsState {
     data object Empty : PostsState
 
     data class Content(
-        val posts: List<Post>
+        val posts: List<PostModel>
     ) : PostsState
 
     data class Error(

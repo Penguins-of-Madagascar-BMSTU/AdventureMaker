@@ -106,16 +106,33 @@ class UserRepositoryImpl(
 
     override fun observeLastEnteredUser() = userFlow
 
-    override suspend fun updateAvatar(uri: Uri, avatarUrl: String?): Result<String> {
+    override suspend fun updateAvatar(userId: String, uri: Uri, avatarUrl: String?): Result<String> {
         return try {
             avatarUrl?.let { imageLoader.deleteImageFromS3(it) }
             val id = UUID.randomUUID().toString()
             val result = imageLoader.uploadImageToS3(uri, id)
             result.onSuccess {
+                usersStorage
+                    .child(userId)
+                    .child("avatarUrl")
+                    .setValue(result.getOrNull() ?: "")
+                    .await()
                 val updatedUser = getLastEnteredUser()?.copy(avatarUrl = it)
                 updatedUser?.let { rememberUser(it) }
             }
             result
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getPostsAuthors(ids: List<String>): Result<Map<String, User?>> {
+        return try {
+            val result = ids.map { id ->
+                val result = usersStorage.child(id).get().await()
+                id to result.getValue<UserDto>()?.toEntity()
+            }.toMap()
+            Result.success(result)
         } catch (e: Exception) {
             Result.failure(e)
         }
