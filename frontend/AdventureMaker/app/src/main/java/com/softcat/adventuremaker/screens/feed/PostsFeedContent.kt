@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -76,7 +77,10 @@ private fun FeedTopBar(onProfileClick: () -> Unit) {
             IconButton(onClick = onProfileClick) {
                 Icon(Icons.Default.Person, contentDescription = null, tint = BasicIconsTint)
             }
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors().copy(
+            containerColor = MaterialTheme.colorScheme.background
+        )
     )
 }
 
@@ -204,7 +208,7 @@ fun PostsFeedContent(navController: NavController) {
                 Icon(Icons.Default.Add, null)
             }
         }
-    ) { padding ->
+    ) { paddingValues ->
 
         when (state) {
 
@@ -212,21 +216,27 @@ fun PostsFeedContent(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(padding), contentAlignment = Alignment.Center
+                        .padding(top = paddingValues.calculateTopPadding()),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(stringResource(R.string.loading))
                 }
             }
 
             is PostsState.Empty -> {
-                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                Box(Modifier.fillMaxSize().padding(top = paddingValues.calculateTopPadding()),
+                    contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.no_posts))
                 }
             }
 
             is PostsState.Error -> {
                 val msg = (state as PostsState.Error).message
-                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = paddingValues.calculateTopPadding()),
+                    contentAlignment = Alignment.Center) {
                     Text("${stringResource(R.string.error)}: $msg")
                 }
             }
@@ -235,7 +245,9 @@ fun PostsFeedContent(navController: NavController) {
                 val posts = (state as PostsState.Content).posts
 
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(padding)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = paddingValues.calculateTopPadding())
                 ) {
                     items(posts, key = { it.id }) {
                         FeedItem(it)

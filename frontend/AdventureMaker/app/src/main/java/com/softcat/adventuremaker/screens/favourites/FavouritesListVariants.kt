@@ -3,6 +3,7 @@ package com.softcat.adventuremaker.screens.favourites
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -90,6 +91,9 @@ private fun FavouritesListV2(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        item {
+            Spacer(Modifier.padding(top = 4.dp))
+        }
         items(
             items = places,
             key = { it.id }
@@ -104,6 +108,9 @@ private fun FavouritesListV2(
                 description = place.description,
                 onClick = { onPlaceClick(place) }
             )
+        }
+        item {
+            Spacer(Modifier.padding(top = 4.dp))
         }
     }
 }
