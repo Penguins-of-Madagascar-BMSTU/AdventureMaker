@@ -14,6 +14,7 @@ import com.example.data.PlacesRepositoryImpl
 import com.example.data.PostsRepositoryImpl
 import com.example.data.S3ImageLoader
 import com.example.data.TranslationRepositoryImpl
+import com.example.data.UserPostsRepositoryImpl
 import com.example.data.UserRepositoryImpl
 import com.example.data.api.CurrencyApiFactory
 import com.example.data.api.MapsApiFactory
@@ -27,6 +28,7 @@ import com.example.domain.interfaces.LocationRepository
 import com.example.domain.interfaces.PlacesRepository
 import com.example.domain.interfaces.PostsRepository
 import com.example.domain.interfaces.TranslationRepository
+import com.example.domain.interfaces.UserPostsRepository
 import com.example.domain.interfaces.UserRepository
 import com.example.domain.usecases.ConvertCurrencyUseCase
 import com.example.domain.usecases.ExperimentsUseCase
@@ -36,6 +38,7 @@ import com.example.domain.usecases.LocationUseCase
 import com.example.domain.usecases.PlacesUseCase
 import com.example.domain.usecases.PostsUseCase
 import com.example.domain.usecases.TranslateTextUseCase
+import com.example.domain.usecases.UserPostsUseCase
 import com.example.domain.usecases.UserUseCase
 import com.google.android.gms.location.LocationServices
 import com.softcat.adventuremaker.AdventureMakerApplication
@@ -56,13 +59,15 @@ val viewModelModule = module {
     viewModelOf(::AuthViewModel)
     viewModelOf(::ToolsViewModel)
     viewModelOf(::FavouriteViewModel)
-    viewModelOf(::CreatePostViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::PostsViewModel)
 
     viewModel { (place: Place) ->
         PlaceDetailsViewModel(place, get(), get())
+    }
+    viewModel { (userId: String) ->
+        CreatePostViewModel(get(), userId, get(), get())
     }
 }
 
@@ -76,6 +81,7 @@ val repositoryModule = module {
     single<PostsRepository> { PostsRepositoryImpl(get()) }
     single<LocationRepository> { LocationRepositoryImpl(get(), get<Context>()) }
     single<ExperimentsRepository> { ExperimentsRepositoryImpl(get()) }
+    single<UserPostsRepository> { UserPostsRepositoryImpl(get()) }
 
     single { UserUseCase(get()) }
     single { FavouriteUseCase(get()) }
@@ -86,6 +92,7 @@ val repositoryModule = module {
     single { PlacesUseCase(get()) }
     single { LocationUseCase(get()) }
     single { ExperimentsUseCase(get()) }
+    single { UserPostsUseCase(get()) }
 }
 
 val dataModule = module {

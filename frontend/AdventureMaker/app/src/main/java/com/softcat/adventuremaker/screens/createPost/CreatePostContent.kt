@@ -52,12 +52,14 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.softcat.adventuremaker.ui.theme.AdventureMakerTheme
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun CreatePostContent(
     navController: NavController,
-    viewModel: CreatePostViewModel = koinViewModel()
+    userId: String,
 ) {
+    val viewModel: CreatePostViewModel = koinViewModel { parametersOf(userId) }
     val state by viewModel.state.observeAsState(CreatePostState())
     val context = LocalContext.current
 

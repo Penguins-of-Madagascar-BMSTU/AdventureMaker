@@ -52,7 +52,6 @@ import coil.compose.AsyncImage
 import com.google.android.gms.location.LocationServices
 import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.navigation.NavigationItem
-import com.softcat.adventuremaker.screens.createPost.PostsState
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.GradientGreen
 import com.softcat.adventuremaker.ui.theme.StarYellow
@@ -144,13 +143,10 @@ private fun FeedItem(post: PostModel) {
     }
 }
 
-
-
 @Composable
 fun PostsFeedContent(navController: NavController) {
-
     val viewModel: PostsViewModel = koinViewModel()
-    val state by viewModel.state.observeAsState(PostsState.Loading)
+    val state by viewModel.state.observeAsState(PostsState())
 
     val context = LocalContext.current
 
@@ -191,7 +187,6 @@ fun PostsFeedContent(navController: NavController) {
         }
     }
 
-
     Scaffold(
         topBar = {
             FeedTopBar {
@@ -202,62 +197,51 @@ fun PostsFeedContent(navController: NavController) {
             FloatingActionButton(
                 containerColor = GradientGreen,
                 onClick = {
-                    navController.navigate(NavigationItem.Networking.CreatePost)
+                    state.userId?.let {
+                        val entry = NavigationItem.Networking.CreatePost(it)
+                        navController.navigate(entry)
+                    }
                 }
             ) {
                 Icon(Icons.Default.Add, null)
             }
         }
     ) { paddingValues ->
+        StateContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding()),
+            state = state
+        )
+    }
+}
 
-        when (state) {
-
-            is PostsState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = paddingValues.calculateTopPadding()),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(stringResource(R.string.loading))
-                }
-            }
-
-            is PostsState.Empty -> {
-                Box(Modifier.fillMaxSize().padding(top = paddingValues.calculateTopPadding()),
-                    contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.no_posts))
-                }
-            }
-
-            is PostsState.Error -> {
-                val msg = (state as PostsState.Error).message
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = paddingValues.calculateTopPadding()),
-                    contentAlignment = Alignment.Center) {
-                    Text("${stringResource(R.string.error)}: $msg")
-                }
-            }
-
-            is PostsState.Content -> {
-                val posts = (state as PostsState.Content).posts
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = paddingValues.calculateTopPadding())
-                ) {
-                    items(posts, key = { it.id }) {
-                        FeedItem(it)
-                    }
-                }
+@Composable
+private fun StateContent(
+    modifier: Modifier = Modifier,
+    state: PostsState
+) {
+    if (state.isLoading) {
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Text(stringResource(R.string.loading))
+        }
+    } else if (state.posts.isEmpty()) {
+        Box(modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Text(stringResource(R.string.no_posts))
+        }
+    } else {
+        LazyColumn(modifier) {
+            items(state.posts, key = { it.id }) {
+                FeedItem(it)
             }
         }
     }
 }
-
 
 @SuppressLint("MissingPermission")
 fun getCurrentLocation(
