@@ -13,10 +13,6 @@ class PostsUseCase(
         return repository.getPosts(userLat, userLon)
     }
 
-    suspend fun getUserPosts(userId: String): Result<List<Post>> {
-        return repository.getUserPosts(userId)
-    }
-
     suspend fun loadMorePosts() {
         repository.loadMorePosts()
     }

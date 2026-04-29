@@ -131,7 +131,7 @@ fun ProfileContent(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(NavigationItem.Networking.CreatePost) },
+                onClick = { navController.navigate(NavigationItem.Networking.CreatePost(user.id)) },
                 containerColor = GradientGreen
             ) {
                 Icon(
@@ -164,7 +164,7 @@ fun ProfileStateContent(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(top = paddingValues.calculateTopPadding()),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -175,7 +175,7 @@ fun ProfileStateContent(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .padding(top = paddingValues.calculateTopPadding())
             ) {
                 item {
                     ProfileHeader(

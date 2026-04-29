@@ -6,9 +6,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.domain.interfaces.PostsRepository
 import com.example.domain.usecases.LocationUseCase
-import com.example.domain.usecases.UserUseCase
+import com.example.domain.usecases.UserPostsUseCase
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.softcat.adventuremaker.R
 import kotlinx.coroutines.Dispatchers
@@ -21,8 +20,8 @@ import kotlinx.coroutines.withContext
 
 
 class CreatePostViewModel(
-    private val postsRepository: PostsRepository,
-    private val userUseCase: UserUseCase,
+    private val userPostsUseCase: UserPostsUseCase,
+    private val userId: String,
     private val locationUseCase: LocationUseCase,
     private val application: Application
 ) : AndroidViewModel(application) {
@@ -75,16 +74,8 @@ class CreatePostViewModel(
         _state.value = current.copy(isLoading = true)
 
         viewModelScope.launch(Dispatchers.IO) {
-            val userId = userUseCase.getLastEnteredUser()?.id
-            if (userId == null) {
-                val msg = application.getString(R.string.no_user_error)
-                _state.postValue(
-                    current.copy(errorMessage = msg, isLoading = false)
-                )
-                return@launch
-            }
 
-            val result = postsRepository.publishPost(
+            userPostsUseCase.publishPost(
                 context = application,
                 imageUri = current.imageUri,
                 userId = userId,
@@ -92,14 +83,14 @@ class CreatePostViewModel(
                 latitude = userLocation?.first?.toFloat() ?: 0f,
                 longitude = userLocation?.second?.toFloat() ?: 0f,
                 scoreValue = current.score
-            )
-
-            withContext(Dispatchers.Main) {
-                result.onSuccess {
+            ).onSuccess {
+                withContext(Dispatchers.Main) {
                     _event.emit(CreatePostEvent.Published)
-                }.onFailure {
-                    _state.value = current.copy(errorMessage = it.message, isLoading = false)
                 }
+            }.onFailure {
+                _state.postValue(
+                    current.copy(errorMessage = it.message, isLoading = false)
+                )
             }
         }
     }

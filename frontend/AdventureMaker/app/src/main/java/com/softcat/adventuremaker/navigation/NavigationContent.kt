@@ -110,7 +110,10 @@ private fun NetworkingNavHost(navController: NavHostController) {
             val args = entry.toRoute<NavigationItem.Networking.Profile>()
             ProfileContent(navController, args.user)
         }
-        composable<NavigationItem.Networking.CreatePost> { CreatePostContent(navController) }
+        composable<NavigationItem.Networking.CreatePost> { entry ->
+            val args = entry.toRoute<NavigationItem.Networking.CreatePost>()
+            CreatePostContent(navController, args.userId)
+        }
         composable<NavigationItem.Networking.Auth> { AuthScreen(navController) }
     }
 }
