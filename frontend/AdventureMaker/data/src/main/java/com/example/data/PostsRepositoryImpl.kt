@@ -11,15 +11,8 @@ import com.example.domain.interfaces.PostsRepository
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
 import com.google.firebase.database.getValue
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -27,19 +20,13 @@ class PostsRepositoryImpl(
     private val imageLoader: S3ImageLoader
 ): PostsRepository {
 
-    override fun getPosts(
+    override suspend fun getPosts(
         userLat: Float,
         userLon: Float
     ): StateFlow<List<Post>> {
-        userLatitude = userLat
-        userLongitude = userLon
+        loadNextPosts()
+        postListFlow.value = loadedPosts.toList()
         return postListFlow
-            .mergeWith(updatedPostListFlow)
-            .stateIn(
-                scope = coroutineScope,
-                started = SharingStarted.Lazily,
-                initialValue = loadedPosts
-            )
     }
 
     override suspend fun getUserPosts(userId: String): Result<List<Post>> {
@@ -62,7 +49,8 @@ class PostsRepositoryImpl(
     }
 
     override suspend fun loadMorePosts() {
-        loadPostsRequest.emit(Unit)
+        loadNextPosts()
+        postListFlow.value = loadedPosts.toList()
     }
 
     override suspend fun publishPost(
@@ -100,37 +88,23 @@ class PostsRepositoryImpl(
 
     override suspend fun deletePost(postId: String): Result<Unit> {
         return try {
-            val query = postsStorage.orderByChild("id").equalTo(postId)
-            val result = query.get().await()
-            if (result.exists()) {
+            val postRef = postsStorage.child(postId)
+            val snapshot = postRef.get().await()
+            if (snapshot.exists()) {
                 imageLoader.deleteImageFromS3(postId)
-                val job = result.ref.removeValue()
-                job.await()
+                postRef.removeValue().await()
             }
             loadedPosts.removeIf { it.id == postId }
-            updatedPostListFlow.emit(loadedPosts)
+            postListFlow.value = loadedPosts.toList()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
-
-    private var userLatitude: Float = 0f
-    private var userLongitude: Float = 0f
-
     private val loadedPosts = mutableListOf<Post>()
 
-    private val loadPostsRequest = MutableSharedFlow<Unit>(replay = 1)
-    private val updatedPostListFlow = MutableSharedFlow<List<Post>>()
-    private val postListFlow = flow {
-        loadPostsRequest.emit(Unit)
-        loadPostsRequest.collect {
-            loadPosts()
-            emit(loadedPosts.toList())
-        }
-    }
+    private val postListFlow = MutableStateFlow<List<Post>>(emptyList())
 
     private val postsStorage by lazy {
         Firebase.database.getReference(POSTS_STORAGE_NAME)
@@ -138,19 +112,20 @@ class PostsRepositoryImpl(
 
     private var lastKey: String? = null
 
-    private suspend fun loadPosts() {
+    private suspend fun loadNextPosts() {
         try {
-            val query = postsStorage.apply {
-                orderByKey()
-                lastKey?.let { startAt(it) }
-                limitToFirst(5)
-            }
+            val query = postsStorage
+                .orderByKey()
+                .let { q -> lastKey?.let { q.startAfter(it) } ?: q }
+                .limitToFirst(5)
             val dataSnapshot = query.get().await()
-            val newPosts = dataSnapshot.children.mapNotNull { postData ->
-                lastKey = postData.key
-                postData.getValue<PostDto>()
-            }.map { it.toEntity() }
-            loadedPosts.addAll(newPosts)
+            val postList = dataSnapshot.children.mapNotNull {
+                it.getValue<PostDto>()?.toEntity()
+            }
+            if (postList.isNotEmpty()) {
+                lastKey = dataSnapshot.children.lastOrNull()?.key
+                loadedPosts.addAll(postList)
+            }
         } catch (_: Exception) {} // если подгрузка следующей порции постов не сработала, то ждём следующего запроса на порцию постов
     }
 
@@ -160,9 +135,5 @@ class PostsRepositoryImpl(
         job.await()
         job.exception?.let { return Result.failure(it) }
         return Result.success(Unit)
-    }
-
-    private fun <T> Flow<T>.mergeWith(other: Flow<T>): Flow<T> {
-        return merge(this, other)
     }
 }

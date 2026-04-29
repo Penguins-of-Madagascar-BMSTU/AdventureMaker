@@ -7,7 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -38,7 +38,7 @@ T - тип, по которому navController определяет текущ�
 
 @Composable
 fun MainScreen() {
-    var selectedTab by remember { mutableStateOf(NavigationItem.BottomBarConfiguration.Search) }
+    var selectedTab by rememberSaveable { mutableStateOf(NavigationItem.BottomBarConfiguration.Search) }
 
     // Отдельные контроллеры для каждой вкладки
     val navSearch = rememberNavController()

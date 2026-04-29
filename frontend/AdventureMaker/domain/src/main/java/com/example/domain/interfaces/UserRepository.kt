@@ -16,5 +16,7 @@ interface UserRepository {
 
     fun observeLastEnteredUser(): Flow<User?>
 
-    suspend fun updateAvatar(uri: Uri, avatarUrl: String?): Result<String>
+    suspend fun updateAvatar(userId: String, uri: Uri, avatarUrl: String?): Result<String>
+
+    suspend fun getPostsAuthors(ids: List<String>): Result<Map<String, User?>>
 }
