@@ -90,8 +90,9 @@ private fun FavouritesNavHost(navController: NavHostController) {
     NavHost(navController, startDestination = NavigationItem.Favourites.Content) {
         composable<NavigationItem.Favourites.Content> {
             FavouritesContent(
-                navController = navController,
-                onPlaceClick = { navController.navigate(NavigationItem.Favourites.PlaceDetails(it)) }
+                onPlaceClick = {
+                    navController.navigate(NavigationItem.Favourites.PlaceDetails(it))
+                }
             )
         }
         composable<NavigationItem.Favourites.PlaceDetails>(typeMap = mapOf(typeOf<Place>() to PlaceNavType)) { entry ->

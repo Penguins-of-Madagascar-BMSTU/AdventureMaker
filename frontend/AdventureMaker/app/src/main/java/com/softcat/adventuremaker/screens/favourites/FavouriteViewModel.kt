@@ -36,7 +36,7 @@ class FavouriteViewModel(
         }
     }
 
-    fun changeCategoryFilter(newValue: Place.Category?) {
+    fun changeCategoryFilter(newValue: Place.Category) {
         _state.value = state.value.let {
             if (it is FavouriteState.Content)
                 it.copy(filterCategory = newValue)
@@ -54,7 +54,7 @@ class FavouriteViewModel(
                         if (it is FavouriteState.Content)
                             it.copy(places = placeList)
                         else
-                            FavouriteState.Content(null, placeList, variant)
+                            FavouriteState.Content(Place.Category.Unknown, placeList, variant)
                     }
                 }
             }

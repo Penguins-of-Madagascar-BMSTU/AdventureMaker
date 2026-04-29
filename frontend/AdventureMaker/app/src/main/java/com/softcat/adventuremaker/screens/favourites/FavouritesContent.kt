@@ -135,7 +135,7 @@ private fun CategoryCard(
 @Preview
 private fun CategorySelector(
     modifier: Modifier = Modifier,
-    onCategoryClicked: (Place.Category?) -> Unit = {},
+    onCategoryClicked: (Place.Category) -> Unit = {},
     category: Place.Category? = null
 ) {
     val scrollState = rememberScrollState()
@@ -149,18 +149,46 @@ private fun CategorySelector(
     ) {
         CategoryCard(
             modifier = Modifier.wrapContentSize(),
-            name = stringResource(getCategoryNameId(null)),
-            isActive = category == null,
-            onClick = { onCategoryClicked(null) }
+            name = stringResource(getCategoryNameId(Place.Category.Unknown)),
+            isActive = category == Place.Category.Unknown,
+            onClick = { onCategoryClicked(Place.Category.Unknown) }
         )
-        Place.Category.entries.forEach {
-            CategoryCard(
-                modifier = Modifier.wrapContentSize(),
-                name = stringResource(getCategoryNameId(it)),
-                isActive = category == it,
-                onClick = { onCategoryClicked(it) }
-            )
-        }
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Entertainment)),
+            isActive = category == Place.Category.Entertainment,
+            onClick = { onCategoryClicked(Place.Category.Entertainment) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Bank)),
+            isActive = category == Place.Category.Bank,
+            onClick = { onCategoryClicked(Place.Category.Bank) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Restaurant)),
+            isActive = category == Place.Category.Restaurant,
+            onClick = { onCategoryClicked(Place.Category.Restaurant) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Hotel)),
+            isActive = category == Place.Category.Hotel,
+            onClick = { onCategoryClicked(Place.Category.Hotel) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Attraction)),
+            isActive = category == Place.Category.Attraction,
+            onClick = { onCategoryClicked(Place.Category.Attraction) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Museum)),
+            isActive = category == Place.Category.Museum,
+            onClick = { onCategoryClicked(Place.Category.Museum) }
+        )
     }
 }
 
@@ -169,7 +197,7 @@ private fun Content(
     modifier: Modifier = Modifier,
     onPlaceClick: (Place) -> Unit,
     places: List<Place>,
-    onCategoryClicked: (Place.Category?) -> Unit,
+    onCategoryClicked: (Place.Category) -> Unit,
     filterCategory: Place.Category? = null,
     variant: FavouriteScreenVariant = FavouriteScreenVariant.First
 ) {
@@ -181,7 +209,7 @@ private fun Content(
             category = filterCategory
         )
         FavouriteList(
-            modifier = Modifier.fillMaxSize().padding(top = 24.dp),
+            modifier = Modifier.fillMaxSize().padding(top = 8.dp),
             variant = variant,
             onPlaceClick = onPlaceClick,
             places = places
@@ -207,7 +235,6 @@ private fun Loading(
 
 @Composable
 fun FavouritesContent(
-    navController: NavController,
     viewModel: FavouriteViewModel = koinViewModel(),
     onPlaceClick: (Place) -> Unit
 ) {
@@ -220,10 +247,11 @@ fun FavouritesContent(
 
             is FavouriteState.Content -> {
                 Content(
-                    modifier = Modifier.padding(paddingValues),
+                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                     onPlaceClick = onPlaceClick,
                     places = currentState.places.filter {
-                        currentState.filterCategory == null || it.category == currentState.filterCategory
+                        currentState.filterCategory == Place.Category.Unknown ||
+                                it.category == currentState.filterCategory
                     },
                     filterCategory = currentState.filterCategory,
                     onCategoryClicked = { viewModel.changeCategoryFilter(it) },

@@ -10,7 +10,7 @@ sealed interface FavouriteState {
     data object NoUser: FavouriteState
 
     data class Content(
-        val filterCategory: Place.Category?,
+        val filterCategory: Place.Category,
         val places: List<Place>,
         val variant: FavouriteScreenVariant
     ): FavouriteState
