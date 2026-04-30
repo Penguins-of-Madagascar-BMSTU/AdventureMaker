@@ -1,4 +1,4 @@
-package com.softcat.adventuremaker.screens.feed
+package com.softcat.adventuremaker.designElements.models
 
 data class PostModel(
     val id: String,

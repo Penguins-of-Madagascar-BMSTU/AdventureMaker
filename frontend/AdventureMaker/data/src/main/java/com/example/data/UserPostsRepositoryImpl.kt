@@ -64,12 +64,8 @@ class UserPostsRepositoryImpl(
 
     override suspend fun deletePost(postId: String): Result<Unit> {
         return try {
-            val postRef = postsStorage.child(postId)
-            val snapshot = postRef.get().await()
-            if (snapshot.exists()) {
-                imageLoader.deleteImageFromS3(postId)
-                postRef.removeValue().await()
-            }
+            postsStorage.child(postId).removeValue().await()
+            imageLoader.deleteImageFromS3(postId)
             loadedPosts.removeIf { it.id == postId }
             postListFlow.value = loadedPosts.toList()
             Result.success(Unit)
@@ -101,8 +97,7 @@ class UserPostsRepositoryImpl(
     }
 
     private suspend fun savePostData(post: PostDto): Result<Unit> {
-        val reference = postsStorage.push()
-        val job = reference.setValue(post)
+        val job = postsStorage.child(post.id).setValue(post)
         job.await()
         job.exception?.let { return Result.failure(it) }
         return Result.success(Unit)

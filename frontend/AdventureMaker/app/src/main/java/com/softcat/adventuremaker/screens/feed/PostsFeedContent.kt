@@ -6,27 +6,22 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -39,23 +34,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.google.android.gms.location.LocationServices
 import com.softcat.adventuremaker.R
+import com.softcat.adventuremaker.designElements.PostItem
 import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.GradientGreen
-import com.softcat.adventuremaker.ui.theme.StarYellow
-import com.softcat.adventuremaker.ui.theme.TextGray
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -84,70 +74,10 @@ private fun FeedTopBar(onProfileClick: () -> Unit) {
 }
 
 @Composable
-private fun FeedItem(post: PostModel) {
-    Column(Modifier.fillMaxWidth().padding(12.dp)) {
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-
-            Box(
-                Modifier.size(52.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                AsyncImage(
-                    modifier = Modifier.fillMaxSize().clip(CircleShape),
-                    model = post.authorAvatarUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.FillBounds
-                )
-            }
-
-            Column(Modifier.padding(start = 8.dp).weight(1f)) {
-                Text(post.authorName, color = Black)
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocationOn, null, tint = TextGray, modifier = Modifier.size(16.dp))
-                    Text(
-                        text = post.address,
-                        color = TextGray,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        }
-
-        AsyncImage(
-            model = post.imageUrl,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp)
-                .padding(top = 8.dp),
-            contentScale = ContentScale.Crop
-        )
-
-        Row(
-            Modifier.fillMaxWidth().padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = post.description,
-                modifier = Modifier.weight(1f)
-            )
-
-            Row {
-                repeat(post.score ?: 0) {
-                    Icon(Icons.Default.Star, null, tint = StarYellow)
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun PostsFeedContent(navController: NavController) {
     val viewModel: PostsViewModel = koinViewModel()
     val state by viewModel.state.observeAsState(PostsState())
-
+    val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
     // чтобы не вызывать загрузку несколько раз
@@ -169,7 +99,6 @@ fun PostsFeedContent(navController: NavController) {
         if (granted) {
             startLoading()
         } else {
-            // fallback
             viewModel.loadPosts(55.7558f, 37.6173f)
         }
     }
@@ -193,6 +122,7 @@ fun PostsFeedContent(navController: NavController) {
                 navController.navigate(NavigationItem.Networking.Auth)
             }
         },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 containerColor = GradientGreen,
@@ -213,6 +143,14 @@ fun PostsFeedContent(navController: NavController) {
                 .padding(top = paddingValues.calculateTopPadding()),
             state = state
         )
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is PostsEvent.Error -> snackBarHostState.showSnackbar(event.msg)
+            }
+        }
     }
 }
 
@@ -237,7 +175,7 @@ private fun StateContent(
     } else {
         LazyColumn(modifier) {
             items(state.posts, key = { it.id }) {
-                FeedItem(it)
+                PostItem(it)
             }
         }
     }
@@ -249,7 +187,6 @@ fun getCurrentLocation(
     onResult: (Double, Double) -> Unit
 ) {
     val client = LocationServices.getFusedLocationProviderClient(context)
-
     client.lastLocation
         .addOnSuccessListener { location ->
             if (location != null) {

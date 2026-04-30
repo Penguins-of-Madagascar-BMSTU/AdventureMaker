@@ -1,5 +1,5 @@
 package com.softcat.adventuremaker.screens.feed
 
-interface PostsEvent {
+sealed interface PostsEvent {
     data class Error(val msg: String): PostsEvent
 }
