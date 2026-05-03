@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -27,6 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +43,7 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.google.android.gms.location.LocationServices
@@ -141,7 +147,8 @@ fun PostsFeedContent(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingValues.calculateTopPadding()),
-            state = state
+            state = state,
+            loadNextPosts = viewModel::loadMore
         )
     }
 
@@ -157,7 +164,8 @@ fun PostsFeedContent(navController: NavController) {
 @Composable
 private fun StateContent(
     modifier: Modifier = Modifier,
-    state: PostsState
+    state: PostsState,
+    loadNextPosts: () -> Unit
 ) {
     if (state.isLoading) {
         Box(
@@ -166,7 +174,7 @@ private fun StateContent(
         ) {
             Text(stringResource(R.string.loading))
         }
-    } else if (state.posts.isEmpty()) {
+    } else if (state.posts.isEmpty() && !state.hasNext) {
         Box(modifier = modifier,
             contentAlignment = Alignment.Center
         ) {
@@ -176,6 +184,34 @@ private fun StateContent(
         LazyColumn(modifier) {
             items(state.posts, key = { it.id }) {
                 PostItem(it)
+            }
+            loadNextSideEffect(
+                modifier =  Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .wrapContentHeight(),
+                hasNext = state.hasNext,
+                loadNext = loadNextPosts
+            )
+        }
+    }
+}
+
+private fun LazyListScope.loadNextSideEffect(
+    modifier: Modifier = Modifier,
+    hasNext: Boolean,
+    loadNext: () -> Unit
+) {
+    if (hasNext) {
+        item {
+            Box(
+                modifier = modifier,
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(Modifier.size(48.dp))
+            }
+            SideEffect {
+                loadNext()
             }
         }
     }
