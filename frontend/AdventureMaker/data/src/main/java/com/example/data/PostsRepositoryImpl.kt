@@ -20,14 +20,14 @@ class PostsRepositoryImpl(
         userLat: Float,
         userLon: Float
     ): StateFlow<List<Post>> {
-        loadNextPosts()
         postListFlow.value = loadedPosts.toList()
         return postListFlow
     }
 
-    override suspend fun loadMorePosts() {
-        loadNextPosts()
+    override suspend fun loadMorePosts(): Boolean {
+        val hasNext = loadNextPosts()
         postListFlow.value = loadedPosts.toList()
+        return hasNext
     }
 
     private val loadedPosts = mutableListOf<Post>()
@@ -40,12 +40,12 @@ class PostsRepositoryImpl(
 
     private var lastKey: String? = null
 
-    private suspend fun loadNextPosts() {
-        try {
+    private suspend fun loadNextPosts(): Boolean {
+        return try {
             val query = postsStorage
                 .orderByKey()
                 .let { q -> lastKey?.let { q.startAfter(it) } ?: q }
-                .limitToFirst(5)
+                .limitToFirst(LIMIT)
             val dataSnapshot = query.get().await()
             val postList = dataSnapshot.children.mapNotNull {
                 it.getValue<PostDto>()?.toEntity()
@@ -54,6 +54,13 @@ class PostsRepositoryImpl(
                 lastKey = dataSnapshot.children.lastOrNull()?.key
                 loadedPosts.addAll(postList)
             }
-        } catch (_: Exception) {} // если подгрузка следующей порции постов не сработала, то ждём следующего запроса на порцию постов
+            postList.size == LIMIT
+        } catch (_: Exception) {
+            true
+        } // если подгрузка следующей порции постов не сработала, то ждём следующего запроса на порцию постов
+    }
+
+    companion object {
+        private const val LIMIT = 5
     }
 }
