@@ -42,6 +42,7 @@ import com.example.domain.usecases.UserPostsUseCase
 import com.example.domain.usecases.UserUseCase
 import com.google.android.gms.location.LocationServices
 import com.softcat.adventuremaker.AdventureMakerApplication
+import com.softcat.adventuremaker.designElements.mappers.PostModelMapper
 import com.softcat.adventuremaker.screens.auth.AuthViewModel
 import com.softcat.adventuremaker.screens.details.PlaceDetailsViewModel
 import com.softcat.adventuremaker.screens.favourites.FavouriteViewModel
@@ -113,4 +114,5 @@ val dataModule = module {
         LocationServices.getFusedLocationProviderClient(get<Context>())
     }
     single { S3ImageLoader(get<Context>()) }
+    single { PostModelMapper(get<Context>(), get()) }
 }
