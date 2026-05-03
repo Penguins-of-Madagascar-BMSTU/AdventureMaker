@@ -13,7 +13,7 @@ class PostsUseCase(
         return repository.getPosts(userLat, userLon)
     }
 
-    suspend fun loadMorePosts() {
-        repository.loadMorePosts()
+    suspend fun loadMorePosts(): Boolean {
+        return repository.loadMorePosts()
     }
 }

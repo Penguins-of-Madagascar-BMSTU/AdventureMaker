@@ -11,5 +11,5 @@ interface PostsRepository {
 
     // Загрузить ещё несколько новых постов для тех же координат пользователя.
     // Нужно для подгрузки следующей порции постов при прокручивании списка с постами.
-    suspend fun loadMorePosts()
+    suspend fun loadMorePosts(): Boolean
 }

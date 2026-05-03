@@ -51,7 +51,8 @@ class PostsViewModel(
 
     fun loadMore() {
         viewModelScope.launch {
-            postsUseCase.loadMorePosts()
+            val hasNext = postsUseCase.loadMorePosts()
+            _state.value = state.value?.copy(hasNext = hasNext)
         }
     }
 
