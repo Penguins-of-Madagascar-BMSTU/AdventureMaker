@@ -53,6 +53,7 @@ import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.GradientGreen
 import org.koin.androidx.compose.koinViewModel
+import org.osmdroid.util.GeoPoint
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,28 +87,10 @@ fun PostsFeedContent(navController: NavController) {
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    // чтобы не вызывать загрузку несколько раз
-    var isStarted by remember { mutableStateOf(false) }
-
-    fun startLoading() {
-        if (isStarted) return
-        isStarted = true
-
-        getCurrentLocation(context) { lat, lon ->
-            viewModel.loadPosts(lat.toFloat(), lon.toFloat())
-        }
-    }
-
-    // permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            startLoading()
-        } else {
-            viewModel.loadPosts(55.7558f, 37.6173f)
-        }
-    }
+        ActivityResultContracts.RequestPermission(),
+        onResult = viewModel::startLoading
+    )
 
     LaunchedEffect(Unit) {
         val permission = ContextCompat.checkSelfPermission(
@@ -116,7 +99,7 @@ fun PostsFeedContent(navController: NavController) {
         )
 
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            startLoading()
+            viewModel.startLoading(true)
         } else {
             permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
         }
@@ -215,26 +198,4 @@ private fun LazyListScope.loadNextSideEffect(
             }
         }
     }
-}
-
-@SuppressLint("MissingPermission")
-fun getCurrentLocation(
-    context: Context,
-    onResult: (Double, Double) -> Unit
-) {
-    val client = LocationServices.getFusedLocationProviderClient(context)
-    client.lastLocation
-        .addOnSuccessListener { location ->
-            if (location != null) {
-                onResult(location.latitude, location.longitude)
-            } else {
-                onResult(55.7558, 37.6173)
-            }
-        }
-        .addOnFailureListener {
-            onResult(55.7558, 37.6173)
-        }
-        .addOnCanceledListener {
-            onResult(55.7558, 37.6173)
-        }
 }
