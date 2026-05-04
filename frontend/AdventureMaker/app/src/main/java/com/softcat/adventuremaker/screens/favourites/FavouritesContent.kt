@@ -6,7 +6,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,14 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -36,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,11 +39,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import com.example.domain.entities.FavouriteScreenVariant
 import com.example.domain.entities.Place
 import com.softcat.adventuremaker.R
-import com.softcat.adventuremaker.navigation.BottomNavigationBar
-import com.softcat.adventuremaker.navigation.NavigationItem
 import com.softcat.adventuremaker.ui.theme.BasicOrange
 import com.softcat.adventuremaker.ui.theme.CustomRed
 import com.softcat.adventuremaker.ui.theme.LightGray
@@ -139,21 +131,11 @@ private fun CategoryCard(
     }
 }
 
-private fun getCategoryNameId(category: Place.Category?) = when (category) {
-    Place.Category.Museum -> R.string.museum_category
-    Place.Category.Entertainment -> R.string.entertainment_category
-    Place.Category.Bank -> R.string.bank_category
-    Place.Category.Hotel -> R.string.hotel_category
-    Place.Category.Attraction -> R.string.attraction_category
-    Place.Category.Restaurant -> R.string.restaurant_category
-    else -> R.string.any_category
-}
-
 @Composable
 @Preview
 private fun CategorySelector(
     modifier: Modifier = Modifier,
-    onCategoryClicked: (Place.Category?) -> Unit = {},
+    onCategoryClicked: (Place.Category) -> Unit = {},
     category: Place.Category? = null
 ) {
     val scrollState = rememberScrollState()
@@ -167,73 +149,57 @@ private fun CategorySelector(
     ) {
         CategoryCard(
             modifier = Modifier.wrapContentSize(),
-            name = stringResource(getCategoryNameId(null)),
-            isActive = category == null,
-            onClick = { onCategoryClicked(null) }
+            name = stringResource(getCategoryNameId(Place.Category.Unknown)),
+            isActive = category == Place.Category.Unknown,
+            onClick = { onCategoryClicked(Place.Category.Unknown) }
         )
-        Place.Category.entries.forEach {
-            CategoryCard(
-                modifier = Modifier.wrapContentSize(),
-                name = stringResource(getCategoryNameId(it)),
-                isActive = category == it,
-                onClick = { onCategoryClicked(it) }
-            )
-        }
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Entertainment)),
+            isActive = category == Place.Category.Entertainment,
+            onClick = { onCategoryClicked(Place.Category.Entertainment) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Bank)),
+            isActive = category == Place.Category.Bank,
+            onClick = { onCategoryClicked(Place.Category.Bank) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Restaurant)),
+            isActive = category == Place.Category.Restaurant,
+            onClick = { onCategoryClicked(Place.Category.Restaurant) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Hotel)),
+            isActive = category == Place.Category.Hotel,
+            onClick = { onCategoryClicked(Place.Category.Hotel) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Attraction)),
+            isActive = category == Place.Category.Attraction,
+            onClick = { onCategoryClicked(Place.Category.Attraction) }
+        )
+        CategoryCard(
+            modifier = Modifier.wrapContentSize(),
+            name = stringResource(getCategoryNameId(Place.Category.Museum)),
+            isActive = category == Place.Category.Museum,
+            onClick = { onCategoryClicked(Place.Category.Museum) }
+        )
     }
 }
 
 @Composable
-@Preview
-private fun PlaceCard(
-    modifier: Modifier = Modifier,
-    imageUrl: String = "",
-    title: String = "Main title",
-    category: Place.Category = Place.Category.Restaurant,
-    onClick: () -> Unit = {}
-) {
-    Card(
-        modifier = modifier,
-        onClick = onClick,
-        shape = RectangleShape
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            AsyncImage(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center),
-                model = imageUrl,
-                contentDescription = null
-            )
-            Column(
-                modifier = Modifier
-                    .padding(12.dp)
-                    .align(Alignment.BottomStart)
-            ) {
-                Text(
-                    text = stringResource(getCategoryNameId(category)),
-                    color = LightGray,
-                    style = MaterialTheme.typography.labelSmall
-                )
-                Text(
-                    text = title,
-                    color = White,
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-        }
-    }
-}
-
-@Composable
-@Preview
 private fun Content(
     modifier: Modifier = Modifier,
-    onPlaceClick: (Place) -> Unit = {},
-    places: List<Place> = emptyList(),
+    onPlaceClick: (Place) -> Unit,
+    places: List<Place>,
+    onCategoryClicked: (Place.Category) -> Unit,
     filterCategory: Place.Category? = null,
-    onCategoryClicked: (Place.Category?) -> Unit = {}
+    variant: FavouriteScreenVariant = FavouriteScreenVariant.First
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -242,27 +208,12 @@ private fun Content(
             onCategoryClicked = onCategoryClicked,
             category = filterCategory
         )
-        LazyVerticalGrid(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxSize()
-                .then(modifier),
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(4.dp)
-        ) {
-            items(
-                items = places,
-                key = { it.id }
-            ) { place ->
-                PlaceCard(
-                    modifier = Modifier.height(200.dp).fillMaxWidth(),
-                    imageUrl = place.imageUrls.firstOrNull() ?: "",
-                    title = place.name,
-                    category = place.category,
-                    onClick = { onPlaceClick(place) }
-                )
-            }
-        }
+        FavouriteList(
+            modifier = Modifier.fillMaxSize().padding(top = 8.dp),
+            variant = variant,
+            onPlaceClick = onPlaceClick,
+            places = places
+        )
     }
 }
 
@@ -284,33 +235,27 @@ private fun Loading(
 
 @Composable
 fun FavouritesContent(
-    navController: NavController,
     viewModel: FavouriteViewModel = koinViewModel(),
-    onEnterClick: () -> Unit,
     onPlaceClick: (Place) -> Unit
 ) {
     val state = viewModel.state.observeAsState(FavouriteState.Loading)
 
     Scaffold(
-        topBar = { FavouritesAppBar(onEnterClick) },
-        bottomBar = {
-            BottomNavigationBar(
-                configuration = NavigationItem.BottomBarConfiguration.Favourites,
-                navController = navController
-            )
-        }
+        topBar = { FavouritesAppBar() }
     ) { paddingValues ->
         when (val currentState = state.value) {
 
             is FavouriteState.Content -> {
                 Content(
-                    modifier = Modifier.padding(paddingValues),
+                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                     onPlaceClick = onPlaceClick,
                     places = currentState.places.filter {
-                        currentState.filterCategory == null || it.category == currentState.filterCategory
+                        currentState.filterCategory == Place.Category.Unknown ||
+                                it.category == currentState.filterCategory
                     },
                     filterCategory = currentState.filterCategory,
-                    onCategoryClicked = { viewModel.changeCategoryFilter(it) }
+                    onCategoryClicked = { viewModel.changeCategoryFilter(it) },
+                    variant = currentState.variant
                 )
             }
 
@@ -320,7 +265,6 @@ fun FavouritesContent(
 
             FavouriteState.NoUser -> NoUser(
                 modifier = Modifier.padding(paddingValues),
-                onEnterClick = onEnterClick
             )
         }
     }

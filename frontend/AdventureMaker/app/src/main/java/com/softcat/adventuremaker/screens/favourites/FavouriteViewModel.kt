@@ -4,17 +4,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.entities.FavouriteScreenVariant
 import com.example.domain.entities.Place
+import com.example.domain.usecases.ExperimentsUseCase
 import com.example.domain.usecases.FavouriteUseCase
 import com.example.domain.usecases.UserUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class FavouriteViewModel(
     private val userUseCase: UserUseCase,
-    private val favouriteUseCase: FavouriteUseCase
+    private val favouriteUseCase: FavouriteUseCase,
+    private val expUseCase: ExperimentsUseCase
 ): ViewModel() {
 
     private val _state = MutableLiveData<FavouriteState>(FavouriteState.Loading)
@@ -34,7 +36,7 @@ class FavouriteViewModel(
         }
     }
 
-    fun changeCategoryFilter(newValue: Place.Category?) {
+    fun changeCategoryFilter(newValue: Place.Category) {
         _state.value = state.value.let {
             if (it is FavouriteState.Content)
                 it.copy(filterCategory = newValue)
@@ -44,15 +46,15 @@ class FavouriteViewModel(
     }
 
     private suspend fun subscribeFavourites(userId: String) {
+        val variant = expUseCase.getFavouriteScreenVariant()
         favouriteUseCase.getFavourites(userId)
-            .filter { it.isNotEmpty() }
             .collect { placeList ->
                 withContext(Dispatchers.Main) {
                     _state.value = state.value?.let {
                         if (it is FavouriteState.Content)
                             it.copy(places = placeList)
                         else
-                            FavouriteState.Content(null, placeList)
+                            FavouriteState.Content(Place.Category.Unknown, placeList, variant)
                     }
                 }
             }

@@ -8,6 +8,10 @@ android {
         version = release(36)
     }
 
+    testOptions {
+        animationsDisabled = true
+    }
+
     defaultConfig {
         minSdk = 24
 
@@ -61,6 +65,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.google.translate)
 
     api(libs.firebase.auth)
     api(libs.firebase.database)
@@ -77,8 +82,11 @@ dependencies {
     implementation(libs.android.maps.utils)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.play.services.location)
 
     implementation(project(":domain"))
 }

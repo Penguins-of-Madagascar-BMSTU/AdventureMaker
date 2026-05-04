@@ -2,14 +2,14 @@ package com.softcat.adventuremaker.screens.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
-
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.Person
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -26,92 +26,107 @@ fun RegisterContent(
     onRepeatPasswordChange: (String) -> Unit,
     onRegisterClick: () -> Unit,
     onSwitchToEnter: () -> Unit,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.someone),
-            contentDescription = null,
-            modifier = Modifier
-                .size(240.dp)
-        )
+    Scaffold(
+        topBar = {
+            AuthTopBar(
+                onBackClick = onBackClick,
+                titleResId = R.string.register_submit,
+                isBackButtonVisible = true
+            )
+        }
+    ) { paddingValues ->
+        val scrollState = rememberScrollState()
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding())
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.someone),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(240.dp)
+            )
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        // Имя с иконкой человечка
-        AuthTextField(
-            value = state.name,
-            onValueChange = onNameChange,
-            label = stringResource(R.string.register_name_label),
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        )
+            // Имя с иконкой человечка
+            AuthTextField(
+                value = state.name,
+                onValueChange = onNameChange,
+                label = stringResource(R.string.register_name_label),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        // Email с иконкой письма
-        AuthTextField(
-            value = state.email,
-            onValueChange = onEmailChange,
-            label = stringResource(R.string.register_email_label),
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        )
+            // Email с иконкой письма
+            AuthTextField(
+                value = state.email,
+                onValueChange = onEmailChange,
+                label = stringResource(R.string.register_email_label),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Email,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        // Пароль с замочком и глазом
-        AuthTextField(
-            value = state.password,
-            onValueChange = onPasswordChange,
-            label = stringResource(R.string.register_password_label),
-            isPassword = true,
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        )
+            // Пароль с замочком и глазом
+            AuthTextField(
+                value = state.password,
+                onValueChange = onPasswordChange,
+                label = stringResource(R.string.register_password_label),
+                isPassword = true,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        // Повтор пароля с замочком и глазом
-        AuthTextField(
-            value = state.repeatedPassword,
-            onValueChange = onRepeatPasswordChange,
-            label = stringResource(R.string.register_repeat_password_label),
-            isPassword = true,
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        )
+            // Повтор пароля с замочком и глазом
+            AuthTextField(
+                value = state.repeatedPassword,
+                onValueChange = onRepeatPasswordChange,
+                label = stringResource(R.string.register_repeat_password_label),
+                isPassword = true,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        PrimaryButton(text = stringResource(R.string.register_submit), onClick = onRegisterClick)
+            PrimaryButton(text = stringResource(R.string.register_submit), onClick = onRegisterClick)
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        SecondaryButton(text = stringResource(R.string.login_switch), onClick = onSwitchToEnter)
+            SecondaryButton(text = stringResource(R.string.login_switch), onClick = onSwitchToEnter)
+        }
     }
 }

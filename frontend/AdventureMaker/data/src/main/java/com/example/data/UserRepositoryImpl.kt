@@ -1,5 +1,6 @@
 package com.example.data
 
+import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -17,12 +18,26 @@ import com.google.firebase.database.database
 import com.google.firebase.database.getValue
 import com.example.data.exceptions.DataCorruptedException
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class UserRepositoryImpl(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val imageLoader: S3ImageLoader
 ): UserRepository {
+
+    private val loadLastUserRequest = MutableSharedFlow<Unit>(replay = 1)
+    private val userFlow = flow {
+        loadLastUserRequest.emit(Unit)
+        loadLastUserRequest.collect {
+            val user = loadLastUser()
+            emit(user)
+        }
+    }.retry(1) { true }
 
     private val usersStorage by lazy {
         Firebase.database.getReference(USERS_STORAGE_NAME)
@@ -87,13 +102,40 @@ class UserRepositoryImpl(
         forgetUser()
     }
 
-    override suspend fun getLastEnteredUser(): User? {
-        val datastoreKey = stringPreferencesKey(USER_KEY)
-        val userJson = dataStore.data.firstOrNull()?.get(datastoreKey)
-        val user = userJson?.let {
-            Gson().fromJson(userJson, User::class.java)
+    override suspend fun getLastEnteredUser() = loadLastUser()
+
+    override fun observeLastEnteredUser() = userFlow
+
+    override suspend fun updateAvatar(userId: String, uri: Uri, avatarUrl: String?): Result<String> {
+        return try {
+            avatarUrl?.let { imageLoader.deleteImageFromS3(it) }
+            val id = UUID.randomUUID().toString()
+            val result = imageLoader.uploadImageToS3(uri, id)
+            result.onSuccess {
+                usersStorage
+                    .child(userId)
+                    .child("avatarUrl")
+                    .setValue(result.getOrNull() ?: "")
+                    .await()
+                val updatedUser = getLastEnteredUser()?.copy(avatarUrl = it)
+                updatedUser?.let { rememberUser(it) }
+            }
+            result
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-        return user
+    }
+
+    override suspend fun getPostsAuthors(ids: List<String>): Result<Map<String, User?>> {
+        return try {
+            val result = ids.map { id ->
+                val result = usersStorage.child(id).get().await()
+                id to result.getValue<UserDto>()?.toEntity()
+            }.toMap()
+            Result.success(result)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     private suspend fun readUser(email: String): Result<User> {
@@ -120,6 +162,7 @@ class UserRepositoryImpl(
             val userJson = Gson().toJson(user)
             preferences[userKey] = userJson
         }
+        loadLastUserRequest.emit(Unit)
     }
 
     private suspend fun forgetUser() {
@@ -127,6 +170,16 @@ class UserRepositoryImpl(
             val userKey = stringPreferencesKey(USER_KEY)
             preferences.remove(userKey)
         }
+        loadLastUserRequest.emit(Unit)
+    }
+
+    private suspend fun loadLastUser(): User? {
+        val datastoreKey = stringPreferencesKey(USER_KEY)
+        val userJson = dataStore.data.firstOrNull()?.get(datastoreKey)
+        val user = userJson?.let {
+            Gson().fromJson(userJson, User::class.java)
+        }
+        return user
     }
 
     companion object {

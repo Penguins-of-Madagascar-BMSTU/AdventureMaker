@@ -58,13 +58,17 @@ dependencies {
     implementation(libs.compose.runtime)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil)
-
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    implementation(libs.map)
-    implementation(libs.map.compose)
+    implementation(libs.osmdroid.android)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     implementation(libs.firebase.database)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -79,9 +83,14 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
+
+    implementation(libs.coil.compose.v260)
+
+    implementation(libs.play.services.location)
 
     implementation(project(":domain"))
     implementation(project(":data"))

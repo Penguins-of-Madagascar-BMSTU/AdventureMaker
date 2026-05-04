@@ -1,6 +1,8 @@
 package com.example.domain.interfaces
 
+import android.net.Uri
 import com.example.domain.entities.User
+import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
 
@@ -11,4 +13,10 @@ interface UserRepository {
     suspend fun exit()
 
     suspend fun getLastEnteredUser(): User?
+
+    fun observeLastEnteredUser(): Flow<User?>
+
+    suspend fun updateAvatar(userId: String, uri: Uri, avatarUrl: String?): Result<String>
+
+    suspend fun getPostsAuthors(ids: List<String>): Result<Map<String, User?>>
 }

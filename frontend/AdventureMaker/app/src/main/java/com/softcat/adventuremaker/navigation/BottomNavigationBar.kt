@@ -30,10 +30,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.softcat.adventuremaker.R
 import com.softcat.adventuremaker.ui.theme.BasicIconsTint
 import com.softcat.adventuremaker.ui.theme.BasicOrange
@@ -77,16 +74,16 @@ fun BottomNavigationBarElement(
 }
 
 @Composable
-@Preview
 fun BottomNavigationBar(
-    configuration: BottomBarConfiguration = BottomBarConfiguration.Favourites,
-    navController: NavController = rememberNavController(),
+    configuration: BottomBarConfiguration,
+    onTabSelected: (BottomBarConfiguration) -> Unit
 ) {
     val shadow = Brush.linearGradient(
         colors = listOf(NavBarShadow, White),
         start = Offset(0f, Float.POSITIVE_INFINITY),
         end = Offset(0f, 0f)
     )
+
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
@@ -96,9 +93,7 @@ fun BottomNavigationBar(
     ) {
         Card(
             modifier = Modifier.fillMaxSize(),
-            colors = CardDefaults.cardColors(
-                containerColor = White
-            ),
+            colors = CardDefaults.cardColors(containerColor = White),
             shape = RectangleShape
         ) {
             Row(
@@ -107,40 +102,32 @@ fun BottomNavigationBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 BottomNavigationBarElement(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .weight(1f),
+                    modifier = Modifier.wrapContentHeight().weight(1f),
                     isActive = configuration == BottomBarConfiguration.Tools,
                     iconResId = R.drawable.tools,
                     labelResId = R.string.navigation_tools_label,
-                    onClick = { navController.navigate(NavigationItem.Tools) },
+                    onClick = { onTabSelected(BottomBarConfiguration.Tools) }
                 )
                 BottomNavigationBarElement(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .weight(1f),
+                    modifier = Modifier.wrapContentHeight().weight(1f),
                     isActive = configuration == BottomBarConfiguration.Search,
                     iconResId = R.drawable.search,
                     labelResId = R.string.navigation_search_label,
-                    onClick = { navController.navigate(NavigationItem.Search.Map) },
+                    onClick = { onTabSelected(BottomBarConfiguration.Search) }
                 )
                 BottomNavigationBarElement(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .weight(1f),
+                    modifier = Modifier.wrapContentHeight().weight(1f),
                     isActive = configuration == BottomBarConfiguration.Networking,
                     iconResId = R.drawable.networking,
                     labelResId = R.string.navigation_networking_label,
-                    onClick = { navController.navigate(NavigationItem.Networking) },
+                    onClick = { onTabSelected(BottomBarConfiguration.Networking) }
                 )
                 BottomNavigationBarElement(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .weight(1f),
+                    modifier = Modifier.wrapContentHeight().weight(1f),
                     isActive = configuration == BottomBarConfiguration.Favourites,
                     iconResId = R.drawable.heart,
                     labelResId = R.string.navigation_favourites_label,
-                    onClick = { navController.navigate(NavigationItem.Favourites.Content) },
+                    onClick = { onTabSelected(BottomBarConfiguration.Favourites) }
                 )
             }
         }
