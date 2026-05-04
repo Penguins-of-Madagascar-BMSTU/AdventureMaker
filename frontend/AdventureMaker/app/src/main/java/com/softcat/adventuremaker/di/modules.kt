@@ -62,13 +62,15 @@ val viewModelModule = module {
     viewModelOf(::FavouriteViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::SearchViewModel)
-    viewModelOf(::PostsViewModel)
 
     viewModel { (place: Place) ->
         PlaceDetailsViewModel(place, get(), get())
     }
     viewModel { (userId: String) ->
         CreatePostViewModel(get(), userId, get(), get())
+    }
+    viewModel {
+        PostsViewModel(get(), get(), get(), get())
     }
 }
 
