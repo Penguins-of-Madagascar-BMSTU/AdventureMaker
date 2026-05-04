@@ -17,8 +17,8 @@ class PostsRepositoryImpl(
 ): PostsRepository {
 
     override suspend fun getPosts(
-        userLat: Float,
-        userLon: Float
+        userLat: Double,
+        userLon: Double
     ): StateFlow<List<Post>> {
         postListFlow.value = loadedPosts.toList()
         return postListFlow
